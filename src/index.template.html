@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; form-action 'none'">
+<title>PsyStat</title>
+<style id="appcss">/*__CSS__*/</style>
+</head>
+<body>
+<header class="top">
+  <h1>PsyStat <small>오프라인 통계 · v__VERSION__</small></h1>
+  <button class="btn" id="openBtn">파일 열기 (CSV·XLSX)</button>
+  <button class="btn" id="exBtn">예시 데이터</button>
+  <input type="file" id="file" accept=".csv,.txt,.tsv,.xlsx" style="display:none">
+  <span class="datainfo" id="datainfo"></span>
+  <span class="spacer"></span>
+  <button class="btn" id="saveBtn">결과 저장</button>
+  <button class="btn" id="clearBtn">결과 지우기</button>
+  <button class="btn" id="themeBtn" title="밝게/어둡게">◐</button>
+</header>
+<div class="layout">
+  <nav class="side" id="nav"></nav>
+  <section class="opts" id="opts"></section>
+  <main class="results" id="results"></main>
+</div>
+<script>/*__STATS__*/</script>
+<script>/*__APP__*/</script>
+</body>
+</html>

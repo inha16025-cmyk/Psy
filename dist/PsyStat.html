@@ -1,0 +1,2118 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; form-action 'none'">
+<title>PsyStat</title>
+<style id="appcss">:root {
+  --bg: #f6f7f9; --panel: #ffffff; --ink: #1d2433; --muted: #5b6475; --line: #dfe3ea;
+  --accent: #2f5fd0; --accent-ink: #ffffff; --accent-soft: #e8eefc; --warn-bg: #fff6e0; --warn-ink: #7a5300;
+  --pos: #2b5fc7; --neg: #c8372d; --code-bg: #f1f3f6;
+  --font: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14171d; --panel: #1c2028; --ink: #e6e9ef; --muted: #9aa3b2; --line: #313744;
+    --accent: #7aa2ff; --accent-ink: #0f1420; --accent-soft: #232c40; --warn-bg: #3a3020; --warn-ink: #f2d38b;
+    --pos: #7aa2ff; --neg: #ff7b72; --code-bg: #242934;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14171d; --panel: #1c2028; --ink: #e6e9ef; --muted: #9aa3b2; --line: #313744;
+  --accent: #7aa2ff; --accent-ink: #0f1420; --accent-soft: #232c40; --warn-bg: #3a3020; --warn-ink: #f2d38b;
+  --pos: #7aa2ff; --neg: #ff7b72; --code-bg: #242934;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 14px; line-height: 1.5; }
+button, select, input, textarea { font: inherit; color: inherit; }
+header.top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 16px; background: var(--panel); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 5; }
+header.top h1 { font-size: 17px; margin: 0 12px 0 0; letter-spacing: -0.01em; }
+header.top h1 small { font-weight: normal; color: var(--muted); font-size: 12px; margin-left: 6px; }
+header.top .spacer { flex: 1; }
+.btn { border: 1px solid var(--line); background: var(--panel); padding: 6px 12px; border-radius: 6px; cursor: pointer; white-space: nowrap; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.small { padding: 3px 8px; font-size: 12px; }
+.datainfo { color: var(--muted); font-size: 13px; }
+.layout { display: grid; grid-template-columns: 200px minmax(300px, 380px) 1fr; gap: 0; min-height: calc(100vh - 54px); }
+nav.side { background: var(--panel); border-right: 1px solid var(--line); padding: 10px 0; }
+nav.side .grp { font-size: 11px; color: var(--muted); padding: 10px 16px 4px; text-transform: none; letter-spacing: 0.02em; }
+nav.side a { display: block; padding: 6px 16px; color: var(--ink); text-decoration: none; cursor: pointer; border-left: 3px solid transparent; }
+nav.side a:hover { background: var(--accent-soft); }
+nav.side a.active { border-left-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+section.opts { padding: 16px; border-right: 1px solid var(--line); background: var(--panel); overflow: auto; max-height: calc(100vh - 54px); position: sticky; top: 54px; }
+section.opts h2 { font-size: 16px; margin: 0 0 4px; }
+section.opts p.desc { color: var(--muted); margin: 0 0 12px; font-size: 13px; }
+.field { margin-bottom: 12px; }
+.field > label, .field > .lab { display: block; font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+.field select, .field input[type=number], .field input[type=text] { width: 100%; padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+.varlist { border: 1px solid var(--line); border-radius: 6px; max-height: 220px; overflow: auto; padding: 4px 0; }
+.varlist label { display: flex; align-items: center; gap: 6px; padding: 2px 8px; font-weight: normal; cursor: pointer; }
+.varlist label:hover { background: var(--accent-soft); }
+.varlist .vt { margin-left: auto; font-size: 11px; color: var(--muted); }
+.varlist-tools { display: flex; gap: 6px; margin-top: 4px; }
+.inline { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.inline label { font-weight: normal; display: flex; align-items: center; gap: 4px; }
+.hint { font-size: 12px; color: var(--muted); margin-top: 3px; }
+main.results { padding: 16px; overflow: auto; min-width: 0; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; margin-bottom: 16px; }
+.card h3 { margin: 0 0 2px; font-size: 15px; }
+.card .meta { color: var(--muted); font-size: 12px; margin-bottom: 10px; }
+.card .tools { float: right; display: flex; gap: 6px; }
+.card h4 { font-size: 13px; margin: 14px 0 6px; }
+.tablewrap { overflow-x: auto; }
+table.res { border-collapse: collapse; margin: 4px 0 8px; font-variant-numeric: tabular-nums; font-size: 13px; }
+table.res th, table.res td { padding: 3px 10px; text-align: right; white-space: nowrap; }
+table.res th:first-child, table.res td:first-child { text-align: left; }
+table.res thead th { border-top: 1.5px solid var(--ink); border-bottom: 1px solid var(--ink); font-weight: 600; }
+table.res tbody tr:last-child td { border-bottom: 1.5px solid var(--ink); }
+table.res td.l { text-align: left; }
+.note { font-size: 12px; color: var(--muted); margin: 4px 0; }
+.warn { background: var(--warn-bg); color: var(--warn-ink); padding: 6px 10px; border-radius: 6px; font-size: 13px; margin: 6px 0; }
+.sig { font-weight: 600; }
+pre.rcode { background: var(--code-bg); padding: 8px 10px; border-radius: 6px; font-size: 12px; overflow-x: auto; margin: 4px 0; }
+details summary { cursor: pointer; color: var(--muted); font-size: 12px; margin-top: 8px; }
+.empty { color: var(--muted); text-align: center; padding: 60px 20px; }
+.empty h2 { color: var(--ink); font-size: 18px; }
+.datagrid { overflow: auto; max-height: calc(100vh - 230px); border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+.datagrid table { border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
+.datagrid th, .datagrid td { border: 1px solid var(--line); padding: 2px 8px; white-space: nowrap; }
+.datagrid th { position: sticky; top: 0; background: var(--accent-soft); }
+.datagrid td.na { color: var(--muted); }
+textarea.paste { width: 100%; height: 160px; border: 1px solid var(--line); border-radius: 6px; padding: 8px; background: var(--panel); font-family: monospace; font-size: 12px; }
+.progress { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; margin: 6px 0; }
+.progress > div { height: 100%; background: var(--accent); width: 0; transition: width .2s; }
+svg text { fill: var(--ink); }
+.legend { font-size: 12px; color: var(--muted); }
+.legend .sw { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin: 0 4px 0 10px; }
+@media (max-width: 1000px) {
+  .layout { grid-template-columns: 1fr; }
+  nav.side { border-right: 0; border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap; padding: 6px; }
+  nav.side .grp { display: none; }
+  nav.side a { border-left: 0; padding: 4px 10px; border-radius: 4px; }
+  section.opts { position: static; max-height: none; border-right: 0; border-bottom: 1px solid var(--line); }
+}
+@media print {
+  header.top, nav.side, section.opts, .card .tools { display: none !important; }
+  .layout { display: block; }
+  .card { break-inside: avoid; border: 0; }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>PsyStat <small>오프라인 통계 · v0.1.0</small></h1>
+  <button class="btn" id="openBtn">파일 열기 (CSV·XLSX)</button>
+  <button class="btn" id="exBtn">예시 데이터</button>
+  <input type="file" id="file" accept=".csv,.txt,.tsv,.xlsx" style="display:none">
+  <span class="datainfo" id="datainfo"></span>
+  <span class="spacer"></span>
+  <button class="btn" id="saveBtn">결과 저장</button>
+  <button class="btn" id="clearBtn">결과 지우기</button>
+  <button class="btn" id="themeBtn" title="밝게/어둡게">◐</button>
+</header>
+<div class="layout">
+  <nav class="side" id="nav"></nav>
+  <section class="opts" id="opts"></section>
+  <main class="results" id="results"></main>
+</div>
+<script>/*
+ * PsyStat 통계 엔진 (stats.js)
+ * - 외부 라이브러리·네트워크 통신 없음. 순수 JavaScript.
+ * - 브라우저(window.PsyStats)와 Node.js(module.exports) 양쪽에서 동작.
+ * - 검증: tests/ 폴더의 테스트가 R(qgraph, glasso, psych, car, stats)과
+ *   Python(scipy, statsmodels) 결과와 수치를 대조한다.
+ */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.PsyStats = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  /* ------------------------------------------------------------------ */
+  /* 1. 특수함수                                                          */
+  /* ------------------------------------------------------------------ */
+
+  var LANCZOS = [0.99999999999980993, 676.5203681218851, -1259.1392167224028,
+    771.32342877765313, -176.61502916214059, 12.507343278686905,
+    -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+
+  function lgamma(x) {
+    if (x < 0.5) return Math.log(Math.PI / Math.abs(Math.sin(Math.PI * x))) - lgamma(1 - x);
+    x -= 1;
+    var a = LANCZOS[0], t = x + 7.5;
+    for (var i = 1; i < 9; i++) a += LANCZOS[i] / (x + i);
+    return 0.5 * Math.log(2 * Math.PI) + (x + 0.5) * Math.log(t) - t + Math.log(a);
+  }
+
+  // 정칙화 불완전 베타함수 I_x(a,b) (Lentz 연분수)
+  function betacf(x, a, b) {
+    var FPMIN = 1e-300, EPS = 1e-16;
+    var qab = a + b, qap = a + 1, qam = a - 1, c = 1, d = 1 - qab * x / qap;
+    if (Math.abs(d) < FPMIN) d = FPMIN;
+    d = 1 / d;
+    var h = d;
+    for (var m = 1; m <= 10000; m++) {
+      var m2 = 2 * m;
+      var aa = m * (b - m) * x / ((qam + m2) * (a + m2));
+      d = 1 + aa * d; if (Math.abs(d) < FPMIN) d = FPMIN;
+      c = 1 + aa / c; if (Math.abs(c) < FPMIN) c = FPMIN;
+      d = 1 / d; h *= d * c;
+      aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2));
+      d = 1 + aa * d; if (Math.abs(d) < FPMIN) d = FPMIN;
+      c = 1 + aa / c; if (Math.abs(c) < FPMIN) c = FPMIN;
+      d = 1 / d;
+      var del = d * c;
+      h *= del;
+      if (Math.abs(del - 1) < EPS) break;
+    }
+    return h;
+  }
+
+  function ibeta(x, a, b) {
+    if (x <= 0) return 0;
+    if (x >= 1) return 1;
+    var bt = Math.exp(lgamma(a + b) - lgamma(a) - lgamma(b) + a * Math.log(x) + b * Math.log(1 - x));
+    if (x < (a + 1) / (a + b + 2)) return bt * betacf(x, a, b) / a;
+    return 1 - bt * betacf(1 - x, b, a) / b;
+  }
+
+  // 정칙화 불완전 감마함수 P(a,x), Q(a,x)
+  function gammaP(a, x) {
+    if (x <= 0) return 0;
+    if (x < a + 1) {
+      var sum = 1 / a, del = sum, ap = a;
+      for (var n = 0; n < 100000; n++) {
+        ap += 1; del *= x / ap; sum += del;
+        if (Math.abs(del) < Math.abs(sum) * 1e-16) break;
+      }
+      return sum * Math.exp(-x + a * Math.log(x) - lgamma(a));
+    }
+    return 1 - gammaQcf(a, x);
+  }
+  function gammaQcf(a, x) {
+    var FPMIN = 1e-300, b = x + 1 - a, c = 1 / FPMIN, d = 1 / b, h = d;
+    for (var i = 1; i < 100000; i++) {
+      var an = -i * (i - a);
+      b += 2;
+      d = an * d + b; if (Math.abs(d) < FPMIN) d = FPMIN;
+      c = b + an / c; if (Math.abs(c) < FPMIN) c = FPMIN;
+      d = 1 / d;
+      var del = d * c;
+      h *= del;
+      if (Math.abs(del - 1) < 1e-16) break;
+    }
+    return Math.exp(-x + a * Math.log(x) - lgamma(a)) * h;
+  }
+  function gammaQ(a, x) {
+    if (x <= 0) return 1;
+    if (x < a + 1) return 1 - gammaP(a, x);
+    return gammaQcf(a, x);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* 2. 확률분포                                                          */
+  /* ------------------------------------------------------------------ */
+
+  // 표준정규 누적: 위꼬리 = 0.5*Q(1/2, z^2/2)
+  function pnorm(z) {
+    if (!isFinite(z)) return z > 0 ? 1 : 0;
+    var q = 0.5 * gammaQ(0.5, z * z / 2);
+    return z >= 0 ? 1 - q : q;
+  }
+  function pnormUpper(z) { return pnorm(-z); }
+
+  // 정규분위수: Acklam 근사 + Halley 보정
+  function qnorm(p) {
+    if (p <= 0) return -Infinity;
+    if (p >= 1) return Infinity;
+    var a = [-3.969683028665376e+01, 2.209460984245205e+02, -2.759285104469687e+02, 1.383577518672690e+02, -3.066479806614716e+01, 2.506628277459239e+00];
+    var b = [-5.447609879822406e+01, 1.615858368580409e+02, -1.556989798598866e+02, 6.680131188771972e+01, -1.328068155288572e+01];
+    var c = [-7.784894002430293e-03, -3.223964580411365e-01, -2.400758277161838e+00, -2.549732539343734e+00, 4.374664141464968e+00, 2.938163982698783e+00];
+    var d = [7.784695709041462e-03, 3.224671290700398e-01, 2.445134137142996e+00, 3.754408661907416e+00];
+    var pl = 0.02425, q, r, x;
+    if (p < pl) {
+      q = Math.sqrt(-2 * Math.log(p));
+      x = (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);
+    } else if (p <= 1 - pl) {
+      q = p - 0.5; r = q * q;
+      x = (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q / (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1);
+    } else {
+      q = Math.sqrt(-2 * Math.log(1 - p));
+      x = -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);
+    }
+    for (var it = 0; it < 2; it++) {
+      var e = pnorm(x) - p;
+      var u = e * Math.sqrt(2 * Math.PI) * Math.exp(x * x / 2);
+      x = x - u / (1 + x * u / 2);
+    }
+    return x;
+  }
+
+  // t 분포: 누적 P(T <= t)
+  function pt(t, df) {
+    if (!isFinite(t)) return t > 0 ? 1 : 0;
+    var x = df / (df + t * t);
+    var tail = 0.5 * ibeta(x, df / 2, 0.5);
+    return t > 0 ? 1 - tail : tail;
+  }
+  function ptTwoSided(t, df) { return ibeta(df / (df + t * t), df / 2, 0.5); }
+  // F 분포 위꼬리
+  function pfUpper(f, d1, d2) {
+    if (!(f > 0)) return 1;
+    return ibeta(d2 / (d2 + d1 * f), d2 / 2, d1 / 2);
+  }
+  function pchisqUpper(x, df) { return x <= 0 ? 1 : gammaQ(df / 2, x / 2); }
+  function pchisq(x, df) { return x <= 0 ? 0 : gammaP(df / 2, x / 2); }
+
+  // 단조 누적분포의 역함수 (이분법; 정밀도 ~1e-13)
+  function invertCdf(cdf, p, lo, hi) {
+    while (cdf(hi) < p) { lo = hi; hi *= 2; if (hi > 1e12) break; }
+    while (cdf(lo) > p) { hi = lo; lo = lo < 0 ? lo * 2 : lo - Math.max(1, Math.abs(lo)); if (lo < -1e12) break; }
+    for (var i = 0; i < 200; i++) {
+      var mid = (lo + hi) / 2;
+      if (cdf(mid) < p) lo = mid; else hi = mid;
+      if (hi - lo < 1e-14 * Math.max(1, Math.abs(mid))) break;
+    }
+    return (lo + hi) / 2;
+  }
+  function qt(p, df) {
+    if (p === 0.5) return 0;
+    var z = qnorm(p);
+    return invertCdf(function (x) { return pt(x, df); }, p, z - 10, z + 10);
+  }
+  function qchisq(p, df) { return invertCdf(function (x) { return pchisq(x, df); }, p, 0, Math.max(1, df * 3)); }
+  function qf(p, d1, d2) { return invertCdf(function (x) { return 1 - pfUpper(x, d1, d2); }, p, 0, 10); }
+
+  // 스튜던트화 범위 분포 (R의 ptukey.c 이식; Copenhaver & Holland, 1988)
+  function wprob(w, rr, cc) {
+    var nleg = 12, ihalf = 6, C1 = -30, C2 = -50, C3 = 60, bb = 8, wlar = 3, wincr1 = 2, wincr2 = 3;
+    var xleg = [0.981560634246719250690549090149, 0.904117256370474856678465866119, 0.769902674194304687036893833213,
+      0.587317954286617447296702418941, 0.367831498998180193752691536644, 0.125233408511468915472441369464];
+    var aleg = [0.047175336386511827194615961485, 0.106939325995318430960254718194, 0.160078328543346226334652529543,
+      0.203167426723065921749064455810, 0.233492536538354808760849898925, 0.249147045813402785000562436043];
+    var qsqz = w * 0.5;
+    if (qsqz >= bb) return 1.0;
+    var pr_w = 2 * pnorm(qsqz) - 1;
+    if (pr_w >= Math.exp(C2 / cc)) pr_w = Math.pow(pr_w, cc); else pr_w = 0;
+    var wincr = w > wlar ? wincr1 : wincr2;
+    var blb = qsqz, binc = (bb - qsqz) / wincr, bub = blb + binc, einsum = 0, cc1 = cc - 1;
+    for (var wi = 1; wi <= wincr; wi++) {
+      var elsum = 0, a = 0.5 * (bub + blb), b = 0.5 * (bub - blb);
+      for (var jj = 1; jj <= nleg; jj++) {
+        var j, xx;
+        if (ihalf < jj) { j = (nleg - jj) + 1; xx = xleg[j - 1]; }
+        else { j = jj; xx = -xleg[j - 1]; }
+        var c = b * xx, ac = a + c, qexpo = ac * ac;
+        if (qexpo > C3) break;
+        var pplus = 2 * pnorm(ac), pminus = 2 * pnorm(ac - w);
+        var rinsum = pplus * 0.5 - pminus * 0.5;
+        if (rinsum >= Math.exp(C1 / cc1)) {
+          rinsum = (aleg[j - 1] * Math.exp(-(0.5 * qexpo))) * Math.pow(rinsum, cc1);
+          elsum += rinsum;
+        }
+      }
+      elsum *= ((2.0 * b) * cc) / Math.sqrt(2 * Math.PI);
+      einsum += elsum;
+      blb = bub; bub += binc;
+    }
+    pr_w += einsum;
+    if (pr_w <= Math.exp(C1 / rr)) return 0;
+    pr_w = Math.pow(pr_w, rr);
+    return pr_w >= 1 ? 1 : pr_w;
+  }
+  // P(Q <= q), nranges=1, nmeans=cc, df
+  function ptukey(q, cc, df) {
+    var rr = 1;
+    var nlegq = 16, ihalfq = 8, eps1 = -30.0, eps2 = 1.0e-14, dhaf = 100, dquar = 800, deigh = 5000, dlarg = 25000;
+    var xlegq = [0.989400934991649932596154173450, 0.944575023073232576077988415535, 0.865631202387831743880467897712,
+      0.755404408355003033895101194847, 0.617876244402643748446671764049, 0.458016777657227386342419442984,
+      0.281603550779258913230460501460, 0.950125098376374401853193354250e-1];
+    var alegq = [0.271524594117540948517805724560e-1, 0.622535239386478928628438369944e-1, 0.951585116824927848099251076022e-1,
+      0.124628971255533872052476282192, 0.149595988816576732081501730547, 0.169156519395002538189312079030,
+      0.182603415044923588866763667969, 0.189450610455068496285396723208];
+    if (q <= 0) return 0;
+    if (!isFinite(q)) return 1;
+    if (df > dlarg) return wprob(q, rr, cc);
+    var f2 = df * 0.5;
+    var f2lf = ((f2 * Math.log(df)) - (df * Math.LN2)) - lgamma(f2);
+    var f21 = f2 - 1.0, ff4 = df * 0.25, ulen;
+    if (df <= dhaf) ulen = 1; else if (df <= dquar) ulen = 0.5; else if (df <= deigh) ulen = 0.25; else ulen = 0.125;
+    f2lf += Math.log(ulen);
+    var ans = 0, otsum = 0;
+    for (var i = 1; i <= 50; i++) {
+      otsum = 0;
+      var twa1 = (2 * i - 1) * ulen;
+      for (var jj = 1; jj <= nlegq; jj++) {
+        var j, t1;
+        if (ihalfq < jj) {
+          j = jj - ihalfq - 1;
+          t1 = (f2lf + (f21 * Math.log(twa1 + (xlegq[j] * ulen)))) - (((xlegq[j] * ulen) + twa1) * ff4);
+        } else {
+          j = jj - 1;
+          t1 = (f2lf + (f21 * Math.log(twa1 - (xlegq[j] * ulen)))) + (((xlegq[j] * ulen) - twa1) * ff4);
+        }
+        if (t1 >= eps1) {
+          var qsqz;
+          if (ihalfq < jj) qsqz = q * Math.sqrt(((xlegq[j] * ulen) + twa1) * 0.5);
+          else qsqz = q * Math.sqrt(((-(xlegq[j] * ulen)) + twa1) * 0.5);
+          var wprb = wprob(qsqz, rr, cc);
+          otsum += (wprb * alegq[j]) * Math.exp(t1);
+        }
+      }
+      if (i * ulen >= 1.0 && otsum <= eps2) break;
+      ans += otsum;
+    }
+    return ans > 1 ? 1 : ans;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* 3. 행렬 유틸리티                                                     */
+  /* ------------------------------------------------------------------ */
+
+  function zeros(r, c) { var m = []; for (var i = 0; i < r; i++) { m.push(new Array(c).fill(0)); } return m; }
+  function identity(n) { var m = zeros(n, n); for (var i = 0; i < n; i++) m[i][i] = 1; return m; }
+  function transpose(A) { var r = A.length, c = A[0].length, T = zeros(c, r); for (var i = 0; i < r; i++) for (var j = 0; j < c; j++) T[j][i] = A[i][j]; return T; }
+  function matmul(A, B) {
+    var r = A.length, k = B.length, c = B[0].length, C = zeros(r, c);
+    for (var i = 0; i < r; i++) for (var l = 0; l < k; l++) { var a = A[i][l]; if (a === 0) continue; for (var j = 0; j < c; j++) C[i][j] += a * B[l][j]; }
+    return C;
+  }
+  function copyM(A) { return A.map(function (r) { return r.slice(); }); }
+
+  // 촐레스키 분해 (양정치 확인용). 실패 시 null
+  function cholesky(A) {
+    var n = A.length, L = zeros(n, n);
+    for (var j = 0; j < n; j++) {
+      var s = A[j][j];
+      for (var k = 0; k < j; k++) s -= L[j][k] * L[j][k];
+      if (!(s > 0)) return null;
+      L[j][j] = Math.sqrt(s);
+      for (var i = j + 1; i < n; i++) {
+        var t = A[i][j];
+        for (var k2 = 0; k2 < j; k2++) t -= L[i][k2] * L[j][k2];
+        L[i][j] = t / L[j][j];
+      }
+    }
+    return L;
+  }
+  function logdetPD(A) { var L = cholesky(A); if (!L) return NaN; var s = 0; for (var i = 0; i < A.length; i++) s += Math.log(L[i][i]); return 2 * s; }
+
+  // 역행렬 (부분 피벗 가우스-조던)
+  function inverse(A) {
+    var n = A.length, M = A.map(function (r, i) { var e = new Array(n).fill(0); e[i] = 1; return r.concat(e); });
+    for (var c = 0; c < n; c++) {
+      var p = c, best = Math.abs(M[c][c]);
+      for (var r = c + 1; r < n; r++) if (Math.abs(M[r][c]) > best) { best = Math.abs(M[r][c]); p = r; }
+      if (best < 1e-14) throw new Error('행렬이 특이(singular)합니다. 변수 간 완전한 공선성이 있는지 확인하세요.');
+      var tmp = M[c]; M[c] = M[p]; M[p] = tmp;
+      var piv = M[c][c];
+      for (var j = 0; j < 2 * n; j++) M[c][j] /= piv;
+      for (var r2 = 0; r2 < n; r2++) {
+        if (r2 === c) continue;
+        var f = M[r2][c]; if (f === 0) continue;
+        for (var j2 = 0; j2 < 2 * n; j2++) M[r2][j2] -= f * M[c][j2];
+      }
+    }
+    return M.map(function (r) { return r.slice(n); });
+  }
+
+  // 대칭행렬 고유값 (야코비 방법)
+  function eigenSym(A) {
+    var n = A.length, a = copyM(A), v = identity(n);
+    for (var sweep = 0; sweep < 100; sweep++) {
+      var off = 0;
+      for (var i = 0; i < n; i++) for (var j = i + 1; j < n; j++) off += a[i][j] * a[i][j];
+      if (off < 1e-22) break;
+      for (var p = 0; p < n; p++) for (var q = p + 1; q < n; q++) {
+        if (Math.abs(a[p][q]) < 1e-300) continue;
+        var theta = (a[q][q] - a[p][p]) / (2 * a[p][q]);
+        var t = (theta >= 0 ? 1 : -1) / (Math.abs(theta) + Math.sqrt(theta * theta + 1));
+        var c = 1 / Math.sqrt(t * t + 1), s = t * c;
+        for (var k = 0; k < n; k++) {
+          var akp = a[k][p], akq = a[k][q];
+          a[k][p] = c * akp - s * akq; a[k][q] = s * akp + c * akq;
+        }
+        for (var k2 = 0; k2 < n; k2++) {
+          var apk = a[p][k2], aqk = a[q][k2];
+          a[p][k2] = c * apk - s * aqk; a[q][k2] = s * apk + c * aqk;
+        }
+        for (var k3 = 0; k3 < n; k3++) {
+          var vkp = v[k3][p], vkq = v[k3][q];
+          v[k3][p] = c * vkp - s * vkq; v[k3][q] = s * vkp + c * vkq;
+        }
+      }
+    }
+    var vals = []; for (var d = 0; d < n; d++) vals.push(a[d][d]);
+    var idx = vals.map(function (x, i) { return i; }).sort(function (x, y) { return vals[y] - vals[x]; });
+    return { values: idx.map(function (i) { return vals[i]; }), vectors: v.map(function (row) { return idx.map(function (i) { return row[i]; }); }) };
+  }
+
+  // 하우스홀더 QR 최소제곱. X: n×p (행 우선)
+  function qrLeastSquares(X, y) {
+    var n = X.length, p = X[0].length;
+    var A = copyM(X), b = y.slice();
+    var rdiag = new Array(p);
+    for (var k = 0; k < p; k++) {
+      var nrm = 0;
+      for (var i = k; i < n; i++) nrm = Math.hypot(nrm, A[i][k]);
+      if (nrm === 0) throw new Error('설계행렬의 계수가 부족합니다 (완전한 공선성).');
+      if (A[k][k] < 0) nrm = -nrm;
+      for (var i2 = k; i2 < n; i2++) A[i2][k] /= nrm;
+      A[k][k] += 1;
+      for (var j = k + 1; j < p; j++) {
+        var s = 0;
+        for (var i3 = k; i3 < n; i3++) s += A[i3][k] * A[i3][j];
+        s = -s / A[k][k];
+        for (var i4 = k; i4 < n; i4++) A[i4][j] += s * A[i4][k];
+      }
+      var sb = 0;
+      for (var i5 = k; i5 < n; i5++) sb += A[i5][k] * b[i5];
+      sb = -sb / A[k][k];
+      for (var i6 = k; i6 < n; i6++) b[i6] += sb * A[i6][k];
+      rdiag[k] = -nrm;
+    }
+    var maxd = Math.max.apply(null, rdiag.map(Math.abs));
+    for (var kk = 0; kk < p; kk++) if (Math.abs(rdiag[kk]) < 1e-10 * maxd) throw new Error('설계행렬의 계수가 부족합니다 (완전한 공선성).');
+    var beta = new Array(p);
+    for (var k2 = p - 1; k2 >= 0; k2--) {
+      var t = b[k2];
+      for (var j2 = k2 + 1; j2 < p; j2++) t -= A[k2][j2] * beta[j2];
+      beta[k2] = t / rdiag[k2];
+    }
+    // R 상삼각 → (R'R)^-1 = R^-1 R^-T
+    var R = zeros(p, p);
+    for (var r = 0; r < p; r++) { R[r][r] = rdiag[r]; for (var c = r + 1; c < p; c++) R[r][c] = A[r][c]; }
+    var Rinv = zeros(p, p);
+    for (var c2 = 0; c2 < p; c2++) {
+      Rinv[c2][c2] = 1 / R[c2][c2];
+      for (var r2 = c2 - 1; r2 >= 0; r2--) {
+        var s2 = 0;
+        for (var m = r2 + 1; m <= c2; m++) s2 += R[r2][m] * Rinv[m][c2];
+        Rinv[r2][c2] = -s2 / R[r2][r2];
+      }
+    }
+    var XtXinv = matmul(Rinv, transpose(Rinv));
+    return { beta: beta, XtXinv: XtXinv };
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* 4. 기초 통계                                                         */
+  /* ------------------------------------------------------------------ */
+
+  function isNum(v) { return typeof v === 'number' && isFinite(v); }
+  function clean(x) { return x.filter(isNum); }
+  function sum(x) { var s = 0; for (var i = 0; i < x.length; i++) s += x[i]; return s; }
+  function mean(x) { return sum(x) / x.length; }
+  function variance(x) {
+    var m = mean(x), s = 0;
+    for (var i = 0; i < x.length; i++) s += (x[i] - m) * (x[i] - m);
+    return s / (x.length - 1);
+  }
+  function sd(x) { return Math.sqrt(variance(x)); }
+  function sortNum(x) { return x.slice().sort(function (a, b) { return a - b; }); }
+  // R type 7 분위수
+  function quantile(x, p) {
+    var s = sortNum(x), n = s.length, h = (n - 1) * p, lo = Math.floor(h), hi = Math.ceil(h);
+    return s[lo] + (h - lo) * (s[hi] - s[lo]);
+  }
+  // SPSS 기본(가중평균, type 6) 분위수
+  function quantileSPSS(x, p) {
+    var s = sortNum(x), n = s.length, h = (n + 1) * p;
+    if (h <= 1) return s[0];
+    if (h >= n) return s[n - 1];
+    var lo = Math.floor(h);
+    return s[lo - 1] + (h - lo) * (s[lo] - s[lo - 1]);
+  }
+  function rank(x) { // 동순위 평균
+    var idx = x.map(function (v, i) { return i; }).sort(function (a, b) { return x[a] - x[b]; });
+    var r = new Array(x.length), i = 0;
+    while (i < idx.length) {
+      var j = i;
+      while (j + 1 < idx.length && x[idx[j + 1]] === x[idx[i]]) j++;
+      var rk = (i + j) / 2 + 1;
+      for (var k = i; k <= j; k++) r[idx[k]] = rk;
+      i = j + 1;
+    }
+    return r;
+  }
+  function pearson(x, y) {
+    var mx = mean(x), my = mean(y), sxy = 0, sxx = 0, syy = 0;
+    for (var i = 0; i < x.length; i++) { var dx = x[i] - mx, dy = y[i] - my; sxy += dx * dy; sxx += dx * dx; syy += dy * dy; }
+    return sxy / Math.sqrt(sxx * syy);
+  }
+
+  // Shapiro-Wilk W (Royston, 1995; AS R94 — R의 swilk.c와 동일 알고리즘)
+  function shapiroWilk(xin) {
+    var x = sortNum(clean(xin)), n = x.length;
+    if (n < 3 || n > 5000) return { W: NaN, p: NaN };
+    if (x[n - 1] - x[0] < 1e-12) return { W: NaN, p: NaN };
+    function poly(cc, xx) { var r = cc[0]; if (cc.length > 1) { var p = xx * cc[cc.length - 1]; for (var j = cc.length - 2; j > 0; j--) p = (p + cc[j]) * xx; r += p; } return r; }
+    var nn2 = Math.floor(n / 2), a = new Array(nn2 + 1), an = n;
+    var g = [-2.273, 0.459], c1 = [0, 0.221157, -0.147981, -2.07119, 4.434685, -2.706056], c2 = [0, 0.042981, -0.293762, -1.752461, 5.682633, -3.582633];
+    var c3 = [0.544, -0.39978, 0.025054, -6.714e-4], c4 = [1.3822, -0.77857, 0.062767, -0.0020322], c5 = [-1.5861, -0.31082, -0.083751, 0.0038915], c6 = [-0.4803, -0.082676, 0.0030302];
+    if (n === 3) a[1] = Math.SQRT1_2;
+    else {
+      var an25 = an + 0.25, summ2 = 0, m = new Array(nn2 + 1);
+      for (var i = 1; i <= nn2; i++) { m[i] = qnorm((i - 0.375) / an25); summ2 += m[i] * m[i]; }
+      summ2 *= 2;
+      var ssumm2 = Math.sqrt(summ2), rsn = 1 / Math.sqrt(an), a1 = poly(c1, rsn) - m[1] / ssumm2, i1, fac;
+      if (n > 5) {
+        i1 = 3;
+        var a2 = -m[2] / ssumm2 + poly(c2, rsn);
+        fac = Math.sqrt((summ2 - 2 * m[1] * m[1] - 2 * m[2] * m[2]) / (1 - 2 * a1 * a1 - 2 * a2 * a2));
+        a[2] = a2;
+      } else {
+        i1 = 2;
+        fac = Math.sqrt((summ2 - 2 * m[1] * m[1]) / (1 - 2 * a1 * a1));
+      }
+      a[1] = a1;
+      for (var i2 = i1; i2 <= nn2; i2++) a[i2] = -m[i2] / fac;
+    }
+    var num = 0;
+    for (var k = 1; k <= nn2; k++) num += a[k] * (x[n - k] - x[k - 1]);
+    var mu = mean(x), ss = 0;
+    for (var k2 = 0; k2 < n; k2++) ss += (x[k2] - mu) * (x[k2] - mu);
+    var w = num * num / ss;
+    if (w > 1) w = 1;
+    var pw;
+    if (n === 3) {
+      pw = 1.90985931710274 * (Math.asin(Math.sqrt(w)) - 1.04719755119660);
+      return { W: w, p: Math.max(pw, 0) };
+    }
+    var w1 = Math.log(1 - w), xx = Math.log(an), mm, s, y;
+    if (n <= 11) {
+      var gamma = poly(g, an);
+      if (w1 >= gamma) return { W: w, p: 1e-99 };
+      y = -Math.log(gamma - w1);
+      mm = poly(c3, an); s = Math.exp(poly(c4, an));
+    } else {
+      mm = poly(c5, xx); s = Math.exp(poly(c6, xx)); y = w1;
+    }
+    pw = pnormUpper((y - mm) / s);
+    return { W: w, p: pw };
+  }
+
+  function descriptives(xin) {
+    var x = clean(xin), n = x.length, miss = xin.length - n;
+    if (n === 0) return { n: 0, missing: miss };
+    var m = mean(x), s = n > 1 ? sd(x) : NaN;
+    var m2 = 0, m3 = 0, m4 = 0;
+    for (var i = 0; i < n; i++) { var d = x[i] - m; m2 += d * d; m3 += d * d * d; m4 += d * d * d * d; }
+    m2 /= n; m3 /= n; m4 /= n;
+    // SPSS/Excel 방식 표본 왜도·첨도(G1, G2)와 표준오차
+    var g1 = m3 / Math.pow(m2, 1.5), g2 = m4 / (m2 * m2) - 3;
+    var G1 = n > 2 ? g1 * Math.sqrt(n * (n - 1)) / (n - 2) : NaN;
+    var G2 = n > 3 ? ((n + 1) * g2 + 6) * (n - 1) / ((n - 2) * (n - 3)) : NaN;
+    var seSkew = n > 2 ? Math.sqrt(6 * n * (n - 1) / ((n - 2) * (n + 1) * (n + 3))) : NaN;
+    var seKurt = n > 3 ? 2 * seSkew * Math.sqrt((n * n - 1) / ((n - 3) * (n + 5))) : NaN;
+    var sw = n >= 3 ? shapiroWilk(x) : { W: NaN, p: NaN };
+    return {
+      n: n, missing: miss, mean: m, sd: s, se: s / Math.sqrt(n), median: quantile(x, 0.5),
+      min: Math.min.apply(null, x), max: Math.max.apply(null, x),
+      q1: quantile(x, 0.25), q3: quantile(x, 0.75),
+      skew: G1, seSkew: seSkew, kurt: G2, seKurt: seKurt, swW: sw.W, swP: sw.p
+    };
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* 5. t 검정 / 분산분석                                                 */
+  /* ------------------------------------------------------------------ */
+
+  function leveneTest(groups, center) { // center: 'mean'(SPSS) | 'median'(Brown-Forsythe, R car 기본)
+    var z = groups.map(function (g) {
+      var c = center === 'median' ? quantile(g, 0.5) : mean(g);
+      return g.map(function (v) { return Math.abs(v - c); });
+    });
+    var a = onewayCore(z);
+    return { F: a.F, df1: a.dfB, df2: a.dfW, p: a.p };
+  }
+
+  function onewayCore(groups) {
+    var k = groups.length, N = 0, all = [];
+    groups.forEach(function (g) { N += g.length; all = all.concat(g); });
+    var gm = mean(all), ssb = 0, ssw = 0;
+    groups.forEach(function (g) {
+      var m = mean(g); ssb += g.length * (m - gm) * (m - gm);
+      g.forEach(function (v) { ssw += (v - m) * (v - m); });
+    });
+    var dfB = k - 1, dfW = N - k, msb = ssb / dfB, msw = ssw / dfW, F = msb / msw;
+    return { k: k, N: N, ssb: ssb, ssw: ssw, sst: ssb + ssw, dfB: dfB, dfW: dfW, msb: msb, msw: msw, F: F, p: pfUpper(F, dfB, dfW) };
+  }
+
+  function tTestOneSample(xin, mu, conf) {
+    conf = conf || 0.95;
+    var x = clean(xin), n = x.length, m = mean(x), s = sd(x), se = s / Math.sqrt(n), df = n - 1;
+    var t = (m - mu) / se, tc = qt(1 - (1 - conf) / 2, df);
+    return { n: n, mean: m, sd: s, se: se, t: t, df: df, p: ptTwoSided(t, df), diff: m - mu,
+      ciLow: m - mu - tc * se, ciHigh: m - mu + tc * se, d: (m - mu) / s };
+  }
+
+  function tTestPaired(xin, yin, conf) {
+    conf = conf || 0.95;
+    var x = [], y = [];
+    for (var i = 0; i < xin.length; i++) if (isNum(xin[i]) && isNum(yin[i])) { x.push(xin[i]); y.push(yin[i]); }
+    var d = x.map(function (v, i) { return v - y[i]; });
+    var n = d.length, md = mean(d), sdd = sd(d), se = sdd / Math.sqrt(n), df = n - 1, t = md / se;
+    var tc = qt(1 - (1 - conf) / 2, df);
+    return { n: n, mean1: mean(x), mean2: mean(y), sd1: sd(x), sd2: sd(y), r: pearson(x, y),
+      meanDiff: md, sdDiff: sdd, se: se, t: t, df: df, p: ptTwoSided(t, df),
+      ciLow: md - tc * se, ciHigh: md + tc * se, dz: md / sdd };
+  }
+
+  function tTestIndependent(g1in, g2in, conf) {
+    conf = conf || 0.95;
+    var a = clean(g1in), b = clean(g2in), n1 = a.length, n2 = b.length;
+    var m1 = mean(a), m2 = mean(b), v1 = variance(a), v2 = variance(b), diff = m1 - m2;
+    var sp2 = ((n1 - 1) * v1 + (n2 - 1) * v2) / (n1 + n2 - 2);
+    var seS = Math.sqrt(sp2 * (1 / n1 + 1 / n2)), dfS = n1 + n2 - 2, tS = diff / seS;
+    var seW = Math.sqrt(v1 / n1 + v2 / n2);
+    var dfW = Math.pow(v1 / n1 + v2 / n2, 2) / (Math.pow(v1 / n1, 2) / (n1 - 1) + Math.pow(v2 / n2, 2) / (n2 - 1));
+    var tW = diff / seW, cS = qt(1 - (1 - conf) / 2, dfS), cW = qt(1 - (1 - conf) / 2, dfW);
+    var d = diff / Math.sqrt(sp2);
+    var J = 1 - 3 / (4 * (n1 + n2) - 9); // Hedges g 보정
+    return {
+      n1: n1, n2: n2, mean1: m1, mean2: m2, sd1: Math.sqrt(v1), sd2: Math.sqrt(v2), diff: diff,
+      student: { t: tS, df: dfS, p: ptTwoSided(tS, dfS), se: seS, ciLow: diff - cS * seS, ciHigh: diff + cS * seS },
+      welch: { t: tW, df: dfW, p: ptTwoSided(tW, dfW), se: seW, ciLow: diff - cW * seW, ciHigh: diff + cW * seW },
+      levene: leveneTest([a, b], 'mean'), d: d, g: d * J
+    };
+  }
+
+  function anovaOneway(groupsIn, labels) {
+    var groups = groupsIn.map(clean);
+    var core = onewayCore(groups), k = core.k;
+    var desc = groups.map(function (g, i) { return { label: labels[i], n: g.length, mean: mean(g), sd: sd(g) }; });
+    var eta2 = core.ssb / core.sst;
+    var omega2 = (core.ssb - core.dfB * core.msw) / (core.sst + core.msw);
+    // Welch ANOVA
+    var w = groups.map(function (g) { return g.length / variance(g); }), sw = sum(w);
+    var mw = sum(groups.map(function (g, i) { return w[i] * mean(g); })) / sw;
+    var A = sum(groups.map(function (g, i) { return w[i] * Math.pow(mean(g) - mw, 2); })) / (k - 1);
+    var lam = sum(groups.map(function (g, i) { return Math.pow(1 - w[i] / sw, 2) / (g.length - 1); }));
+    var B = 1 + 2 * (k - 2) / (k * k - 1) * lam;
+    var Fw = A / B, df2w = (k * k - 1) / (3 * lam);
+    // 사후검정
+    var posthoc = [];
+    for (var i = 0; i < k; i++) for (var j = i + 1; j < k; j++) {
+      var gi = groups[i], gj = groups[j], ni = gi.length, nj = gj.length, d = mean(gi) - mean(gj);
+      var seT = Math.sqrt(core.msw / 2 * (1 / ni + 1 / nj));
+      var qT = Math.abs(d) / seT;
+      var pT = 1 - ptukey(qT, k, core.dfW);
+      var seB = Math.sqrt(core.msw * (1 / ni + 1 / nj)), tB = d / seB;
+      var pB = Math.min(1, ptTwoSided(tB, core.dfW) * k * (k - 1) / 2);
+      var vi = variance(gi) / ni, vj = variance(gj) / nj;
+      var dfGH = Math.pow(vi + vj, 2) / (vi * vi / (ni - 1) + vj * vj / (nj - 1));
+      var qGH = Math.abs(d) / Math.sqrt((vi + vj) / 2);
+      var pGH = 1 - ptukey(qGH, k, dfGH);
+      posthoc.push({ a: labels[i], b: labels[j], diff: d, se: seB, pTukey: Math.max(0, pT), pBonf: pB, pGH: Math.max(0, pGH) });
+    }
+    return {
+      desc: desc, ssb: core.ssb, ssw: core.ssw, sst: core.sst, dfB: core.dfB, dfW: core.dfW, msb: core.msb, msw: core.msw,
+      F: core.F, p: core.p, eta2: eta2, omega2: omega2,
+      welch: { F: Fw, df1: k - 1, df2: df2w, p: pfUpper(Fw, k - 1, df2w) },
+      levene: leveneTest(groups, 'mean'), posthoc: posthoc
+    };
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* 6. 상관 / 교차분석                                                   */
+  /* ------------------------------------------------------------------ */
+
+  function corTest(xin, yin, method, conf) {
+    conf = conf || 0.95;
+    var x = [], y = [];
+    for (var i = 0; i < xin.length; i++) if (isNum(xin[i]) && isNum(yin[i])) { x.push(xin[i]); y.push(yin[i]); }
+    var n = x.length;
+    if (method === 'spearman') { x = rank(x); y = rank(y); }
+    var r = pearson(x, y), df = n - 2, t = r * Math.sqrt(df / (1 - r * r));
+    var p = Math.abs(r) >= 1 ? 0 : ptTwoSided(t, df);
+    var z = 0.5 * Math.log((1 + r) / (1 - r)), se = 1 / Math.sqrt(n - 3), zc = qnorm(1 - (1 - conf) / 2);
+    return { r: r, n: n, t: t, df: df, p: p, ciLow: Math.tanh(z - zc * se), ciHigh: Math.tanh(z + zc * se) };
+  }
+
+  function corMatrix(cols, method, missing) {
+    var k = cols.length, rows;
+    if (missing !== 'pairwise') {
+      rows = completeRows(cols);
+      cols = cols.map(function (c) { return rows.map(function (i) { return c[i]; }); });
+    }
+    var R = zeros(k, k), P = zeros(k, k), N = zeros(k, k);
+    for (var i = 0; i < k; i++) for (var j = i; j < k; j++) {
+      if (i === j) { R[i][i] = 1; P[i][i] = 0; N[i][i] = clean(cols[i]).length; continue; }
+      var ct = corTest(cols[i], cols[j], method);
+      R[i][j] = R[j][i] = ct.r; P[i][j] = P[j][i] = ct.p; N[i][j] = N[j][i] = ct.n;
+    }
+    return { R: R, P: P, N: N };
+  }
+
+  function completeRows(cols) {
+    var n = cols[0].length, out = [];
+    for (var i = 0; i < n; i++) { var ok = true; for (var j = 0; j < cols.length; j++) if (!isNum(cols[j][i])) { ok = false; break; } if (ok) out.push(i); }
+    return out;
+  }
+
+  function lchoose(n, k) { return lgamma(n + 1) - lgamma(k + 1) - lgamma(n - k + 1); }
+  function fisherExact2x2(a, b, c, d) {
+    var r1 = a + b, c1 = a + c, n = a + b + c + d;
+    var lo = Math.max(0, r1 + c1 - n), hi = Math.min(r1, c1);
+    function dh(x) { return Math.exp(lchoose(c1, x) + lchoose(n - c1, r1 - x) - lchoose(n, r1)); }
+    var pobs = dh(a), p = 0;
+    for (var x = lo; x <= hi; x++) { var px = dh(x); if (px <= pobs * (1 + 1e-7)) p += px; }
+    return Math.min(1, p);
+  }
+
+  function crosstab(rowVar, colVar) {
+    var rl = [], cl = [], pairs = [];
+    for (var i = 0; i < rowVar.length; i++) {
+      var r = rowVar[i], c = colVar[i];
+      if (r === null || r === undefined || r === '' || c === null || c === undefined || c === '') continue;
+      if (typeof r === 'number' && !isFinite(r)) continue;
+      if (typeof c === 'number' && !isFinite(c)) continue;
+      pairs.push([String(r), String(c)]);
+    }
+    function sortLabels(arr) { return arr.sort(function (a, b) { var na = Number(a), nb = Number(b); if (!isNaN(na) && !isNaN(nb)) return na - nb; return a < b ? -1 : a > b ? 1 : 0; }); }
+    pairs.forEach(function (p) { if (rl.indexOf(p[0]) < 0) rl.push(p[0]); if (cl.indexOf(p[1]) < 0) cl.push(p[1]); });
+    sortLabels(rl); sortLabels(cl);
+    var O = zeros(rl.length, cl.length);
+    pairs.forEach(function (p) { O[rl.indexOf(p[0])][cl.indexOf(p[1])]++; });
+    var n = pairs.length, rs = O.map(sum), cs = cl.map(function (_, j) { return sum(O.map(function (r) { return r[j]; })); });
+    var E = zeros(rl.length, cl.length), chi = 0, g2 = 0, lowE = 0;
+    for (var a = 0; a < rl.length; a++) for (var b = 0; b < cl.length; b++) {
+      E[a][b] = rs[a] * cs[b] / n;
+      if (E[a][b] < 5) lowE++;
+      chi += Math.pow(O[a][b] - E[a][b], 2) / E[a][b];
+      if (O[a][b] > 0) g2 += 2 * O[a][b] * Math.log(O[a][b] / E[a][b]);
+    }
+    var df = (rl.length - 1) * (cl.length - 1);
+    var res = { rows: rl, cols: cl, O: O, E: E, rowSums: rs, colSums: cs, n: n, chi2: chi, df: df, p: pchisqUpper(chi, df),
+      G2: g2, pG2: pchisqUpper(g2, df), cramerV: Math.sqrt(chi / (n * (Math.min(rl.length, cl.length) - 1))),
+      lowExpected: lowE, cells: rl.length * cl.length };
+    if (rl.length === 2 && cl.length === 2) {
+      var A = O[0][0], B = O[0][1], C = O[1][0], D = O[1][1];
+      var yates = 0;
+      for (var a2 = 0; a2 < 2; a2++) for (var b2 = 0; b2 < 2; b2++) yates += Math.pow(Math.max(0, Math.abs(O[a2][b2] - E[a2][b2]) - 0.5), 2) / E[a2][b2];
+      res.yates = { chi2: yates, p: pchisqUpper(yates, 1) };
+      res.fisherP = fisherExact2x2(A, B, C, D);
+      res.phi = (A * D - B * C) / Math.sqrt(rs[0] * rs[1] * cs[0] * cs[1]);
+      res.oddsRatio = (A * D) / (B * C);
+    }
+    return res;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* 7. 회귀분석                                                          */
+  /* ------------------------------------------------------------------ */
+
+  function linearRegression(yin, Xcols, names, conf) {
+    conf = conf || 0.95;
+    var rows = completeRows([yin].concat(Xcols));
+    var y = rows.map(function (i) { return yin[i]; });
+    var Xc = Xcols.map(function (c) { return rows.map(function (i) { return c[i]; }); });
+    var n = y.length, p = Xcols.length + 1;
+    if (n <= p) throw new Error('사례 수가 예측변수 수보다 충분히 많아야 합니다.');
+    var X = rows.map(function (_, r) { return [1].concat(Xc.map(function (c) { return c[r]; })); });
+    var fit = qrLeastSquares(X, y), b = fit.beta;
+    var yhat = X.map(function (row) { var s = 0; for (var j = 0; j < p; j++) s += row[j] * b[j]; return s; });
+    var my = mean(y), sse = 0, sst = 0;
+    for (var i = 0; i < n; i++) { sse += Math.pow(y[i] - yhat[i], 2); sst += Math.pow(y[i] - my, 2); }
+    var dfE = n - p, mse = sse / dfE, R2 = 1 - sse / sst, adjR2 = 1 - (1 - R2) * (n - 1) / dfE;
+    var dfM = p - 1, F = ((sst - sse) / dfM) / mse, tc = qt(1 - (1 - conf) / 2, dfE);
+    var sdy = sd(y);
+    var coefs = b.map(function (bj, j) {
+      var se = Math.sqrt(mse * fit.XtXinv[j][j]), t = bj / se;
+      return { name: j === 0 ? '(절편)' : names[j - 1], b: bj, se: se, t: t, p: ptTwoSided(t, dfE),
+        ciLow: bj - tc * se, ciHigh: bj + tc * se, beta: j === 0 ? NaN : bj * sd(Xc[j - 1]) / sdy, vif: NaN };
+    });
+    if (Xcols.length > 1) {
+      for (var j = 0; j < Xcols.length; j++) {
+        var others = Xc.filter(function (_, k) { return k !== j; });
+        var Xo = rows.map(function (_, r) { return [1].concat(others.map(function (c) { return c[r]; })); });
+        var fo = qrLeastSquares(Xo, Xc[j]).beta, mj = mean(Xc[j]), s1 = 0, s2 = 0;
+        for (var r = 0; r < n; r++) { var pr = 0; for (var q = 0; q < fo.length; q++) pr += Xo[r][q] * fo[q]; s1 += Math.pow(Xc[j][r] - pr, 2); s2 += Math.pow(Xc[j][r] - mj, 2); }
+        coefs[j + 1].vif = 1 / (s1 / s2);
+      }
+    } else if (Xcols.length === 1) coefs[1].vif = 1;
+    var resid = y.map(function (v, i) { return v - yhat[i]; });
+    var dw = 0; for (var i2 = 1; i2 < n; i2++) dw += Math.pow(resid[i2] - resid[i2 - 1], 2);
+    dw /= sse;
+    return { n: n, coefs: coefs, R2: R2, adjR2: adjR2, R: Math.sqrt(R2), F: F, dfM: dfM, dfE: dfE, p: pfUpper(F, dfM, dfE),
+      sse: sse, ssr: sst - sse, sst: sst, see: Math.sqrt(mse), durbinWatson: dw, residuals: resid, fitted: yhat };
+  }
+
+  function logisticIRLS(X, y) {
+    var n = X.length, p = X[0].length, b = new Array(p).fill(0), dev = Infinity, it, converged = false;
+    for (it = 1; it <= 100; it++) {
+      var eta = X.map(function (r) { var s = 0; for (var j = 0; j < p; j++) s += r[j] * b[j]; return s; });
+      var mu = eta.map(function (e) { return 1 / (1 + Math.exp(-e)); });
+      var XtWX = zeros(p, p), XtWz = new Array(p).fill(0);
+      for (var i = 0; i < n; i++) {
+        var w = Math.max(mu[i] * (1 - mu[i]), 1e-12), z = eta[i] + (y[i] - mu[i]) / w;
+        for (var a = 0; a < p; a++) { XtWz[a] += X[i][a] * w * z; for (var c = a; c < p; c++) XtWX[a][c] += X[i][a] * w * X[i][c]; }
+      }
+      for (var a2 = 0; a2 < p; a2++) for (var c2 = 0; c2 < a2; c2++) XtWX[a2][c2] = XtWX[c2][a2];
+      var inv = inverse(XtWX);
+      var nb = inv.map(function (row) { var s = 0; for (var j = 0; j < p; j++) s += row[j] * XtWz[j]; return s; });
+      var nd = devianceLogit(X, y, nb);
+      b = nb;
+      if (Math.abs(nd - dev) / (Math.abs(nd) + 0.1) < 1e-10) { dev = nd; converged = true; break; }
+      dev = nd;
+    }
+    var etaF = X.map(function (r) { var s = 0; for (var j = 0; j < p; j++) s += r[j] * b[j]; return s; });
+    var muF = etaF.map(function (e) { return 1 / (1 + Math.exp(-e)); });
+    var I = zeros(p, p);
+    for (var i2 = 0; i2 < n; i2++) { var w2 = muF[i2] * (1 - muF[i2]); for (var a3 = 0; a3 < p; a3++) for (var c3 = 0; c3 < p; c3++) I[a3][c3] += X[i2][a3] * w2 * X[i2][c3]; }
+    var cov;
+    try { cov = inverse(I); } catch (e) { cov = zeros(p, p).map(function (r) { return r.map(function () { return NaN; }); }); }
+    return { beta: b, cov: cov, deviance: dev, iterations: it, converged: converged, mu: muF };
+  }
+  function devianceLogit(X, y, b) {
+    var d = 0;
+    for (var i = 0; i < X.length; i++) {
+      var e = 0; for (var j = 0; j < b.length; j++) e += X[i][j] * b[j];
+      // log(1+exp(e)) 안정 계산
+      var l1pe = e > 0 ? e + Math.log1p(Math.exp(-e)) : Math.log1p(Math.exp(e));
+      d += -2 * (y[i] * e - l1pe);
+    }
+    return d;
+  }
+
+  // 이분형 로지스틱 회귀. yin: 0/1 숫자 배열
+  function logisticRegression(yin, Xcols, names, opts) {
+    opts = opts || {};
+    var cutoff = opts.cutoff || 0.5, conf = opts.conf || 0.95, hlGroups = opts.hlGroups || 10;
+    var rows = completeRows([yin].concat(Xcols));
+    var y = rows.map(function (i) { return yin[i]; });
+    if (y.some(function (v) { return v !== 0 && v !== 1; })) throw new Error('종속변수는 0과 1로만 코딩되어야 합니다.');
+    var Xc = Xcols.map(function (c) { return rows.map(function (i) { return c[i]; }); });
+    var n = y.length, p = Xcols.length + 1;
+    var X = rows.map(function (_, r) { return [1].concat(Xc.map(function (c) { return c[r]; })); });
+    var fit = logisticIRLS(X, y);
+    var n1 = sum(y), p0 = n1 / n;
+    var dev0 = -2 * (n1 * Math.log(p0) + (n - n1) * Math.log(1 - p0));
+    var chi = dev0 - fit.deviance, dfM = p - 1;
+    var zc = qnorm(1 - (1 - conf) / 2);
+    var warnings = [];
+    var coefs = fit.beta.map(function (bj, j) {
+      var se = Math.sqrt(fit.cov[j][j]), z = bj / se;
+      return { name: j === 0 ? '(절편)' : names[j - 1], b: bj, se: se, z: z, wald: z * z, p: 2 * pnormUpper(Math.abs(z)),
+        or: Math.exp(bj), orLow: Math.exp(bj - zc * se), orHigh: Math.exp(bj + zc * se) };
+    });
+    if (!fit.converged || coefs.some(function (c) { return !isFinite(c.se) || c.se > 1e3 || Math.abs(c.b) > 15; }) ||
+        fit.mu.some(function (m) { return m < 1e-8 || m > 1 - 1e-8; })) {
+      warnings.push('완전 분리(complete separation) 또는 준완전 분리가 의심됩니다. 계수와 표준오차가 매우 커질 수 있으니 해석에 주의하세요 (Firth 보정 로지스틱 회귀를 고려).');
+    }
+    var coxSnell = 1 - Math.exp(-chi / n);
+    var nagelkerke = coxSnell / (1 - Math.exp(-dev0 / n));
+    var mcfadden = 1 - fit.deviance / dev0;
+    // Hosmer-Lemeshow: 예측확률 분위수로 집단화 (R ResourceSelection::hoslem.test 방식)
+    var hl = hosmerLemeshow(y, fit.mu, hlGroups);
+    var tp = 0, tn = 0, fp = 0, fn = 0;
+    for (var i = 0; i < n; i++) { var pr = fit.mu[i] >= cutoff ? 1 : 0; if (pr === 1 && y[i] === 1) tp++; else if (pr === 0 && y[i] === 0) tn++; else if (pr === 1) fp++; else fn++; }
+    var auc = aucROC(y, fit.mu);
+    return { n: n, nEvents: n1, coefs: coefs, deviance: fit.deviance, nullDeviance: dev0, chi2: chi, dfM: dfM, pModel: pchisqUpper(chi, dfM),
+      aic: fit.deviance + 2 * p, bic: fit.deviance + Math.log(n) * p, coxSnell: coxSnell, nagelkerke: nagelkerke, mcfadden: mcfadden,
+      hl: hl, classification: { tp: tp, tn: tn, fp: fp, fn: fn, cutoff: cutoff, accuracy: (tp + tn) / n,
+        sensitivity: tp / (tp + fn), specificity: tn / (tn + fp) }, auc: auc,
+      iterations: fit.iterations, converged: fit.converged, warnings: warnings, fitted: fit.mu };
+  }
+
+  function hosmerLemeshow(y, mu, g) {
+    var n = y.length, probs = [];
+    for (var k = 0; k <= g; k++) probs.push(quantile(mu, k / g));
+    var breaks = []; probs.forEach(function (b) { if (breaks.indexOf(b) < 0) breaks.push(b); });
+    var G = breaks.length - 1, O1 = new Array(G).fill(0), E1 = new Array(G).fill(0), Nn = new Array(G).fill(0);
+    for (var i = 0; i < n; i++) {
+      var gi = 0;
+      for (var b2 = 1; b2 < breaks.length; b2++) { if (mu[i] <= breaks[b2]) { gi = b2 - 1; break; } }
+      O1[gi] += y[i]; E1[gi] += mu[i]; Nn[gi]++;
+    }
+    var chi = 0;
+    for (var j = 0; j < G; j++) {
+      if (Nn[j] === 0) continue;
+      var e0 = Nn[j] - E1[j], o0 = Nn[j] - O1[j];
+      chi += Math.pow(O1[j] - E1[j], 2) / E1[j] + Math.pow(o0 - e0, 2) / e0;
+    }
+    var df = G - 2;
+    return { chi2: chi, df: df, p: df > 0 ? pchisqUpper(chi, df) : NaN, groups: G };
+  }
+
+  function aucROC(y, s) { // Mann-Whitney U 기반
+    var r = rank(s), n1 = 0, sr = 0;
+    for (var i = 0; i < y.length; i++) if (y[i] === 1) { n1++; sr += r[i]; }
+    var n0 = y.length - n1;
+    return (sr - n1 * (n1 + 1) / 2) / (n1 * n0);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* 8. 신뢰도                                                            */
+  /* ------------------------------------------------------------------ */
+
+  function reliability(colsIn, names) {
+    var rows = completeRows(colsIn);
+    var cols = colsIn.map(function (c) { return rows.map(function (i) { return c[i]; }); });
+    var k = cols.length, n = rows.length;
+    function alphaOf(cs) {
+      var kk = cs.length, sv = sum(cs.map(variance));
+      var tot = rows.map(function (_, r) { return sum(cs.map(function (c) { return c[r]; })); });
+      return kk / (kk - 1) * (1 - sv / variance(tot));
+    }
+    var alpha = alphaOf(cols);
+    var R = corMatrix(cols, 'pearson').R, rbar = 0, cnt = 0;
+    for (var i = 0; i < k; i++) for (var j = i + 1; j < k; j++) { rbar += R[i][j]; cnt++; }
+    rbar /= cnt;
+    var stdAlpha = k * rbar / (1 + (k - 1) * rbar);
+    var total = rows.map(function (_, r) { return sum(cols.map(function (c) { return c[r]; })); });
+    var items = cols.map(function (c, j) {
+      var rest = total.map(function (t, r) { return t - c[r]; });
+      var others = cols.filter(function (_, q) { return q !== j; });
+      return { name: names[j], mean: mean(c), sd: sd(c), rCorrected: pearson(c, rest),
+        alphaIfDeleted: others.length > 1 ? alphaOf(others) : NaN };
+    });
+    return { n: n, k: k, alpha: alpha, stdAlpha: stdAlpha, meanInterItem: rbar, items: items };
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* 9. 네트워크 분석 (가우시안 그래프 모형)                              */
+  /* ------------------------------------------------------------------ */
+
+  function covMatrix(cols) {
+    var k = cols.length, n = cols[0].length, m = cols.map(mean), S = zeros(k, k);
+    for (var i = 0; i < k; i++) for (var j = i; j < k; j++) {
+      var s = 0; for (var r = 0; r < n; r++) s += (cols[i][r] - m[i]) * (cols[j][r] - m[j]);
+      S[i][j] = S[j][i] = s / (n - 1);
+    }
+    return S;
+  }
+  function cov2cor(S) {
+    var k = S.length, R = zeros(k, k), d = S.map(function (r, i) { return Math.sqrt(r[i]); });
+    for (var i = 0; i < k; i++) for (var j = 0; j < k; j++) R[i][j] = S[i][j] / (d[i] * d[j]);
+    return R;
+  }
+
+  /*
+   * 그래피컬 라쏘 (Friedman, Hastie & Tibshirani, 2008)
+   * penalize.diagonal = FALSE (qgraph::EBICglasso 기본값)
+   * init: {W, B} 웜스타트(선택)
+   */
+  function glasso(S, lambda, init, opts) {
+    opts = opts || {};
+    var thr = opts.thr || 1e-7, maxit = opts.maxit || 10000;
+    var p = S.length, W = init ? copyM(init.W) : copyM(S), B = init ? copyM(init.B) : zeros(p, p); // B[j]: 열 j의 베타 (길이 p, j위치 무시)
+    var offS = 0; for (var i = 0; i < p; i++) for (var j = 0; j < p; j++) if (i !== j) offS += Math.abs(S[i][j]);
+    offS /= p * (p - 1);
+    if (offS === 0) offS = 1;
+    for (var d = 0; d < p; d++) W[d][d] = S[d][d];
+    for (var it = 0; it < maxit; it++) {
+      var dw = 0;
+      for (var j2 = 0; j2 < p; j2++) {
+        var beta = B[j2];
+        // 좌표하강 라쏘: W11 beta = s12
+        for (var inner = 0; inner < 10000; inner++) {
+          var dlx = 0;
+          for (var k = 0; k < p; k++) {
+            if (k === j2) continue;
+            var a = S[k][j2];
+            for (var l = 0; l < p; l++) if (l !== j2 && l !== k) a -= W[k][l] * beta[l];
+            var nb = 0;
+            if (a > lambda) nb = (a - lambda) / W[k][k]; else if (a < -lambda) nb = (a + lambda) / W[k][k];
+            var diff = nb - beta[k];
+            if (diff !== 0) { dlx = Math.max(dlx, Math.abs(diff)); beta[k] = nb; }
+          }
+          if (dlx < thr * 1e-2) break;
+        }
+        for (var k2 = 0; k2 < p; k2++) {
+          if (k2 === j2) continue;
+          var w = 0; for (var l2 = 0; l2 < p; l2++) if (l2 !== j2) w += W[k2][l2] * beta[l2];
+          dw += Math.abs(w - W[k2][j2]);
+          W[k2][j2] = w; W[j2][k2] = w;
+        }
+      }
+      if (dw / (p * (p - 1)) < thr * offS) break;
+    }
+    // 정밀도 행렬
+    var K = zeros(p, p);
+    for (var j3 = 0; j3 < p; j3++) {
+      var s = W[j3][j3];
+      for (var k3 = 0; k3 < p; k3++) if (k3 !== j3) s -= W[k3][j3] * B[j3][k3];
+      var kjj = 1 / s;
+      K[j3][j3] = kjj;
+      for (var k4 = 0; k4 < p; k4++) if (k4 !== j3) K[k4][j3] = -B[j3][k4] * kjj;
+    }
+    return { W: W, K: K, B: B };
+  }
+
+  // 정밀도 행렬 → 편상관 네트워크 (qgraph::wi2net + forceSymmetric(상삼각 사용))
+  function wi2net(K) {
+    var p = K.length, N = zeros(p, p);
+    for (var i = 0; i < p; i++) for (var j = i + 1; j < p; j++) {
+      var v = -K[i][j] / Math.sqrt(K[i][i] * K[j][j]);
+      if (v === 0) v = 0; // -0 제거
+      N[i][j] = N[j][i] = v;
+    }
+    return N;
+  }
+
+  function logGaus(S, K, n) {
+    var p = S.length, tr = 0;
+    for (var i = 0; i < p; i++) for (var j = 0; j < p; j++) tr += K[i][j] * S[j][i];
+    return n / 2 * (logdetPD(K) - tr);
+  }
+
+  /*
+   * EBICglasso: qgraph::EBICglasso(S, n, gamma=0.5, nlambda=100, lambda.min.ratio=0.01,
+   *   penalize.diagonal=FALSE, refit=FALSE, threshold=FALSE) 와 동일한 절차
+   */
+  function ebicGlasso(Sin, n, opts) {
+    opts = opts || {};
+    var gamma = opts.gamma === undefined ? 0.5 : opts.gamma, nlambda = opts.nlambda || 100, lmr = opts.lambdaMinRatio || 0.01;
+    var threshold = !!opts.threshold;
+    var S = cov2cor(Sin), p = S.length;
+    if (!cholesky(S)) throw new Error('상관행렬이 양정치(positive definite)가 아닙니다. 변수 간 중복(완전상관)이나 사례 수 부족을 확인하세요.');
+    var lmax = 0;
+    for (var i = 0; i < p; i++) for (var j = 0; j < p; j++) if (i !== j) lmax = Math.max(lmax, Math.abs(S[i][j]));
+    var lmin = lmr * lmax, lambdas = [];
+    for (var l = 0; l < nlambda; l++) lambdas.push(Math.exp(Math.log(lmin) + (Math.log(lmax) - Math.log(lmin)) * l / (nlambda - 1)));
+    var fits = new Array(nlambda), init = null;
+    for (var li = nlambda - 1; li >= 0; li--) { // 큰 λ부터 웜스타트
+      var f = glasso(S, lambdas[li], init, opts);
+      init = { W: f.W, B: f.B };
+      var K = f.K;
+      if (threshold) {
+        var th = Math.log(p * (p - 1) / 2) / Math.sqrt(n);
+        K = K.map(function (r) { return r.map(function (v) { return Math.abs(v) < th ? 0 : v; }); });
+      }
+      fits[li] = K;
+    }
+    var ebics = fits.map(function (K) {
+      var E = 0;
+      for (var i2 = 0; i2 < p; i2++) for (var j2 = 0; j2 < i2; j2++) if (K[i2][j2] !== 0) E++;
+      return -2 * logGaus(S, K, n) + E * Math.log(n) + 4 * E * gamma * Math.log(p);
+    });
+    var opt = 0;
+    for (var e = 1; e < nlambda; e++) if (ebics[e] < ebics[opt]) opt = e;
+    var net = wi2net(fits[opt]);
+    var notes = [];
+    if (opt === 0) notes.push('가장 작은 λ의 네트워크가 선택되었습니다. 희소성(sparsity) 가정이 위배되었을 수 있습니다.');
+    if (lambdas[opt] < 0.1 * lmax && !threshold) notes.push('밀집된(dense) 정규화 네트워크가 선택되었습니다 (λ < 0.1·λmax). 최근 연구에 따르면 특이도가 떨어질 수 있으니 가장 작은 엣지들의 해석에 주의하세요 (Williams & Rast, 2020).');
+    if (net.every(function (r) { return r.every(function (v) { return v === 0; }); })) notes.push('빈 네트워크(엣지 없음)가 선택되었습니다.');
+    return { network: net, lambda: lambdas[opt], lambdaIndex: opt, lambdas: lambdas, ebic: ebics, K: fits[opt], S: S, notes: notes };
+  }
+
+  // 비정규화 편상관 네트워크 (선택적으로 유의성 임계)
+  function partialCorNetwork(Sin, n, alpha) {
+    var S = cov2cor(Sin), p = S.length, K = inverse(S), net = wi2net(K), P = zeros(p, p);
+    var df = n - p; // 편상관 t 검정: df = n - 2 - (p-2)
+    for (var i = 0; i < p; i++) for (var j = i + 1; j < p; j++) {
+      var r = net[i][j], t = r * Math.sqrt(df / (1 - r * r));
+      P[i][j] = P[j][i] = ptTwoSided(t, df);
+      if (alpha && P[i][j] >= alpha) { net[i][j] = net[j][i] = 0; }
+    }
+    return { network: net, P: P, K: K, S: S, notes: [] };
+  }
+
+  // 중심성 (qgraph::centrality_auto와 동일 정의: 거리 = 1/|w|)
+  function centrality(net) {
+    var p = net.length, strength = [], ei = [], INF = Infinity;
+    for (var i = 0; i < p; i++) {
+      var s = 0, e = 0;
+      for (var j = 0; j < p; j++) if (j !== i) { s += Math.abs(net[i][j]); e += net[i][j]; }
+      strength.push(s); ei.push(e);
+    }
+    // 연결 성분
+    var comp = new Array(p).fill(-1), cid = 0;
+    for (var s0 = 0; s0 < p; s0++) {
+      if (comp[s0] >= 0) continue;
+      var stack = [s0]; comp[s0] = cid;
+      while (stack.length) { var u = stack.pop(); for (var v = 0; v < p; v++) if (v !== u && net[u][v] !== 0 && comp[v] < 0) { comp[v] = cid; stack.push(v); } }
+      cid++;
+    }
+    var sizes = new Array(cid).fill(0); comp.forEach(function (c) { sizes[c]++; });
+    var big = sizes.indexOf(Math.max.apply(null, sizes));
+    var closeness = new Array(p).fill(NaN), betw = new Array(p).fill(0);
+    for (var src = 0; src < p; src++) {
+      // 다익스트라 + Brandes
+      var dist = new Array(p).fill(INF), sigma = new Array(p).fill(0), preds = [], done = new Array(p).fill(false), order = [];
+      for (var q = 0; q < p; q++) preds.push([]);
+      dist[src] = 0; sigma[src] = 1;
+      for (var step = 0; step < p; step++) {
+        var uu = -1, best = INF;
+        for (var c = 0; c < p; c++) if (!done[c] && dist[c] < best) { best = dist[c]; uu = c; }
+        if (uu < 0) break;
+        done[uu] = true; order.push(uu);
+        for (var vv = 0; vv < p; vv++) {
+          if (vv === uu || net[uu][vv] === 0 || done[vv]) continue;
+          var nd = dist[uu] + 1 / Math.abs(net[uu][vv]);
+          var tol = 1e-12 * Math.max(1, nd);
+          if (nd < dist[vv] - tol) { dist[vv] = nd; sigma[vv] = sigma[uu]; preds[vv] = [uu]; }
+          else if (Math.abs(nd - dist[vv]) <= tol) { sigma[vv] += sigma[uu]; preds[vv].push(uu); }
+        }
+      }
+      if (comp[src] === big && sizes[big] > 1) {
+        var tot = 0; for (var t = 0; t < p; t++) if (t !== src && comp[t] === big) tot += dist[t];
+        closeness[src] = 1 / tot;
+      }
+      var delta = new Array(p).fill(0);
+      for (var oi = order.length - 1; oi >= 0; oi--) {
+        var w = order[oi];
+        preds[w].forEach(function (pv) { delta[pv] += sigma[pv] / sigma[w] * (1 + delta[w]); });
+        if (w !== src) betw[w] += delta[w];
+      }
+    }
+    betw = betw.map(function (b) { return b / 2; }); // 무방향: 쌍당 1회
+    return { strength: strength, expectedInfluence: ei, closeness: closeness, betweenness: betw };
+  }
+
+  function zscore(arr) {
+    var x = arr.filter(isNum); if (x.length < 2) return arr.map(function () { return NaN; });
+    var m = mean(x), s = sd(x);
+    return arr.map(function (v) { return isNum(v) ? (s > 0 ? (v - m) / s : 0) : NaN; });
+  }
+
+  // 노드 예측력 (비정규화/정규화 정밀도 행렬 기준 R² = 1 - 1/K_ii, 상관행렬 기준)
+  function predictability(K) { return K.map(function (r, i) { return 1 - 1 / r[i]; }); }
+
+  // 재현 가능한 난수 (mulberry32)
+  function rng(seed) {
+    var a = seed >>> 0;
+    return function () {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      var t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  // 데이터 행렬(행: 사례)로 네트워크 추정
+  function estimateNetwork(cols, opts) {
+    opts = opts || {};
+    var n = cols[0].length;
+    var use = opts.cor === 'spearman' ? cols.map(rank) : cols;
+    var S = covMatrix(use);
+    if (opts.method === 'pcor') return partialCorNetwork(S, n, opts.alpha);
+    return ebicGlasso(S, n, opts);
+  }
+
+  // Fruchterman-Reingold 배치 (결정적; 원형 초기값)
+  function layoutFR(net, iters) {
+    iters = iters || 500;
+    var p = net.length, pos = [];
+    for (var i = 0; i < p; i++) pos.push([Math.cos(2 * Math.PI * i / p), Math.sin(2 * Math.PI * i / p)]);
+    if (p < 2) return pos;
+    var maxw = 0; for (var a = 0; a < p; a++) for (var b = 0; b < p; b++) maxw = Math.max(maxw, Math.abs(net[a][b]));
+    var area = 4, kopt = Math.sqrt(area / p), temp = 0.2;
+    for (var it = 0; it < iters; it++) {
+      var disp = pos.map(function () { return [0, 0]; });
+      for (var u = 0; u < p; u++) for (var v = u + 1; v < p; v++) {
+        var dx = pos[u][0] - pos[v][0], dy = pos[u][1] - pos[v][1], d = Math.max(Math.sqrt(dx * dx + dy * dy), 1e-4);
+        var fr = kopt * kopt / d;
+        var w = maxw > 0 ? Math.abs(net[u][v]) / maxw : 0;
+        var fa = w * d * d / kopt;
+        var f = (fr - fa) / d;
+        disp[u][0] += dx * f; disp[u][1] += dy * f; disp[v][0] -= dx * f; disp[v][1] -= dy * f;
+      }
+      for (var q = 0; q < p; q++) {
+        // 중심으로 약한 인력 (고립 노드가 멀리 가지 않도록)
+        disp[q][0] -= pos[q][0] * 0.05 * kopt; disp[q][1] -= pos[q][1] * 0.05 * kopt;
+        var dl = Math.sqrt(disp[q][0] * disp[q][0] + disp[q][1] * disp[q][1]);
+        if (dl > 0) { var m = Math.min(dl, temp); pos[q][0] += disp[q][0] / dl * m; pos[q][1] += disp[q][1] / dl * m; }
+      }
+      temp *= 0.99;
+    }
+    var xs = pos.map(function (p2) { return p2[0]; }), ys = pos.map(function (p2) { return p2[1]; });
+    var mnx = Math.min.apply(null, xs), mxx = Math.max.apply(null, xs), mny = Math.min.apply(null, ys), mxy = Math.max.apply(null, ys);
+    return pos.map(function (p2) { return [(p2[0] - mnx) / ((mxx - mnx) || 1), (p2[1] - mny) / ((mxy - mny) || 1)]; });
+  }
+
+  /*
+   * 네트워크 안정성 (Epskamp, Borsboom & Fried, 2018; bootnet 방식)
+   * bootEdgeOnce: 사례 복원추출 후 재추정 → 엣지 벡터(상삼각)
+   * caseDropOnce: 사례의 prop 비율을 제거 후 재추정 → 중심성
+   */
+  function subsetCols(cols, idx) { return cols.map(function (c) { return idx.map(function (i) { return c[i]; }); }); }
+  function upperVec(m) { var v = []; for (var i = 0; i < m.length; i++) for (var j = i + 1; j < m.length; j++) v.push(m[i][j]); return v; }
+  function bootEdgeOnce(cols, opts, rand) {
+    var n = cols[0].length, idx = [];
+    for (var i = 0; i < n; i++) idx.push(Math.floor(rand() * n));
+    var net = estimateNetwork(subsetCols(cols, idx), opts).network;
+    return { edges: upperVec(net), centrality: centrality(net) };
+  }
+  function caseDropOnce(cols, opts, prop, rand) {
+    var n = cols[0].length, keep = Math.round(n * (1 - prop)), idx = [];
+    for (var i = 0; i < n; i++) idx.push(i);
+    for (var k = n - 1; k > 0; k--) { var r = Math.floor(rand() * (k + 1)), t = idx[k]; idx[k] = idx[r]; idx[r] = t; }
+    idx = idx.slice(0, keep).sort(function (a, b) { return a - b; });
+    return centrality(estimateNetwork(subsetCols(cols, idx), opts).network);
+  }
+  // CS 계수: 상관 ≥ cor 인 표본이 certainty 이상인 최대 제거비율
+  function csCoefficient(props, corrsByProp, cor, certainty) {
+    cor = cor || 0.7; certainty = certainty || 0.95;
+    var cs = 0;
+    props.forEach(function (p, i) {
+      var arr = corrsByProp[i].filter(isNum);
+      if (!arr.length) return;
+      var ok = arr.filter(function (r) { return r >= cor; }).length / arr.length;
+      if (ok >= certainty) cs = Math.max(cs, p);
+    });
+    return cs;
+  }
+
+  return {
+    // 분포
+    lgamma: lgamma, ibeta: ibeta, gammaP: gammaP, gammaQ: gammaQ,
+    pnorm: pnorm, qnorm: qnorm, pt: pt, ptTwoSided: ptTwoSided, qt: qt, pfUpper: pfUpper, qf: qf,
+    pchisq: pchisq, pchisqUpper: pchisqUpper, qchisq: qchisq, ptukey: ptukey,
+    // 행렬
+    inverse: inverse, cholesky: cholesky, eigenSym: eigenSym, matmul: matmul, transpose: transpose, logdetPD: logdetPD,
+    // 기초
+    isNum: isNum, clean: clean, mean: mean, sd: sd, variance: variance, quantile: quantile, quantileSPSS: quantileSPSS, rank: rank,
+    pearson: pearson, completeRows: completeRows, descriptives: descriptives, shapiroWilk: shapiroWilk,
+    // 검정
+    tTestOneSample: tTestOneSample, tTestPaired: tTestPaired, tTestIndependent: tTestIndependent, leveneTest: leveneTest,
+    anovaOneway: anovaOneway, corTest: corTest, corMatrix: corMatrix, crosstab: crosstab, fisherExact2x2: fisherExact2x2,
+    linearRegression: linearRegression, logisticRegression: logisticRegression, reliability: reliability,
+    // 네트워크
+    covMatrix: covMatrix, cov2cor: cov2cor, glasso: glasso, ebicGlasso: ebicGlasso, partialCorNetwork: partialCorNetwork,
+    wi2net: wi2net, centrality: centrality, zscore: zscore, predictability: predictability, estimateNetwork: estimateNetwork,
+    layoutFR: layoutFR, rng: rng, upperVec: upperVec, bootEdgeOnce: bootEdgeOnce, caseDropOnce: caseDropOnce,
+    csCoefficient: csCoefficient
+  };
+});
+</script>
+<script>/* PsyStat 화면(UI) 코드 — 외부 통신 없음 */
+(function () {
+  'use strict';
+  var S = window.PsyStats;
+  var state = { names: [], cols: [], types: [], nrows: 0, fileName: '' };
+  var current = 'data';
+  var $ = function (sel, el) { return (el || document).querySelector(sel); };
+  var $$ = function (sel, el) { return Array.prototype.slice.call((el || document).querySelectorAll(sel)); };
+
+  /* ---------------- 형식 도우미 ---------------- */
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function f(x, d) {
+    if (x === null || x === undefined || (typeof x === 'number' && isNaN(x))) return '—';
+    if (typeof x !== 'number') return esc(x);
+    if (!isFinite(x)) return x > 0 ? '∞' : '−∞';
+    d = d === undefined ? 3 : d;
+    var s = x.toFixed(d);
+    if (/^-0\.?0*$/.test(s)) s = s.slice(1);
+    return s.replace('-', '−');
+  }
+  function fp(p) {
+    if (p === null || p === undefined || isNaN(p)) return '—';
+    if (p < 0.001) return '< .001';
+    return p.toFixed(3).replace(/^0/, '');
+  }
+  function fr(x) { return f(x, 3).replace(/^(−?)0\./, '$1.'); } // APA: 1을 넘을 수 없는 값
+  function star(p) { return p < 0.001 ? '***' : p < 0.01 ? '**' : p < 0.05 ? '*' : ''; }
+  function table(head, rows, opts) {
+    opts = opts || {};
+    var h = '<div class="tablewrap"><table class="res"><thead><tr>' + head.map(function (x) { return '<th>' + x + '</th>'; }).join('') + '</tr></thead><tbody>';
+    rows.forEach(function (r) { h += '<tr>' + r.map(function (c, i) { return '<td' + (opts.left && opts.left.indexOf(i) >= 0 ? ' class="l"' : '') + '>' + c + '</td>'; }).join('') + '</tr>'; });
+    return h + '</tbody></table></div>';
+  }
+  function rcode(code) { return '<details><summary>R에서 같은 분석 재현하기 (교차검증용)</summary><pre class="rcode">' + esc(code) + '</pre></details>'; }
+  function rvec(names) { return 'c(' + names.map(function (n) { return '"' + n + '"'; }).join(', ') + ')'; }
+  function rname(n) { return /^[A-Za-z.][A-Za-z0-9._]*$/.test(n) ? n : '`' + n + '`'; }
+
+  /* ---------------- 데이터 읽기 ---------------- */
+  var MISSING = { '': 1, 'NA': 1, 'na': 1, 'N/A': 1, '.': 1, 'NaN': 1, '#N/A': 1, '#NULL!': 1, '-': 0 };
+  function setData(rows, fileName) {
+    rows = rows.filter(function (r) { return r.some(function (c) { return String(c).trim() !== ''; }); });
+    if (rows.length < 2) throw new Error('첫 행은 변수 이름, 그 아래로 자료가 있어야 합니다.');
+    var header = rows[0].map(function (h, i) { h = String(h).trim(); return h || ('V' + (i + 1)); });
+    var seen = {};
+    header = header.map(function (h) { var b = h, k = 2; while (seen[h]) h = b + '_' + k++; seen[h] = 1; return h; });
+    var body = rows.slice(1), p = header.length;
+    var cols = [], types = [];
+    for (var j = 0; j < p; j++) {
+      var raw = body.map(function (r) { return r[j] === undefined ? '' : String(r[j]).trim(); });
+      var allNum = raw.every(function (v) { return MISSING[v] === 1 || (!isNaN(Number(v.replace(/,/g, ''))) && v !== ''); });
+      if (allNum) { cols.push(raw.map(function (v) { return MISSING[v] === 1 ? null : Number(v.replace(/,/g, '')); })); types.push('num'); }
+      else { cols.push(raw.map(function (v) { return MISSING[v] === 1 ? null : v; })); types.push('text'); }
+    }
+    state = { names: header, cols: cols, types: types, nrows: body.length, fileName: fileName || '' };
+    updateInfo();
+    select('data');
+  }
+  function parseDelimited(text) {
+    if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+    var first = text.split(/\r?\n/)[0] || '';
+    var delim = first.indexOf('\t') >= 0 ? '\t' : (first.split(';').length > first.split(',').length ? ';' : ',');
+    var rows = [], row = [], cell = '', q = false;
+    for (var i = 0; i < text.length; i++) {
+      var c = text[i];
+      if (q) {
+        if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; }
+        else cell += c;
+      } else if (c === '"' && cell === '') q = true;
+      else if (c === delim) { row.push(cell); cell = ''; }
+      else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(cell); rows.push(row); row = []; cell = ''; }
+      else cell += c;
+    }
+    if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+    return rows;
+  }
+  function decodeText(buf) {
+    try { return new TextDecoder('utf-8', { fatal: true }).decode(buf); }
+    catch (e) { try { return new TextDecoder('euc-kr').decode(buf); } catch (e2) { return new TextDecoder('utf-8').decode(buf); } }
+  }
+
+  // 최소 xlsx 읽기 (첫 번째 시트). 브라우저의 DecompressionStream 필요
+  function readXlsx(buf) {
+    var dv = new DataView(buf), u8 = new Uint8Array(buf), eocd = -1;
+    for (var i = buf.byteLength - 22; i >= Math.max(0, buf.byteLength - 70000); i--) if (dv.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+    if (eocd < 0) return Promise.reject(new Error('xlsx 파일 구조를 읽을 수 없습니다.'));
+    var count = dv.getUint16(eocd + 10, true), off = dv.getUint32(eocd + 16, true), entries = {};
+    for (var e = 0; e < count; e++) {
+      var method = dv.getUint16(off + 10, true), csize = dv.getUint32(off + 20, true), nlen = dv.getUint16(off + 28, true);
+      var xlen = dv.getUint16(off + 30, true), clen = dv.getUint16(off + 32, true), lho = dv.getUint32(off + 42, true);
+      var name = new TextDecoder().decode(u8.subarray(off + 46, off + 46 + nlen));
+      entries[name] = { method: method, csize: csize, lho: lho };
+      off += 46 + nlen + xlen + clen;
+    }
+    function get(name) {
+      var en = entries[name];
+      if (!en) return Promise.resolve(null);
+      var l = en.lho, start = l + 30 + dv.getUint16(l + 26, true) + dv.getUint16(l + 28, true);
+      var data = u8.subarray(start, start + en.csize);
+      if (en.method === 0) return Promise.resolve(new TextDecoder().decode(data));
+      if (typeof DecompressionStream === 'undefined') return Promise.reject(new Error('이 브라우저는 xlsx 압축 해제를 지원하지 않습니다. 엑셀에서 "CSV UTF-8"로 저장하거나 복사-붙여넣기를 이용하세요.'));
+      var ds = new DecompressionStream('deflate-raw');
+      var stream = new Blob([data]).stream().pipeThrough(ds);
+      return new Response(stream).text();
+    }
+    var parser = new DOMParser();
+    function xml(s) { return parser.parseFromString(s, 'application/xml'); }
+    return Promise.all([get('xl/workbook.xml'), get('xl/_rels/workbook.xml.rels'), get('xl/sharedStrings.xml')]).then(function (r) {
+      var sheetPath = 'xl/worksheets/sheet1.xml';
+      if (r[0] && r[1]) {
+        var wb = xml(r[0]), sh = wb.getElementsByTagName('sheet')[0];
+        var rid = sh && (sh.getAttribute('r:id') || sh.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships', 'id'));
+        var rels = xml(r[1]).getElementsByTagName('Relationship');
+        for (var k = 0; k < rels.length; k++) if (rels[k].getAttribute('Id') === rid) {
+          var t = rels[k].getAttribute('Target'); sheetPath = t.charAt(0) === '/' ? t.slice(1) : 'xl/' + t.replace(/^\.\//, '');
+        }
+      }
+      var shared = [];
+      if (r[2]) {
+        var si = xml(r[2]).getElementsByTagName('si');
+        for (var s = 0; s < si.length; s++) {
+          var ts = si[s].getElementsByTagName('t'), txt = '';
+          for (var q = 0; q < ts.length; q++) txt += ts[q].textContent;
+          shared.push(txt);
+        }
+      }
+      return get(sheetPath).then(function (sx) {
+        if (!sx) throw new Error('첫 번째 시트를 찾을 수 없습니다.');
+        var doc = xml(sx), rowsEl = doc.getElementsByTagName('row'), rows = [];
+        function colIdx(ref) { var m = /^([A-Z]+)/.exec(ref), n = 0; for (var c = 0; c < m[1].length; c++) n = n * 26 + (m[1].charCodeAt(c) - 64); return n - 1; }
+        for (var ri = 0; ri < rowsEl.length; ri++) {
+          var rn = Number(rowsEl[ri].getAttribute('r')) - 1, cells = rowsEl[ri].getElementsByTagName('c'), arr = [];
+          for (var ci = 0; ci < cells.length; ci++) {
+            var c = cells[ci], tp = c.getAttribute('t'), v = c.getElementsByTagName('v')[0], val = '';
+            if (tp === 's') val = v ? shared[Number(v.textContent)] : '';
+            else if (tp === 'inlineStr') { var is = c.getElementsByTagName('t'); val = is.length ? is[0].textContent : ''; }
+            else val = v ? v.textContent : '';
+            arr[c.getAttribute('r') ? colIdx(c.getAttribute('r')) : ci] = val;
+          }
+          for (var z = 0; z < arr.length; z++) if (arr[z] === undefined) arr[z] = '';
+          rows[isNaN(rn) ? ri : rn] = arr;
+        }
+        return rows.filter(function (x) { return x; });
+      });
+    });
+  }
+
+  function openFile(file) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      var buf = reader.result;
+      if (/\.xlsx$/i.test(file.name)) {
+        readXlsx(buf).then(function (rows) { setData(rows, file.name); }).catch(function (e) { alert(e.message); });
+      } else {
+        try { setData(parseDelimited(decodeText(buf)), file.name); } catch (e) { alert(e.message); }
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  // 가상 예시 데이터 (시뮬레이션; 실제 자료 아님)
+  function exampleData() {
+    var r = S.rng(2026), n = 300;
+    function norm() { var u = 1 - r(), v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+    var head = ['ID', '집단', '성별', '연령', '우울1', '우울2', '우울3', '불안1', '불안2', '불안3', '수면', '스트레스', '사회적지지', '치료반응'];
+    var rows = [head];
+    for (var i = 0; i < n; i++) {
+      var g = i % 3, dep = norm() + (g === 2 ? 0.5 : 0), anx = 0.6 * dep + 0.8 * norm(), sup = norm();
+      var stress = 0.5 * dep + 0.3 * anx - 0.3 * sup + 0.7 * norm(), sleep = 0.4 * dep + 0.3 * stress + 0.8 * norm();
+      function lik(x) { return Math.max(1, Math.min(5, Math.round(3 + 0.9 * x + 0.6 * norm()))); }
+      var eta = -0.3 - 0.7 * dep + 0.4 * sup + (g === 0 ? 0.6 : 0);
+      rows.push([i + 1, ['통제', '치료A', '치료B'][g], r() < 0.6 ? '여' : '남', Math.round(25 + 10 * r() + 5 * norm()),
+        lik(dep), lik(dep), lik(dep), lik(anx), lik(anx), lik(anx), +(50 + 10 * sleep).toFixed(1), +(50 + 10 * stress).toFixed(1),
+        +(50 + 10 * sup).toFixed(1), r() < 1 / (1 + Math.exp(-eta)) ? 1 : 0]);
+    }
+    rows[5][7] = ''; rows[40][11] = ''; // 결측 예시
+    setData(rows, '예시_가상데이터 (시뮬레이션)');
+  }
+
+  function updateInfo() {
+    $('#datainfo').textContent = state.nrows ? (state.fileName + ' · ' + state.nrows + '행 × ' + state.names.length + '변수') : '데이터 없음';
+  }
+
+  /* ---------------- 변수 선택 위젯 ---------------- */
+  function varOptions(filter) {
+    return state.names.map(function (n, i) { return { name: n, i: i, type: state.types[i] }; })
+      .filter(function (v) { return !filter || filter === 'any' || v.type === filter; });
+  }
+  function levelsOf(i) {
+    var lv = [];
+    state.cols[i].forEach(function (v) { if (v !== null && lv.indexOf(String(v)) < 0) lv.push(String(v)); });
+    return lv.sort(function (a, b) { var x = Number(a), y = Number(b); return (!isNaN(x) && !isNaN(y)) ? x - y : (a < b ? -1 : a > b ? 1 : 0); });
+  }
+  function selectField(id, label, filter, hint) {
+    var o = varOptions(filter).map(function (v) { return '<option value="' + v.i + '">' + esc(v.name) + '</option>'; }).join('');
+    return '<div class="field"><label for="' + id + '">' + label + '</label><select id="' + id + '"><option value="">— 선택 —</option>' + o + '</select>' + (hint ? '<div class="hint">' + hint + '</div>' : '') + '</div>';
+  }
+  function multiField(id, label, filter, hint) {
+    var o = varOptions(filter).map(function (v) {
+      return '<label><input type="checkbox" value="' + v.i + '">' + esc(v.name) + '<span class="vt">' + (v.type === 'num' ? '숫자' : '문자') + '</span></label>';
+    }).join('');
+    return '<div class="field"><div class="lab">' + label + '</div><div class="varlist" id="' + id + '">' + (o || '<div class="hint" style="padding:4px 8px">해당 변수 없음</div>') + '</div>' +
+      '<div class="varlist-tools"><button class="btn small" data-all="' + id + '">전체</button><button class="btn small" data-none="' + id + '">해제</button></div>' +
+      (hint ? '<div class="hint">' + hint + '</div>' : '') + '</div>';
+  }
+  function getMulti(id) { return $$('#' + id + ' input:checked').map(function (c) { return Number(c.value); }); }
+  function getSel(id) { var v = $('#' + id).value; return v === '' ? -1 : Number(v); }
+  function wireMulti() {
+    $$('[data-all]').forEach(function (b) { b.onclick = function () { $$('#' + b.dataset.all + ' input').forEach(function (c) { c.checked = true; }); }; });
+    $$('[data-none]').forEach(function (b) { b.onclick = function () { $$('#' + b.dataset.none + ' input').forEach(function (c) { c.checked = false; }); }; });
+  }
+  function need(cond, msg) { if (!cond) throw new Error(msg); }
+
+  // 문자형/범주형 예측변수 → 더미 코딩 (첫 수준이 기준)
+  function designColumns(idxs, forceCat) {
+    var cols = [], names = [], notes = [];
+    idxs.forEach(function (i) {
+      if (state.types[i] === 'num' && !(forceCat && forceCat.indexOf(i) >= 0)) { cols.push(state.cols[i]); names.push(state.names[i]); return; }
+      var lv = levelsOf(i);
+      notes.push(state.names[i] + ': 기준 범주 = "' + lv[0] + '"');
+      lv.slice(1).forEach(function (l) {
+        cols.push(state.cols[i].map(function (v) { return v === null ? null : (String(v) === l ? 1 : 0); }));
+        names.push(state.names[i] + '[' + l + ']');
+      });
+    });
+    return { cols: cols, names: names, notes: notes };
+  }
+
+  /* ---------------- 결과 카드 ---------------- */
+  function addCard(title, html, meta) {
+    var el = document.createElement('div');
+    el.className = 'card';
+    var now = new Date();
+    el.innerHTML = '<div class="tools"><button class="btn small" data-act="copy">복사</button><button class="btn small" data-act="del">삭제</button></div>' +
+      '<h3>' + esc(title) + '</h3><div class="meta">' + esc(meta || '') + ' · ' + esc(state.fileName) + ' · ' + now.toLocaleString('ko-KR') + '</div>' + html;
+    var box = $('#results');
+    var empty = $('.empty', box); if (empty) empty.remove();
+    box.insertBefore(el, box.firstChild);
+    el.querySelector('[data-act=del]').onclick = function () { el.remove(); };
+    el.querySelector('[data-act=copy]').onclick = function () { copyEl(el); };
+    return el;
+  }
+  function copyEl(el) {
+    var range = document.createRange(); range.selectNodeContents(el);
+    var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+    try { document.execCommand('copy'); flash('복사했습니다. 한글(HWP)·워드·엑셀에 붙여넣기 하세요.'); } catch (e) { flash('복사 실패: Ctrl+C를 눌러주세요.'); }
+    sel.removeAllRanges();
+  }
+  function flash(msg) {
+    var d = document.createElement('div');
+    d.textContent = msg;
+    d.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:6px;z-index:99;font-size:13px';
+    document.body.appendChild(d); setTimeout(function () { d.remove(); }, 2200);
+  }
+  function errorCard(e) { addCard('오류', '<div class="warn">' + esc(e.message || e) + '</div>'); }
+
+  /* ---------------- 분석 정의 ---------------- */
+  var A = {};
+
+  A.desc = {
+    group: '탐색', title: '기술통계·정규성',
+    desc: '평균, 표준편차, 왜도·첨도(SPSS 방식), Shapiro-Wilk 정규성 검정.',
+    form: function () { return multiField('v', '변수', 'num') + selectField('by', '집단별로 나누기 (선택)', 'any'); },
+    run: function () {
+      var v = getMulti('v'), by = getSel('by'); need(v.length, '변수를 하나 이상 선택하세요.');
+      var groups = by < 0 ? [{ label: '전체', idx: null }] : levelsOf(by).map(function (l) { return { label: l, idx: l }; });
+      var head = (by >= 0 ? ['변수', '집단'] : ['변수']).concat(['N', '결측', 'M', 'SD', 'Mdn', 'Min', 'Max', '왜도 (SE)', '첨도 (SE)', 'S-W W', 'p']);
+      var rows = [];
+      v.forEach(function (i) {
+        groups.forEach(function (g) {
+          var x = g.idx === null ? state.cols[i] : state.cols[i].filter(function (_, r) { return String(state.cols[by][r]) === g.idx; });
+          var d = S.descriptives(x);
+          var row = [esc(state.names[i])].concat(by >= 0 ? [esc(g.label)] : []);
+          rows.push(row.concat([d.n, d.missing, f(d.mean, 2), f(d.sd, 2), f(d.median, 2), f(d.min, 2), f(d.max, 2),
+            f(d.skew, 2) + ' (' + f(d.seSkew, 2) + ')', f(d.kurt, 2) + ' (' + f(d.seKurt, 2) + ')', f(d.swW, 3), fp(d.swP)]));
+        });
+      });
+      var html = table(head, rows, { left: by >= 0 ? [1] : [] }) +
+        '<p class="note">왜도·첨도는 SPSS/Excel과 같은 표본 보정 공식(G1, G2). 첨도는 초과첨도(정규분포 = 0). Shapiro-Wilk는 Royston(1995) 알고리즘으로 R의 shapiro.test와 같은 값을 냅니다(n = 3–5000). 중앙값은 R 기본(type 7) 방식입니다.</p>' +
+        '<p class="note">N이 클 때는 정규성 검정이 사소한 이탈에도 유의해지므로, 왜도 |2|·첨도 |7| 이내 같은 기준(West, Finch, & Curran, 1995)과 함께 판단하세요.</p>' +
+        rcode('psych::describe(df[, ' + rvec(v.map(function (i) { return state.names[i]; })) + '])\nshapiro.test(df$' + rname(state.names[v[0]]) + ')');
+      addCard('기술통계', html, v.length + '개 변수');
+    }
+  };
+
+  function twoLevelPicker(gid) {
+    return '<div class="field" id="' + gid + '_lv" style="display:none"><div class="lab">비교할 두 집단</div><div class="inline"><select id="' + gid + '_a"></select><span>vs</span><select id="' + gid + '_b"></select></div></div>';
+  }
+  function wireLevelPicker(gid) {
+    $('#' + gid).onchange = function () {
+      var i = getSel(gid), box = $('#' + gid + '_lv');
+      if (i < 0) { box.style.display = 'none'; return; }
+      var lv = levelsOf(i), o = lv.map(function (l) { return '<option>' + esc(l) + '</option>'; }).join('');
+      $('#' + gid + '_a').innerHTML = o; $('#' + gid + '_b').innerHTML = o;
+      $('#' + gid + '_b').selectedIndex = Math.min(1, lv.length - 1);
+      box.style.display = '';
+    };
+  }
+
+  A.ttest = {
+    group: '평균 비교', title: 't 검정',
+    desc: '독립표본(Student·Welch), 대응표본, 일표본 t 검정과 효과크기.',
+    form: function () {
+      return '<div class="field"><div class="lab">종류</div><div class="inline">' +
+        '<label><input type="radio" name="tt" value="ind" checked>독립표본</label><label><input type="radio" name="tt" value="pair">대응표본</label><label><input type="radio" name="tt" value="one">일표본</label></div></div>' +
+        '<div id="tt_ind">' + multiField('dv', '종속변수', 'num') + selectField('g', '집단변수', 'any') + twoLevelPicker('g') + '</div>' +
+        '<div id="tt_pair" style="display:none">' + selectField('p1', '측정 1 (예: 사후)', 'num') + selectField('p2', '측정 2 (예: 사전)', 'num') + '</div>' +
+        '<div id="tt_one" style="display:none">' + multiField('ov', '변수', 'num') + '<div class="field"><label for="mu">검정값 (μ₀)</label><input type="number" id="mu" value="0" step="any"></div></div>';
+    },
+    wire: function () {
+      wireLevelPicker('g');
+      $$('input[name=tt]').forEach(function (r) {
+        r.onchange = function () { var k0 = $('input[name=tt]:checked').value; ['ind', 'pair', 'one'].forEach(function (k) { $('#tt_' + k).style.display = k === k0 ? '' : 'none'; }); };
+      });
+    },
+    run: function () {
+      var kind = $('input[name=tt]:checked').value, html = '';
+      if (kind === 'ind') {
+        var dv = getMulti('dv'), g = getSel('g'); need(dv.length && g >= 0, '종속변수와 집단변수를 선택하세요.');
+        var la = $('#g_a').value, lb = $('#g_b').value; need(la !== lb, '서로 다른 두 집단을 선택하세요.');
+        var drows = [], trows = [];
+        dv.forEach(function (i) {
+          var x1 = state.cols[i].filter(function (_, r) { return String(state.cols[g][r]) === la; });
+          var x2 = state.cols[i].filter(function (_, r) { return String(state.cols[g][r]) === lb; });
+          var t = S.tTestIndependent(x1, x2), nm = esc(state.names[i]);
+          drows.push([nm, esc(la), t.n1, f(t.mean1, 2), f(t.sd1, 2)]); drows.push(['', esc(lb), t.n2, f(t.mean2, 2), f(t.sd2, 2)]);
+          trows.push([nm, 'Student (등분산 가정)', f(t.student.t, 2), f(t.student.df, 0), fp(t.student.p), f(t.diff, 2), '[' + f(t.student.ciLow, 2) + ', ' + f(t.student.ciHigh, 2) + ']', f(t.d, 2), f(t.g, 2)]);
+          trows.push(['', 'Welch (등분산 미가정)', f(t.welch.t, 2), f(t.welch.df, 2), fp(t.welch.p), f(t.diff, 2), '[' + f(t.welch.ciLow, 2) + ', ' + f(t.welch.ciHigh, 2) + ']', '', '']);
+          trows.push(['', 'Levene F(' + t.levene.df1 + ', ' + t.levene.df2 + ') = ' + f(t.levene.F, 2) + ', p ' + (t.levene.p < .001 ? '< .001' : '= ' + fp(t.levene.p)), '', '', '', '', '', '', '']);
+        });
+        html = '<h4>집단별 기술통계</h4>' + table(['변수', '집단', 'n', 'M', 'SD'], drows, { left: [1] }) +
+          '<h4>독립표본 t 검정</h4>' + table(['변수', '검정', 't', 'df', 'p', '평균차', '95% CI', "Cohen's d", "Hedges' g"], trows, { left: [1] }) +
+          '<p class="note">Levene 검정은 SPSS와 같은 평균 중심 방식. 최근에는 Levene 결과와 관계없이 Welch 검정을 기본으로 보고할 것을 권고합니다(Delacre, Lakens, & Leys, 2017).</p>' +
+          rcode('t.test(' + rname(state.names[dv[0]]) + ' ~ ' + rname(state.names[g]) + ', data = df, var.equal = FALSE)\ncar::leveneTest(' + rname(state.names[dv[0]]) + ' ~ factor(' + rname(state.names[g]) + '), data = df, center = mean)');
+        addCard('독립표본 t 검정', html, esc(state.names[g]) + ': ' + la + ' vs ' + lb);
+      } else if (kind === 'pair') {
+        var a = getSel('p1'), b = getSel('p2'); need(a >= 0 && b >= 0 && a !== b, '서로 다른 두 측정 변수를 선택하세요.');
+        var t2 = S.tTestPaired(state.cols[a], state.cols[b]);
+        html = table(['', 'n', 'M', 'SD'], [[esc(state.names[a]), t2.n, f(t2.mean1, 2), f(t2.sd1, 2)], [esc(state.names[b]), t2.n, f(t2.mean2, 2), f(t2.sd2, 2)]]) +
+          table(['비교', '평균차', 'SD차', 't', 'df', 'p', '95% CI', 'd<sub>z</sub>', 'r'], [[esc(state.names[a] + ' − ' + state.names[b]), f(t2.meanDiff, 2), f(t2.sdDiff, 2), f(t2.t, 2), t2.df, fp(t2.p),
+            '[' + f(t2.ciLow, 2) + ', ' + f(t2.ciHigh, 2) + ']', f(t2.dz, 2), fr(t2.r)]]) +
+          '<p class="note">d<sub>z</sub> = 평균차 / 차이점수의 SD (Lakens, 2013). r은 두 측정 간 상관.</p>' +
+          rcode('t.test(df$' + rname(state.names[a]) + ', df$' + rname(state.names[b]) + ', paired = TRUE)');
+        addCard('대응표본 t 검정', html, '');
+      } else {
+        var ov = getMulti('ov'), mu = Number($('#mu').value); need(ov.length, '변수를 선택하세요.');
+        var rows = ov.map(function (i) { var t3 = S.tTestOneSample(state.cols[i], mu); return [esc(state.names[i]), t3.n, f(t3.mean, 2), f(t3.sd, 2), f(t3.t, 2), t3.df, fp(t3.p), '[' + f(t3.ciLow, 2) + ', ' + f(t3.ciHigh, 2) + ']', f(t3.d, 2)]; });
+        html = table(['변수', 'n', 'M', 'SD', 't', 'df', 'p', '평균차 95% CI', 'd'], rows) + rcode('t.test(df$' + rname(state.names[ov[0]]) + ', mu = ' + mu + ')');
+        addCard('일표본 t 검정', html, 'μ₀ = ' + mu);
+      }
+    }
+  };
+
+  A.anova = {
+    group: '평균 비교', title: '일원분산분석',
+    desc: 'F 검정, Welch ANOVA, 효과크기(η², ω²), 사후검정(Tukey, Games-Howell, Bonferroni).',
+    form: function () { return multiField('dv', '종속변수', 'num') + selectField('g', '집단변수 (요인)', 'any'); },
+    run: function () {
+      var dv = getMulti('dv'), g = getSel('g'); need(dv.length && g >= 0, '종속변수와 집단변수를 선택하세요.');
+      var lv = levelsOf(g); need(lv.length >= 2, '집단이 2개 이상이어야 합니다.');
+      dv.forEach(function (i) {
+        var groups = lv.map(function (l) { return state.cols[i].filter(function (v, r) { return v !== null && String(state.cols[g][r]) === l; }); });
+        var keep = lv.filter(function (_, k) { return groups[k].length > 1; });
+        groups = groups.filter(function (x) { return x.length > 1; });
+        var a = S.anovaOneway(groups, keep);
+        var html = '<h4>기술통계</h4>' + table(['집단', 'n', 'M', 'SD'], a.desc.map(function (d) { return [esc(d.label), d.n, f(d.mean, 2), f(d.sd, 2)]; })) +
+          '<h4>분산분석표</h4>' + table(['', 'SS', 'df', 'MS', 'F', 'p', 'η²', 'ω²'], [
+            ['집단 간', f(a.ssb, 2), a.dfB, f(a.msb, 2), f(a.F, 2), fp(a.p), fr(a.eta2), fr(a.omega2)],
+            ['집단 내', f(a.ssw, 2), a.dfW, f(a.msw, 2), '', '', '', ''], ['전체', f(a.sst, 2), a.dfB + a.dfW, '', '', '', '', '']]) +
+          table(['보조 검정', '통계량', 'df', 'p'], [
+            ['Welch ANOVA', 'F = ' + f(a.welch.F, 2), a.welch.df1 + ', ' + f(a.welch.df2, 2), fp(a.welch.p)],
+            ['Levene (등분산)', 'F = ' + f(a.levene.F, 2), a.levene.df1 + ', ' + a.levene.df2, fp(a.levene.p)]], { left: [0] }) +
+          '<h4>사후검정 (다중비교)</h4>' + table(['비교', '평균차', 'SE', 'Tukey p', 'Games-Howell p', 'Bonferroni p'], a.posthoc.map(function (p) {
+            return [esc(p.a + ' − ' + p.b), f(p.diff, 2), f(p.se, 2), fp(p.pTukey), fp(p.pGH), fp(p.pBonf)];
+          })) +
+          '<p class="note">등분산 가정이 의심되면 Welch ANOVA와 Games-Howell을 보고하세요. Tukey(집단 크기가 다르면 Tukey-Kramer)와 Games-Howell은 스튜던트화 범위 분포(R의 ptukey 이식)를 사용합니다.</p>' +
+          rcode('m <- aov(' + rname(state.names[i]) + ' ~ factor(' + rname(state.names[g]) + '), data = df)\nsummary(m); TukeyHSD(m)\noneway.test(' + rname(state.names[i]) + ' ~ ' + rname(state.names[g]) + ', data = df)');
+        addCard('일원분산분석: ' + state.names[i], html, '요인 = ' + state.names[g]);
+      });
+    }
+  };
+
+  A.cor = {
+    group: '관계', title: '상관분석',
+    desc: 'Pearson·Spearman 상관행렬, 유의확률, 95% 신뢰구간.',
+    form: function () {
+      return multiField('v', '변수 (2개 이상)', 'num') + '<div class="field"><div class="lab">방법</div><div class="inline"><label><input type="radio" name="cm" value="pearson" checked>Pearson</label><label><input type="radio" name="cm" value="spearman">Spearman</label></div></div>' +
+        '<div class="field"><div class="lab">결측 처리</div><div class="inline"><label><input type="radio" name="mm" value="pairwise" checked>대응별 제거</label><label><input type="radio" name="mm" value="listwise">목록별 제거</label></div></div>';
+    },
+    run: function () {
+      var v = getMulti('v'); need(v.length >= 2, '변수를 2개 이상 선택하세요.');
+      var m = $('input[name=cm]:checked').value, mm = $('input[name=mm]:checked').value;
+      var cols = v.map(function (i) { return state.cols[i]; }), names = v.map(function (i) { return state.names[i]; });
+      var res = S.corMatrix(cols, m, mm);
+      var rows = names.map(function (n, a) {
+        return [(a + 1) + '. ' + esc(n)].concat(names.map(function (_, b) { return b < a ? fr(res.R[a][b]) + star(res.P[a][b]) : (b === a ? '—' : ''); }));
+      });
+      var pairs = [];
+      for (var a = 0; a < v.length; a++) for (var b = a + 1; b < v.length; b++) {
+        var ct = S.corTest(cols[a], cols[b], m);
+        if (mm === 'listwise') { var rr = S.completeRows(cols); ct = S.corTest(rr.map(function (r) { return cols[a][r]; }), rr.map(function (r) { return cols[b][r]; }), m); }
+        pairs.push([esc(names[a] + ' – ' + names[b]), fr(ct.r), ct.n, f(ct.t, 2), fp(ct.p), '[' + fr(ct.ciLow) + ', ' + fr(ct.ciHigh) + ']']);
+      }
+      var html = table([''].concat(names.map(function (_, i) { return i + 1; })), rows) +
+        '<p class="note">* p < .05, ** p < .01, *** p < .001 (양측).</p><h4>세부 결과</h4>' +
+        table(['쌍', m === 'pearson' ? 'r' : 'ρ', 'n', 't', 'p', '95% CI (Fisher z)'], pairs) +
+        (m === 'spearman' ? '<p class="note">Spearman의 p값은 SPSS와 같은 t 근사입니다. 표본이 작고 동순위가 없으면 R의 cor.test(exact = TRUE)와 약간 다를 수 있습니다.</p>' : '') +
+        rcode('psych::corr.test(df[, ' + rvec(names) + '], method = "' + m + '", use = "' + (mm === 'pairwise' ? 'pairwise' : 'complete') + '")');
+      addCard((m === 'pearson' ? 'Pearson' : 'Spearman') + ' 상관분석', html, v.length + '개 변수, ' + (mm === 'pairwise' ? '대응별 제거' : '목록별 제거'));
+    }
+  };
+
+  A.chisq = {
+    group: '관계', title: '교차분석 (χ²)',
+    desc: 'Pearson χ², 우도비 검정, Fisher 정확검정(2×2), Cramér V.',
+    form: function () { return selectField('r', '행 변수', 'any') + selectField('c', '열 변수', 'any'); },
+    run: function () {
+      var r = getSel('r'), c = getSel('c'); need(r >= 0 && c >= 0 && r !== c, '서로 다른 두 변수를 선택하세요.');
+      var t = S.crosstab(state.cols[r], state.cols[c]);
+      var rows = [];
+      t.rows.forEach(function (rl, a) {
+        rows.push([esc(rl)].concat(t.O[a].map(function (o, b) { return o + ' <span class="note">(' + f(t.E[a][b], 1) + ')</span><br><span class="note">행 ' + f(100 * o / t.rowSums[a], 1) + '%</span>'; })).concat([t.rowSums[a]]));
+      });
+      rows.push(['합계'].concat(t.colSums).concat([t.n]));
+      var tests = [['Pearson χ²', f(t.chi2, 3), t.df, fp(t.p)], ['우도비 G²', f(t.G2, 3), t.df, fp(t.pG2)]];
+      if (t.yates) { tests.push(['연속성 보정 (Yates)', f(t.yates.chi2, 3), 1, fp(t.yates.p)]); tests.push(['Fisher 정확검정 (양측)', '', '', fp(t.fisherP)]); }
+      var eff = [['Cramér V', fr(t.cramerV)]];
+      if (t.yates) { eff.push(['φ', fr(t.phi)]); eff.push(['오즈비 (OR)', f(t.oddsRatio, 3)]); }
+      var html = table([esc(state.names[r]) + ' \\ ' + esc(state.names[c])].concat(t.cols.map(esc)).concat(['합계']), rows) +
+        '<p class="note">셀: 관측빈도 (기대빈도), 행 백분율.</p>' + table(['검정', '값', 'df', 'p'], tests, { left: [0] }) + table(['효과크기', '값'], eff) +
+        (t.lowExpected ? '<div class="warn">기대빈도 5 미만 셀: ' + t.lowExpected + ' / ' + t.cells + '개 (' + f(100 * t.lowExpected / t.cells, 1) + '%). 20%를 넘으면 χ² 근사가 부정확할 수 있습니다' + (t.yates ? ' — Fisher 정확검정을 보고하세요.' : '. 범주 병합을 고려하세요.') + '</div>' : '') +
+        rcode('tab <- table(df$' + rname(state.names[r]) + ', df$' + rname(state.names[c]) + ')\nchisq.test(tab, correct = FALSE); fisher.test(tab)');
+      addCard('교차분석', html, state.names[r] + ' × ' + state.names[c]);
+    }
+  };
+
+  A.lm = {
+    group: '회귀', title: '선형회귀',
+    desc: '다중회귀: B, SE, β, t, p, 95% CI, R², VIF, Durbin-Watson. 문자형 예측변수는 자동 더미코딩.',
+    form: function () { return selectField('y', '종속변수', 'num') + multiField('x', '예측변수', 'any', '문자형 변수는 첫 범주를 기준으로 더미코딩됩니다.'); },
+    run: function () {
+      var y = getSel('y'), x = getMulti('x').filter(function (i) { return i !== y; }); need(y >= 0 && x.length, '종속변수와 예측변수를 선택하세요.');
+      var dc = designColumns(x), m = S.linearRegression(state.cols[y], dc.cols, dc.names);
+      var html = table(['R', 'R²', '수정 R²', '추정값 SE', 'F', 'df', 'p', 'N'], [[fr(m.R), fr(m.R2), fr(m.adjR2), f(m.see, 3), f(m.F, 2), m.dfM + ', ' + m.dfE, fp(m.p), m.n]]) +
+        table(['예측변수', 'B', 'SE', 'β', 't', 'p', '95% CI', 'VIF'], m.coefs.map(function (c) {
+          return [esc(c.name), f(c.b, 3), f(c.se, 3), f(c.beta, 3), f(c.t, 2), fp(c.p), '[' + f(c.ciLow, 3) + ', ' + f(c.ciHigh, 3) + ']', f(c.vif, 2)];
+        })) +
+        (dc.notes.length ? '<p class="note">더미코딩 — ' + esc(dc.notes.join('; ')) + '</p>' : '') +
+        '<p class="note">Durbin-Watson = ' + f(m.durbinWatson, 3) + '. VIF > 10(보수적으로 > 5)이면 다중공선성을 점검하세요. 계산은 QR 분해 기반 최소제곱으로, R의 lm()과 같은 값을 냅니다.</p>' +
+        (m.coefs.some(function (c) { return c.vif > 10; }) ? '<div class="warn">VIF가 10을 넘는 예측변수가 있습니다.</div>' : '') +
+        rcode('m <- lm(' + rname(state.names[y]) + ' ~ ' + x.map(function (i) { return rname(state.names[i]); }).join(' + ') + ', data = df)\nsummary(m); car::vif(m); lm.beta::lm.beta(m)');
+      addCard('선형회귀: ' + state.names[y], html, x.length + '개 예측변수');
+    }
+  };
+
+  A.logit = {
+    group: '회귀', title: '로지스틱 회귀',
+    desc: '이분형 종속변수: B, SE, Wald, p, 오즈비(95% CI), 모형 χ², Nagelkerke R², Hosmer-Lemeshow, 분류표, AUC.',
+    form: function () {
+      return selectField('y', '종속변수 (두 범주)', 'any') + '<div class="field" id="ev" style="display:none"><label for="evv">사건(=1)으로 볼 범주</label><select id="evv"></select></div>' +
+        multiField('x', '예측변수', 'any', '문자형 변수는 첫 범주를 기준으로 더미코딩됩니다.') +
+        '<div class="field"><label for="cut">분류 기준 확률</label><input type="number" id="cut" value="0.5" step="0.05" min="0.05" max="0.95"></div>';
+    },
+    wire: function () {
+      $('#y').onchange = function () {
+        var i = getSel('y'); if (i < 0) { $('#ev').style.display = 'none'; return; }
+        var lv = levelsOf(i);
+        $('#evv').innerHTML = lv.map(function (l) { return '<option>' + esc(l) + '</option>'; }).join('');
+        $('#evv').selectedIndex = lv.length - 1;
+        $('#ev').style.display = '';
+        if (lv.length !== 2) $('#ev').insertAdjacentHTML('beforeend', '<div class="hint">주의: 이 변수는 ' + lv.length + '개 범주입니다. 선택한 범주 = 1, 나머지 = 0으로 분석합니다.</div>');
+      };
+    },
+    run: function () {
+      var y = getSel('y'), x = getMulti('x').filter(function (i) { return i !== y; }); need(y >= 0 && x.length, '종속변수와 예측변수를 선택하세요.');
+      var ev = $('#evv').value, cut = Number($('#cut').value) || 0.5;
+      var yy = state.cols[y].map(function (v) { return v === null ? null : (String(v) === ev ? 1 : 0); });
+      var dc = designColumns(x), m = S.logisticRegression(yy, dc.cols, dc.names, { cutoff: cut });
+      var cl = m.classification;
+      var html = (m.warnings.length ? '<div class="warn">' + m.warnings.map(esc).join('<br>') + '</div>' : '') +
+        '<h4>모형 적합</h4>' + table(['N', '사건 수', '−2LL', '모형 χ²', 'df', 'p', 'Cox-Snell R²', 'Nagelkerke R²', 'McFadden R²', 'AIC', 'BIC'],
+          [[m.n, m.nEvents, f(m.deviance, 3), f(m.chi2, 3), m.dfM, fp(m.pModel), fr(m.coxSnell), fr(m.nagelkerke), fr(m.mcfadden), f(m.aic, 2), f(m.bic, 2)]]) +
+        '<h4>회귀계수</h4>' + table(['예측변수', 'B', 'SE', 'Wald χ²', 'p', 'OR', 'OR 95% CI'], m.coefs.map(function (c) {
+          return [esc(c.name), f(c.b, 3), f(c.se, 3), f(c.wald, 3), fp(c.p), f(c.or, 3), '[' + f(c.orLow, 3) + ', ' + f(c.orHigh, 3) + ']'];
+        })) +
+        '<h4>Hosmer-Lemeshow 적합도</h4>' + table(['χ²', 'df', 'p', '집단 수'], [[f(m.hl.chi2, 3), m.hl.df, fp(m.hl.p), m.hl.groups]]) +
+        '<h4>분류표 (기준 = ' + cut + ')</h4>' + table(['관측 \\ 예측', '0', '1', '정확도'], [
+          ['0 (' + esc(levelsOf(y).length === 2 ? levelsOf(y).filter(function (l) { return l !== ev; })[0] : '기타') + ')', cl.tn, cl.fp, f(100 * cl.specificity, 1) + '% (특이도)'],
+          ['1 (' + esc(ev) + ')', cl.fn, cl.tp, f(100 * cl.sensitivity, 1) + '% (민감도)'], ['전체', '', '', f(100 * cl.accuracy, 1) + '%']], { left: [0] }) +
+        '<p class="note">AUC (ROC 곡선 아래 면적) = ' + fr(m.auc) + '. 반복 ' + m.iterations + '회 (IRLS, ' + (m.converged ? '수렴' : '<b>미수렴</b>') + ').</p>' +
+        (dc.notes.length ? '<p class="note">더미코딩 — ' + esc(dc.notes.join('; ')) + '</p>' : '') +
+        '<p class="note">Wald χ² = (B/SE)². 계수·SE는 R의 glm(family = binomial)과 같습니다. Hosmer-Lemeshow는 예측확률의 분위수(10분위)로 집단을 나누는 방식(R ResourceSelection::hoslem.test와 동일)이어서, 동점 처리가 다른 SPSS와는 값이 약간 다를 수 있습니다. 표본이 크면 H-L 검정은 과민해지므로 AUC·보정 정도와 함께 보세요(Hosmer, Lemeshow, & Sturdivant, 2013).</p>' +
+        rcode('df$y01 <- as.integer(df$' + rname(state.names[y]) + ' == "' + ev + '")\nm <- glm(y01 ~ ' + x.map(function (i) { return rname(state.names[i]); }).join(' + ') + ', data = df, family = binomial)\nsummary(m); exp(cbind(OR = coef(m), confint.default(m)))\nResourceSelection::hoslem.test(m$y, fitted(m), g = 10)');
+      addCard('이분형 로지스틱 회귀: ' + state.names[y] + ' = ' + ev, html, x.length + '개 예측변수');
+    }
+  };
+
+  A.alpha = {
+    group: '척도', title: '신뢰도 (Cronbach α)',
+    desc: 'Cronbach α, 표준화 α, 수정된 문항-총점 상관, 문항 삭제 시 α.',
+    form: function () { return multiField('v', '문항 (2개 이상)', 'num') + multiField('rev', '역채점할 문항 (선택)', 'num') + '<div class="field"><label for="rmax">역채점: (최솟값 + 최댓값) − 점수</label><div class="inline"><input type="number" id="rmin" value="1" style="width:70px"> + <input type="number" id="rmax" value="5" style="width:70px"></div></div>'; },
+    run: function () {
+      var v = getMulti('v'), rev = getMulti('rev'); need(v.length >= 2, '문항을 2개 이상 선택하세요.');
+      var k = Number($('#rmin').value) + Number($('#rmax').value);
+      var cols = v.map(function (i) { return rev.indexOf(i) >= 0 ? state.cols[i].map(function (x) { return x === null ? null : k - x; }) : state.cols[i]; });
+      var names = v.map(function (i) { return state.names[i] + (rev.indexOf(i) >= 0 ? ' (R)' : ''); });
+      var r = S.reliability(cols, names);
+      var html = table(['Cronbach α', '표준화 α', '평균 문항간 r', '문항 수', 'N'], [[fr(r.alpha), fr(r.stdAlpha), fr(r.meanInterItem), r.k, r.n]]) +
+        table(['문항', 'M', 'SD', '수정된 문항-총점 r', '삭제 시 α'], r.items.map(function (it) { return [esc(it.name), f(it.mean, 2), f(it.sd, 2), fr(it.rCorrected), fr(it.alphaIfDeleted)]; })) +
+        '<p class="note">결측은 목록별 제거(SPSS와 동일). R의 psych::alpha는 기본이 대응별(pairwise)이라 결측이 있으면 값이 약간 다를 수 있습니다. α는 타우 동등성을 가정하므로 McDonald ω도 함께 보고하는 것이 권장됩니다(McNeish, 2018) — ω는 현재 버전에 없습니다.</p>' +
+        rcode('psych::alpha(na.omit(df[, ' + rvec(v.map(function (i) { return state.names[i]; })) + '])' + (rev.length ? ', keys = ' + rvec(rev.map(function (i) { return state.names[i]; })) : '') + ')');
+      addCard('신뢰도 분석', html, v.length + '문항');
+    }
+  };
+
+  /* ---------------- 네트워크 분석 ---------------- */
+  function networkSVG(net, labels, opts) {
+    opts = opts || {};
+    var p = net.length, W = 560, H = 480, pad = 40, pos = opts.layout || S.layoutFR(net), maxw = opts.maxw || 0;
+    if (!maxw) for (var a = 0; a < p; a++) for (var b = 0; b < p; b++) maxw = Math.max(maxw, Math.abs(net[a][b]));
+    var R = Math.max(14, Math.min(24, 220 / p));
+    var X = function (i) { return pad + R + pos[i][0] * (W - 2 * pad - 2 * R); }, Y = function (i) { return pad + R + pos[i][1] * (H - 2 * pad - 2 * R); };
+    var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + H + '" width="100%" style="max-width:' + W + 'px;background:var(--panel)" font-family="sans-serif">';
+    var edges = [];
+    for (var i = 0; i < p; i++) for (var j = i + 1; j < p; j++) if (net[i][j] !== 0) edges.push([i, j, net[i][j]]);
+    edges.sort(function (x, y) { return Math.abs(x[2]) - Math.abs(y[2]); });
+    edges.forEach(function (e) {
+      var w = Math.abs(e[2]) / (maxw || 1);
+      s += '<line x1="' + X(e[0]).toFixed(1) + '" y1="' + Y(e[0]).toFixed(1) + '" x2="' + X(e[1]).toFixed(1) + '" y2="' + Y(e[1]).toFixed(1) +
+        '" stroke="' + (e[2] > 0 ? '#2b5fc7' : '#c8372d') + '" stroke-width="' + (0.8 + 9 * w).toFixed(2) + '" stroke-opacity="' + (0.25 + 0.75 * w).toFixed(2) + '"' +
+        (e[2] < 0 ? ' stroke-dasharray="6 3"' : '') + '><title>' + esc(labels[e[0]] + ' – ' + labels[e[1]]) + ': ' + e[2].toFixed(3) + '</title></line>';
+    });
+    for (var n = 0; n < p; n++) {
+      s += '<circle cx="' + X(n).toFixed(1) + '" cy="' + Y(n).toFixed(1) + '" r="' + R + '" fill="#ffffff" stroke="#3a4152" stroke-width="1.5"/>';
+      if (opts.pred) { // 예측력 링
+        var ang = 2 * Math.PI * Math.max(0, Math.min(1, opts.pred[n])), x1 = X(n), y1 = Y(n) - R, x2 = X(n) + R * Math.sin(ang), y2 = Y(n) - R * Math.cos(ang);
+        s += '<path d="M' + x1.toFixed(1) + ' ' + y1.toFixed(1) + ' A' + R + ' ' + R + ' 0 ' + (ang > Math.PI ? 1 : 0) + ' 1 ' + x2.toFixed(1) + ' ' + y2.toFixed(1) + '" fill="none" stroke="#8a94a6" stroke-width="4"/>';
+      }
+      var lab = labels[n].length > 6 ? labels[n].slice(0, 6) : labels[n];
+      s += '<text x="' + X(n).toFixed(1) + '" y="' + (Y(n) + 4).toFixed(1) + '" text-anchor="middle" font-size="' + (lab.length > 4 ? 8.5 : lab.length > 3 ? 10 : 12) + '" style="fill:#1d2433">' + esc(lab) + '<title>' + esc(labels[n]) + '</title></text>';
+    }
+    return s + '</svg>';
+  }
+
+  function centralityPlotSVG(labels, measures) {
+    var keys = Object.keys(measures), p = labels.length, rowH = 20, top = 30, left = 90, pw = 130, gap = 20;
+    var W = left + keys.length * (pw + gap), H = top + p * rowH + 30;
+    var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + H + '" width="100%" style="max-width:' + W + 'px" font-family="sans-serif" font-size="11">';
+    labels.forEach(function (l, i) { s += '<text x="' + (left - 8) + '" y="' + (top + i * rowH + rowH / 2 + 4) + '" text-anchor="end">' + esc(l) + '</text>'; });
+    keys.forEach(function (k, ki) {
+      var x0 = left + ki * (pw + gap), z = measures[k], lo = -2.5, hi = 2.5;
+      z.forEach(function (v) { if (isFinite(v)) { lo = Math.min(lo, v); hi = Math.max(hi, v); } });
+      var X = function (v) { return x0 + (v - lo) / (hi - lo) * pw; };
+      s += '<text x="' + (x0 + pw / 2) + '" y="16" text-anchor="middle" font-weight="600">' + esc(k) + '</text>';
+      s += '<rect x="' + x0 + '" y="' + top + '" width="' + pw + '" height="' + p * rowH + '" fill="none" stroke="#8a94a6" stroke-width="0.6"/>';
+      s += '<line x1="' + X(0) + '" y1="' + top + '" x2="' + X(0) + '" y2="' + (top + p * rowH) + '" stroke="#8a94a6" stroke-dasharray="2 2"/>';
+      [-2, 0, 2].forEach(function (t) { if (t >= lo && t <= hi) s += '<text x="' + X(t) + '" y="' + (top + p * rowH + 14) + '" text-anchor="middle" fill="#8a94a6">' + t + '</text>'; });
+      var pts = [];
+      z.forEach(function (v, i) { if (isFinite(v)) pts.push(X(v).toFixed(1) + ',' + (top + i * rowH + rowH / 2)); });
+      s += '<polyline points="' + pts.join(' ') + '" fill="none" stroke="#2b5fc7" stroke-width="1.5"/>';
+      z.forEach(function (v, i) { if (isFinite(v)) s += '<circle cx="' + X(v).toFixed(1) + '" cy="' + (top + i * rowH + rowH / 2) + '" r="3" fill="#2b5fc7"/>'; });
+    });
+    return s + '<text x="' + (left + (W - left) / 2) + '" y="' + (H - 2) + '" text-anchor="middle" fill="#8a94a6">z 점수</text></svg>';
+  }
+
+  function svgDownload(svgEl, name, png) {
+    var xml = new XMLSerializer().serializeToString(svgEl).replace(/var\(--panel\)/g, '#ffffff').replace(/var\(--ink\)/g, '#1d2433');
+    if (!png) { download(name + '.svg', xml, 'image/svg+xml'); return; }
+    var vb = svgEl.viewBox.baseVal, img = new Image();
+    img.onload = function () {
+      var c = document.createElement('canvas'); c.width = vb.width * 3; c.height = vb.height * 3;
+      var ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height); ctx.drawImage(img, 0, 0, c.width, c.height);
+      c.toBlob(function (b) { var a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name + '.png'; a.click(); });
+    };
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
+  }
+  function download(name, content, type) {
+    var b = new Blob([content], { type: type + ';charset=utf-8' }), a = document.createElement('a');
+    a.href = URL.createObjectURL(b); a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  }
+
+  A.network = {
+    group: '네트워크', title: '네트워크 분석 (GGM)',
+    desc: '가우시안 그래프 모형: EBICglasso(qgraph 동일 절차) 또는 편상관 네트워크, 중심성, 부트스트랩 안정성.',
+    form: function () {
+      return multiField('v', '노드 변수 (3개 이상)', 'num') +
+        '<div class="field"><label for="est">추정 방법</label><select id="est"><option value="ebicglasso">EBICglasso (정규화 편상관)</option><option value="pcor">편상관 (비정규화)</option></select></div>' +
+        '<div class="field" id="ebicopts"><label for="gam">EBIC γ (감마)</label><select id="gam"><option value="0.5" selected>0.5 (기본, 보수적)</option><option value="0.25">0.25</option><option value="0">0 (BIC)</option></select>' +
+        '<div class="inline" style="margin-top:6px"><label><input type="checkbox" id="thr">threshold = TRUE (특이도 강화)</label></div></div>' +
+        '<div class="field" id="pcopts" style="display:none"><label for="alp">유의하지 않은 엣지 제거 (α)</label><select id="alp"><option value="0">제거 안 함</option><option value="0.05">.05</option><option value="0.01">.01</option></select></div>' +
+        '<div class="field"><div class="lab">상관 종류</div><div class="inline"><label><input type="radio" name="cr" value="pearson" checked>Pearson</label><label><input type="radio" name="cr" value="spearman">Spearman</label></div>' +
+        '<div class="hint">리커트 문항은 qgraph의 cor_auto(다분상관)를 흔히 쓰지만 현재 버전은 다분상관을 지원하지 않습니다. 5점 이상 척도에서는 Spearman이 실용적 대안입니다.</div></div>' +
+        '<div class="field"><div class="lab">안정성 분석 (부트스트랩, bootnet 방식)</div><div class="inline"><label>엣지 부트스트랩 <input type="number" id="nb" value="0" min="0" step="100" style="width:80px"> 회</label></div>' +
+        '<div class="inline" style="margin-top:4px"><label>사례 제거 부트스트랩 <input type="number" id="nc" value="0" min="0" step="100" style="width:80px"> 회</label></div>' +
+        '<div class="inline" style="margin-top:4px"><label>난수 시드 <input type="number" id="seed" value="1234" style="width:80px"></label></div>' +
+        '<div class="hint">0이면 생략. 논문 보고용으로는 각각 1000회 권장(Epskamp et al., 2018). 변수 15개·1000회 기준 수 분 걸릴 수 있습니다.</div></div>';
+    },
+    wire: function () {
+      $('#est').onchange = function () { var e = $('#est').value; $('#ebicopts').style.display = e === 'ebicglasso' ? '' : 'none'; $('#pcopts').style.display = e === 'pcor' ? '' : 'none'; };
+    },
+    run: function () {
+      var v = getMulti('v'); need(v.length >= 3, '노드 변수를 3개 이상 선택하세요.');
+      var names = v.map(function (i) { return state.names[i]; });
+      var rows = S.completeRows(v.map(function (i) { return state.cols[i]; }));
+      var cols = v.map(function (i) { return rows.map(function (r) { return state.cols[i][r]; }); });
+      var n = rows.length; need(n > v.length + 2, '완전 사례 수가 너무 적습니다.');
+      var opts = { method: $('#est').value, cor: $('input[name=cr]:checked').value, gamma: Number($('#gam').value), threshold: $('#thr').checked, alpha: Number($('#alp').value) || 0 };
+      var res = S.estimateNetwork(cols, opts), net = res.network, p = v.length;
+      var ce = S.centrality(net), layout = S.layoutFR(net);
+      var nEdges = 0, possible = p * (p - 1) / 2, edgeRows = [];
+      for (var a = 0; a < p; a++) for (var b = a + 1; b < p; b++) if (net[a][b] !== 0) { nEdges++; edgeRows.push([a, b, net[a][b]]); }
+      edgeRows.sort(function (x, y) { return Math.abs(y[2]) - Math.abs(x[2]); });
+      var meanW = 0; edgeRows.forEach(function (e) { meanW += Math.abs(e[2]); }); meanW = nEdges ? meanW / nEdges : 0;
+      var pred = opts.method === 'pcor' ? S.predictability(res.K) : null;
+      var est = opts.method === 'ebicglasso' ? 'EBICglasso (γ = ' + opts.gamma + (opts.threshold ? ', threshold' : '') + ')' : '편상관' + (opts.alpha ? ' (p < ' + opts.alpha + ' 엣지만)' : '');
+      var labels = names.map(function (nm, i) { return String(i + 1); });
+      var useNum = names.some(function (nm) { return nm.length > 6; });
+      var plotLabels = useNum ? labels : names;
+      var zs = { '강도 Strength': S.zscore(ce.strength), '근접 Closeness': S.zscore(ce.closeness), '매개 Betweenness': S.zscore(ce.betweenness), '기대영향 EI': S.zscore(ce.expectedInfluence) };
+      var html = (res.notes || []).map(function (t) { return '<div class="warn">' + esc(t) + '</div>'; }).join('') +
+        table(['N (완전 사례)', '노드', '엣지', '밀도', '평균 |가중치|', opts.method === 'ebicglasso' ? '선택 λ' : '상관'], [[n, p, nEdges + ' / ' + possible, fr(nEdges / possible), fr(meanW), opts.method === 'ebicglasso' ? f(res.lambda, 4) : opts.cor]]) +
+        '<div class="net-plot">' + networkSVG(net, plotLabels, { layout: layout, pred: pred }) + '</div>' +
+        '<div class="legend"><span class="sw" style="background:#2b5fc7"></span>정적 편상관<span class="sw" style="background:#c8372d"></span>부적 편상관 (점선) · 선 굵기 ∝ |가중치| · 배치: Fruchterman-Reingold' + (pred ? ' · 회색 링: 노드 예측력(R²)' : '') + '</div>' +
+        (useNum ? '<p class="note">노드 번호: ' + names.map(function (nm, i) { return (i + 1) + ' = ' + esc(nm); }).join(', ') + '</p>' : '') +
+        '<div class="inline" style="margin:6px 0"><button class="btn small" data-dl="svg">그림 SVG 저장</button><button class="btn small" data-dl="png">그림 PNG 저장</button><button class="btn small" data-dl="csv">가중치 행렬 CSV 저장</button></div>' +
+        '<h4>중심성</h4>' + table(['노드', '강도', '근접', '매개', '기대영향'].concat(pred ? ['예측력 R²'] : []), names.map(function (nm, i) {
+          return [esc(nm), f(ce.strength[i], 3), isFinite(ce.closeness[i]) ? f(ce.closeness[i], 4) : '—', f(ce.betweenness[i], 0), f(ce.expectedInfluence[i], 3)].concat(pred ? [fr(pred[i])] : []);
+        })) +
+        '<div class="cent-plot">' + centralityPlotSVG(names, zs) + '</div>' +
+        '<p class="note">중심성 정의는 qgraph::centrality_auto와 같습니다(거리 = 1/|w|; 근접중심성은 가장 큰 연결 성분 안에서만 계산). 근접·매개 중심성은 심리 네트워크에서 안정성이 낮은 경우가 많아 해석에 신중해야 합니다(Bringmann et al., 2019). 강도·기대영향은 사례 제거 부트스트랩의 CS 계수로 안정성을 확인한 뒤 해석하세요.</p>' +
+        '<h4>엣지 목록 (|가중치| 순)</h4>' + table(['노드 1', '노드 2', '편상관'], edgeRows.slice(0, 60).map(function (e) { return [esc(names[e[0]]), esc(names[e[1]]), fr(e[2])]; }), { left: [1] }) +
+        (edgeRows.length > 60 ? '<p class="note">상위 60개만 표시. 전체는 CSV로 저장하세요.</p>' : '') +
+        '<h4>가중치 행렬</h4>' + table([''].concat(names.map(function (_, i) { return i + 1; })), names.map(function (nm, a) {
+          return [(a + 1) + '. ' + esc(nm)].concat(names.map(function (_, b) { return a === b ? '—' : (net[a][b] === 0 ? '<span class="note">0</span>' : fr(net[a][b])); }));
+        })) +
+        '<div class="bootbox"></div>' +
+        rcode('library(qgraph)\nd <- na.omit(df[, ' + rvec(names) + '])\n' +
+          (opts.method === 'ebicglasso'
+            ? 'net <- EBICglasso(cor(d' + (opts.cor === 'spearman' ? ', method = "spearman"' : '') + '), n = nrow(d), gamma = ' + opts.gamma + (opts.threshold ? ', threshold = TRUE' : '') + ')\n'
+            : 'net <- -cov2cor(solve(cor(d' + (opts.cor === 'spearman' ? ', method = "spearman"' : '') + '))); diag(net) <- 0\n') +
+          'qgraph(net, layout = "spring", labels = colnames(d))\ncentrality_auto(net)$node.centrality\n# 안정성: library(bootnet)\n# b1 <- bootnet(d, default = "EBICglasso", nBoots = 1000)\n# b2 <- bootnet(d, default = "EBICglasso", type = "case", nBoots = 1000); corStability(b2)');
+      var card = addCard('네트워크 분석: ' + est, html, p + '개 노드');
+      card.querySelector('[data-dl=svg]').onclick = function () { svgDownload(card.querySelector('.net-plot svg'), 'network', false); };
+      card.querySelector('[data-dl=png]').onclick = function () { svgDownload(card.querySelector('.net-plot svg'), 'network', true); };
+      card.querySelector('[data-dl=csv]').onclick = function () {
+        var csv = '﻿,' + names.join(',') + '\n' + names.map(function (nm, a) { return nm + ',' + net[a].map(function (x) { return x.toFixed(6); }).join(','); }).join('\n');
+        download('network_weights.csv', csv, 'text/csv');
+      };
+      var nb = Math.max(0, Math.floor(Number($('#nb').value) || 0)), nc = Math.max(0, Math.floor(Number($('#nc').value) || 0));
+      if (nb || nc) runBootstrap(card.querySelector('.bootbox'), cols, names, opts, net, ce, nb, nc, Number($('#seed').value) || 1);
+    }
+  };
+
+  function runBootstrap(box, cols, names, opts, net, ce, nb, nc, seed) {
+    var rand = S.rng(seed), p = names.length, orig = S.upperVec(net), pairs = [];
+    for (var a = 0; a < p; a++) for (var b = a + 1; b < p; b++) pairs.push([a, b]);
+    var edgeSamples = [], props = [0.05, 0.128, 0.206, 0.283, 0.361, 0.439, 0.517, 0.594, 0.672, 0.75];
+    var corrS = props.map(function () { return []; }), corrE = props.map(function () { return []; }), corrB = props.map(function () { return []; }), corrC = props.map(function () { return []; });
+    var total = nb + nc, done = 0, t0 = Date.now();
+    box.innerHTML = '<h4>안정성 분석 진행 중…</h4><div class="progress"><div></div></div><div class="note prog">0 / ' + total + '</div>';
+    function step() {
+      var until = Date.now() + 120;
+      try {
+        while (done < total && Date.now() < until) {
+          if (done < nb) edgeSamples.push(S.bootEdgeOnce(cols, opts, rand).edges);
+          else {
+            var k = (done - nb) % props.length, c = S.caseDropOnce(cols, opts, props[k], rand);
+            corrS[k].push(S.pearson(ce.strength, c.strength)); corrE[k].push(S.pearson(ce.expectedInfluence, c.expectedInfluence));
+            corrB[k].push(S.pearson(ce.betweenness, c.betweenness));
+            var okC = ce.closeness.map(function (x, i) { return isFinite(x) && isFinite(c.closeness[i]); });
+            corrC[k].push(S.pearson(ce.closeness.filter(function (_, i) { return okC[i]; }), c.closeness.filter(function (_, i) { return okC[i]; })));
+          }
+          done++;
+        }
+      } catch (e) { box.innerHTML = '<div class="warn">부트스트랩 중 오류: ' + esc(e.message) + '</div>'; return; }
+      box.querySelector('.progress > div').style.width = (100 * done / total) + '%';
+      var el = (Date.now() - t0) / 1000;
+      box.querySelector('.prog').textContent = done + ' / ' + total + ' · 경과 ' + el.toFixed(0) + '초 · 남은 시간 약 ' + (done ? (el / done * (total - done)).toFixed(0) : '?') + '초';
+      if (done < total) { setTimeout(step, 0); return; }
+      var html = '<h4>안정성 분석 결과 (시드 = ' + seed + ')</h4>';
+      if (nb) {
+        var rows = pairs.map(function (pr, e) {
+          var s = edgeSamples.map(function (x) { return x[e]; }).sort(function (x, y) { return x - y; });
+          var lo = S.quantile(s, 0.025), hi = S.quantile(s, 0.975), nz = s.filter(function (x) { return x !== 0; }).length / s.length;
+          return { pr: pr, w: orig[e], m: S.mean(s), lo: lo, hi: hi, nz: nz };
+        }).sort(function (x, y) { return Math.abs(y.w) - Math.abs(x.w); });
+        html += '<p class="note">엣지 부트스트랩 ' + nb + '회: 비모수 재표집, 2.5–97.5 백분위 구간. "포함 비율"은 엣지가 0이 아닌 표본의 비율.</p>' +
+          table(['엣지', '원 추정치', '부트 평균', '95% 구간', '포함 비율'], rows.filter(function (r) { return r.w !== 0 || r.nz > 0.5; }).slice(0, 80).map(function (r) {
+            return [esc(names[r.pr[0]] + ' – ' + names[r.pr[1]]), fr(r.w), fr(r.m), '[' + fr(r.lo) + ', ' + fr(r.hi) + ']', f(100 * r.nz, 1) + '%'];
+          })) + '<p class="note">정규화(EBICglasso) 추정에서 이 구간은 엄밀한 신뢰구간이 아니라 추정 정확도의 지표입니다(Epskamp et al., 2018). 구간이 서로 크게 겹치면 엣지 간 크기 순위를 해석하지 마세요.</p>';
+      }
+      if (nc) {
+        var cs = [['강도 Strength', corrS], ['기대영향 EI', corrE], ['매개 Betweenness', corrB], ['근접 Closeness', corrC]].map(function (m) { return [m[0], f(S.csCoefficient(props, m[1], 0.7, 0.95), 2)]; });
+        html += '<p class="note">사례 제거 부트스트랩 ' + nc + '회 (제거 비율 5–75%, 10단계).</p>' + table(['중심성', 'CS 계수 (r ≥ .70, 95%)'], cs) +
+          '<p class="note">CS 계수는 .25 이상이어야 하고, .50 이상이 바람직합니다(Epskamp et al., 2018). bootnet의 corStability()와 같은 정의입니다.</p>' +
+          table(['제거 비율'].concat(props.map(function (x) { return Math.round(x * 100) + '%'; })), [['강도: 평균 r'].concat(corrS.map(function (a) { return a.length ? fr(S.mean(a.filter(S.isNum))) : '—'; }))]);
+      }
+      box.innerHTML = html;
+    }
+    setTimeout(step, 30);
+  }
+
+  /* ---------------- 데이터 화면 ---------------- */
+  function dataView() {
+    var h = '<h2>데이터</h2><p class="desc">엑셀에서 범위를 복사(Ctrl+C)해 아래에 붙여넣거나, CSV/XLSX 파일을 여세요. 첫 행은 변수 이름입니다. 빈 칸, NA, ., #NULL!은 결측으로 처리됩니다.</p>' +
+      '<div class="field"><textarea class="paste" id="pastebox" placeholder="여기에 엑셀 자료를 붙여넣기 (Ctrl+V)"></textarea></div>' +
+      '<div class="inline"><button class="btn primary" id="pasteGo">붙여넣은 자료 불러오기</button><button class="btn" id="openBtn2">파일 열기</button></div>';
+    if (state.nrows) {
+      h += '<h4 style="margin-top:18px">변수 형식</h4><div class="varlist" style="max-height:260px">' + state.names.map(function (n, i) {
+        return '<label>' + esc(n) + '<span class="vt"><select data-type="' + i + '"><option value="num"' + (state.types[i] === 'num' ? ' selected' : '') + '>숫자</option><option value="text"' + (state.types[i] === 'text' ? ' selected' : '') + '>문자</option></select></span></label>';
+      }).join('') + '</div><div class="hint">숫자로 코딩된 범주형 변수(예: 성별 1/2)는 숫자 그대로 두어도 집단변수로 쓸 수 있습니다. 회귀의 예측변수로 쓸 범주형은 "문자"로 바꾸면 더미코딩됩니다.</div>';
+    }
+    return h;
+  }
+  function dataPreview() {
+    if (!state.nrows) return '<div class="empty"><h2>PsyStat</h2><p>폐쇄망용 단일 파일 통계 도구입니다. 외부와 통신하지 않으며, 자료는 이 PC의 브라우저 밖으로 나가지 않습니다.</p><p>왼쪽에서 자료를 붙여넣거나, 위의 <b>예시 데이터</b>로 먼저 둘러보세요.</p></div>';
+    var maxR = Math.min(state.nrows, 300);
+    var h = '<div class="card"><h3>데이터 미리보기</h3><div class="meta">' + esc(state.fileName) + ' · ' + state.nrows + '행 × ' + state.names.length + '변수' + (state.nrows > maxR ? ' (처음 ' + maxR + '행 표시)' : '') + '</div><div class="datagrid"><table><thead><tr><th>#</th>' +
+      state.names.map(function (n, i) { return '<th>' + esc(n) + '<br><span class="note">' + (state.types[i] === 'num' ? '숫자' : '문자') + '</span></th>'; }).join('') + '</tr></thead><tbody>';
+    for (var r = 0; r < maxR; r++) {
+      h += '<tr><td class="na">' + (r + 1) + '</td>' + state.cols.map(function (c) { var v = c[r]; return v === null ? '<td class="na">·</td>' : '<td>' + esc(v) + '</td>'; }).join('') + '</tr>';
+    }
+    return h + '</tbody></table></div></div>';
+  }
+
+  /* ---------------- 화면 전환 ---------------- */
+  var savedResults = null;
+  function select(id) {
+    current = id;
+    $$('nav.side a').forEach(function (a) { a.classList.toggle('active', a.dataset.id === id); });
+    var opts = $('#opts'), res = $('#results');
+    if (id === 'data') {
+      if (!savedResults) savedResults = document.createDocumentFragment();
+      while (res.firstChild && !res.firstChild.classList.contains('datapreview')) savedResults.appendChild(res.firstChild);
+      opts.innerHTML = dataView();
+      res.innerHTML = '<div class="datapreview">' + dataPreview() + '</div>';
+      $('#pasteGo').onclick = function () { var t = $('#pastebox').value; if (!t.trim()) return; try { setData(parseDelimited(t), '붙여넣은 자료'); } catch (e) { alert(e.message); } };
+      $('#openBtn2').onclick = function () { $('#file').click(); };
+      $$('[data-type]').forEach(function (s) {
+        s.onchange = function () {
+          var i = Number(s.dataset.type);
+          if (s.value === 'num') {
+            var conv = state.cols[i].map(function (v) { return v === null ? null : Number(v); });
+            if (conv.some(function (v) { return v !== null && isNaN(v); })) { alert('숫자로 바꿀 수 없는 값이 있습니다.'); s.value = 'text'; return; }
+            state.cols[i] = conv;
+          } else state.cols[i] = state.cols[i].map(function (v) { return v === null ? null : String(v); });
+          state.types[i] = s.value; $('#results').innerHTML = '<div class="datapreview">' + dataPreview() + '</div>';
+        };
+      });
+      return;
+    }
+    var pv = $('.datapreview', res); if (pv) pv.remove();
+    if (savedResults && savedResults.childNodes.length) { res.appendChild(savedResults); savedResults = null; }
+    if (!res.children.length) res.innerHTML = '<div class="empty"><p>분석을 실행하면 결과가 여기에 쌓입니다 (최신 결과가 위).</p></div>';
+    var an = A[id];
+    if (!state.nrows) { opts.innerHTML = '<h2>' + esc(an.title) + '</h2><p class="desc">먼저 데이터를 불러오세요.</p>'; return; }
+    opts.innerHTML = '<h2>' + esc(an.title) + '</h2><p class="desc">' + esc(an.desc) + '</p>' + an.form() + '<button class="btn primary" id="runBtn" style="width:100%;margin-top:6px">분석 실행</button>';
+    wireMulti(); if (an.wire) an.wire();
+    $('#runBtn').onclick = function () {
+      var btn = $('#runBtn'); btn.disabled = true; btn.textContent = '계산 중…';
+      setTimeout(function () {
+        try { an.run(); } catch (e) { errorCard(e); if (window.console) console.error(e); }
+        btn.disabled = false; btn.textContent = '분석 실행';
+        $('#results').scrollTop = 0; window.scrollTo(0, 0);
+      }, 20);
+    };
+  }
+
+  function buildNav() {
+    var nav = $('#nav'), h = '<a data-id="data">데이터</a>', lastG = '';
+    Object.keys(A).forEach(function (k) {
+      if (A[k].group !== lastG) { h += '<div class="grp">' + esc(A[k].group) + '</div>'; lastG = A[k].group; }
+      h += '<a data-id="' + k + '">' + esc(A[k].title) + '</a>';
+    });
+    h += '<div class="grp">정보</div><a data-id="about">도움말·참고문헌</a>';
+    nav.innerHTML = h;
+    $$('a', nav).forEach(function (a) { a.onclick = function () { a.dataset.id === 'about' ? about() : select(a.dataset.id); }; });
+  }
+
+  function about() {
+    $$('nav.side a').forEach(function (a) { a.classList.toggle('active', a.dataset.id === 'about'); });
+    $('#opts').innerHTML = '<h2>도움말</h2><p class="desc">PsyStat은 하나의 HTML 파일로 동작하는 오프라인 통계 도구입니다. 설치가 필요 없고, 외부 서버와 통신하지 않습니다.</p>' +
+      '<p class="desc"><b>검증</b>: 모든 계산은 R 4.x(stats, car, psych, qgraph 1.9.8, glasso)의 결과와 자동 대조되었습니다. 저장소의 tests/run_tests.js에서 1,100개 이상의 수치를 비교하며, 중요한 결과는 가능하면 SPSS·R로 한 번 더 확인하세요.</p>' +
+      '<p class="desc"><b>결과 내보내기</b>: 각 카드의 [복사] 후 한글·워드에 붙여넣기, 또는 상단 [결과 저장]으로 HTML 파일 저장(워드에서 열 수 있음).</p>';
+    var refs = [
+      ['Bringmann, L. F., et al. (2019). What do centrality measures measure in psychological networks? Journal of Abnormal Psychology, 128(8), 892–903.', 'https://doi.org/10.1037/abn0000446'],
+      ['Copenhaver, M. D., & Holland, B. (1988). Computation of the distribution of the maximum studentized range statistic. Journal of Statistical Computation and Simulation, 30(1), 1–15.', 'https://doi.org/10.1080/00949658808811082'],
+      ['Delacre, M., Lakens, D., & Leys, C. (2017). Why psychologists should by default use Welch’s t-test instead of Student’s t-test. International Review of Social Psychology, 30(1), 92–101.', 'https://doi.org/10.5334/irsp.82'],
+      ['Epskamp, S., Borsboom, D., & Fried, E. I. (2018). Estimating psychological networks and their accuracy: A tutorial paper. Behavior Research Methods, 50(1), 195–212.', 'https://doi.org/10.3758/s13428-017-0862-1'],
+      ['Epskamp, S., & Fried, E. I. (2018). A tutorial on regularized partial correlation networks. Psychological Methods, 23(4), 617–634.', 'https://doi.org/10.1037/met0000167'],
+      ['Foygel, R., & Drton, M. (2010). Extended Bayesian information criteria for Gaussian graphical models. Advances in Neural Information Processing Systems, 23.', 'https://arxiv.org/abs/1011.6640'],
+      ['Friedman, J., Hastie, T., & Tibshirani, R. (2008). Sparse inverse covariance estimation with the graphical lasso. Biostatistics, 9(3), 432–441.', 'https://doi.org/10.1093/biostatistics/kxm045'],
+      ['Hosmer, D. W., Lemeshow, S., & Sturdivant, R. X. (2013). Applied logistic regression (3rd ed.). Wiley.', 'https://doi.org/10.1002/9781118548387'],
+      ['Lakens, D. (2013). Calculating and reporting effect sizes to facilitate cumulative science. Frontiers in Psychology, 4, 863.', 'https://doi.org/10.3389/fpsyg.2013.00863'],
+      ['McNeish, D. (2018). Thanks coefficient alpha, we’ll take it from here. Psychological Methods, 23(3), 412–433.', 'https://doi.org/10.1037/met0000144'],
+      ['Royston, P. (1995). Remark AS R94: A remark on algorithm AS 181: The W-test for normality. Applied Statistics, 44(4), 547–551.', 'https://doi.org/10.2307/2986146'],
+      ['West, S. G., Finch, J. F., & Curran, P. J. (1995). Structural equation models with nonnormal variables. In R. H. Hoyle (Ed.), Structural equation modeling (pp. 56–75). Sage.', 'https://psycnet.apa.org/record/1995-97753-004'],
+      ['Williams, D. R., & Rast, P. (2020). Back to the basics: Rethinking partial correlation network methodology. British Journal of Mathematical and Statistical Psychology, 73(2), 187–212.', 'https://doi.org/10.1111/bmsp.12173']
+    ];
+    var res = $('#results'), pv = $('.datapreview', res); if (pv) pv.remove();
+    if (savedResults && savedResults.childNodes.length) { res.appendChild(savedResults); savedResults = null; }
+    addCard('참고문헌', '<ul style="padding-left:18px;margin:0">' + refs.map(function (r) { return '<li style="margin-bottom:6px">' + esc(r[0]) + ' <span class="note">' + esc(r[1]) + '</span></li>'; }).join('') + '</ul>' +
+      '<p class="note">폐쇄망에서는 링크가 열리지 않으므로 DOI를 텍스트로 표기했습니다.</p>', '도움말');
+  }
+
+  function saveResults() {
+    var res = $('#results').cloneNode(true);
+    $$('.tools, .datapreview, .empty, .inline', res).forEach(function (e) { e.remove(); });
+    var css = document.getElementById('appcss').textContent;
+    var html = '<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>PsyStat 결과</title><style>' + css + ' body{padding:20px;max-width:1000px;margin:auto}</style></head><body data-theme="light">' + res.innerHTML + '</body></html>';
+    var d = new Date(), stamp = d.getFullYear() + ('0' + (d.getMonth() + 1)).slice(-2) + ('0' + d.getDate()).slice(-2) + '_' + ('0' + d.getHours()).slice(-2) + ('0' + d.getMinutes()).slice(-2);
+    download('PsyStat_results_' + stamp + '.html', html, 'text/html');
+  }
+
+  /* ---------------- 시작 ---------------- */
+  document.addEventListener('DOMContentLoaded', function () {
+    buildNav();
+    $('#openBtn').onclick = function () { $('#file').click(); };
+    $('#file').onchange = function (e) { if (e.target.files[0]) openFile(e.target.files[0]); e.target.value = ''; };
+    $('#exBtn').onclick = exampleData;
+    $('#saveBtn').onclick = saveResults;
+    $('#clearBtn').onclick = function () { if (confirm('모든 결과를 지울까요?')) { $('#results').innerHTML = ''; savedResults = null; select(current === 'about' ? 'data' : current); } };
+    $('#themeBtn').onclick = function () {
+      var r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      r.dataset.theme = dark ? 'light' : 'dark';
+    };
+    document.addEventListener('dragover', function (e) { e.preventDefault(); });
+    document.addEventListener('drop', function (e) { e.preventDefault(); if (e.dataTransfer.files[0]) openFile(e.dataTransfer.files[0]); });
+    updateInfo();
+    select('data');
+  });
+  window.PsyStatApp = { setData: setData, parseDelimited: parseDelimited, select: select, exampleData: exampleData };
+})();
+</script>
+</body>
+</html>
