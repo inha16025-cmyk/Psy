@@ -25,11 +25,74 @@
   }
   function fr(x) { return f(x, 3).replace(/^(−?)0\./, '$1.'); } // APA: 1을 넘을 수 없는 값
   function star(p) { return p < 0.001 ? '***' : p < 0.01 ? '**' : p < 0.05 ? '*' : ''; }
+  // APA 7판: 통계 기호(라틴 문자)는 기울임, 그리스 문자·약어(CI, OR 등)는 기울이지 않음
+  var ITAL = ['M', 'SD', 'SE', 'Mdn', 'n', 'N', 't', 'F', 'p', 'r', 'R', 'df', 'B', 'd', 'g', 'z', 'W', 'U', 'V', 'k'];
+  // 기호 앞이 문장 시작·공백·괄호·Δ일 때만 기울임 (예: '치료B'의 B, 'S-W'의 W는 제외)
+  var ITAL_RE = new RegExp('(^|[\\s(\\[Δ/·])(' + ITAL.join('|') + ')(?![A-Za-z가-힣])', 'g');
+  function italHead(h) {
+    return String(h).split(/(<[^>]+>)/).map(function (part) {
+      return part.charAt(0) === '<' ? part : part.replace(ITAL_RE, function (_, pre, tok) { return pre + '<i>' + tok + '</i>'; });
+    }).join('');
+  }
+  // table(head, rows, {left, title, note}) → APA 표 (번호는 카드에 추가될 때 매김)
   function table(head, rows, opts) {
     opts = opts || {};
-    var h = '<div class="tablewrap"><table class="res"><thead><tr>' + head.map(function (x) { return '<th>' + x + '</th>'; }).join('') + '</tr></thead><tbody>';
+    var h = '<div class="apa"' + (opts.title ? ' data-title="' + esc(opts.title) + '"' : '') + (opts.note ? ' data-note="' + esc(opts.note) + '"' : '') + '>' +
+      '<div class="tablewrap"><table class="res"><thead><tr>' + head.map(function (x) { return '<th>' + italHead(x) + '</th>'; }).join('') + '</tr></thead><tbody>';
     rows.forEach(function (r) { h += '<tr>' + r.map(function (c, i) { return '<td' + (opts.left && opts.left.indexOf(i) >= 0 ? ' class="l"' : '') + '>' + c + '</td>'; }).join('') + '</tr>'; });
-    return h + '</tbody></table></div>';
+    return h + '</tbody></table></div></div>';
+  }
+  var ABBR = [['Boot', 'Boot = 부트스트랩'], ['CI', 'CI = 신뢰구간'], ['OR', 'OR = 오즈비'], ['VIF', 'VIF = 분산팽창지수'], ['AUC', 'AUC = ROC 곡선 아래 면적'],
+    ['−2LL', '−2LL = −2 로그우도'], ['AIC', 'AIC = 아카이케 정보기준'], ['BIC', 'BIC = 베이지안 정보기준'], ['EI', 'EI = 기대영향'], ['S-W', 'S-W = Shapiro-Wilk']];
+  // 카드 안의 표에 번호·제목·주를 붙인다
+  function decorateTables(card, cardTitle) {
+    $$('.apa', card).forEach(function (el, k) {
+      var title = el.dataset.title, prev = el.previousElementSibling;
+      if (!title && prev && prev.tagName === 'H4') { title = prev.textContent; prev.parentNode.removeChild(prev); }
+      if (!title) title = cardTitle;
+      el.dataset.ftitle = title;
+      var headTxt = $('thead', el).textContent, bodyTxt = $('tbody', el).textContent, notes = [];
+      if (el.dataset.note) notes.push(el.dataset.note);
+      var ab = ABBR.filter(function (a) { return headTxt.indexOf(a[0]) >= 0 || (a[0] === 'CI' && bodyTxt.indexOf('CI') >= 0); }).map(function (a) { return a[1]; });
+      if (ab.length) notes.push(ab.join('; ') + '.');
+      var stars = /\d\*/.test(bodyTxt);
+      var noteHtml = notes.length || stars ? '<div class="apa-note">' + (notes.length ? '<i>주.</i> ' + esc(notes.join(' ')) : '') +
+        (stars ? (notes.length ? '<br>' : '') + '*<i>p</i> &lt; .05. **<i>p</i> &lt; .01. ***<i>p</i> &lt; .001.' : '') + '</div>' : '';
+      el.insertAdjacentHTML('afterbegin', '<div class="apa-cap"><b class="apa-num">표 ' + (k + 1) + '</b><button class="btn small apa-copy" title="APA 서식으로 복사 (한글·워드·엑셀)">APA 복사</button></div><div class="apa-title">' + esc(title) + '</div>');
+      el.insertAdjacentHTML('beforeend', noteHtml);
+      $('.apa-copy', el).onclick = function () { copyApa([el]); };
+    });
+  }
+  // 인라인 서식 HTML(워드·한글용) + 탭 구분 텍스트(엑셀용)
+  var APA_FONT = "font-family:'Times New Roman','바탕',Batang,serif;font-size:12pt;";
+  function cleanCell(h) { return h.replace(/<(?!\/?(i|sub|sup|br)\b)[^>]*>/g, '').replace(/<br>/g, ' '); }
+  function apaExport(el, num) {
+    var title = el.dataset.ftitle, heads = $$('thead th', el), rows = $$('tbody tr', el);
+    var html = '<p style="margin:12pt 0 0;' + APA_FONT + 'font-weight:bold">표 ' + num + '</p>' +
+      '<p style="margin:0 0 6pt;' + APA_FONT + 'font-style:italic">' + esc(title) + '</p>' +
+      '<table style="border-collapse:collapse;' + APA_FONT + '"><thead><tr>' + heads.map(function (th, i) {
+        return '<th style="' + APA_FONT + 'font-weight:normal;border-top:1pt solid #000;border-bottom:1pt solid #000;padding:2pt 7pt;vertical-align:bottom;text-align:' + (i ? 'center' : 'left') + '">' + cleanCell(th.innerHTML) + '</th>';
+      }).join('') + '</tr></thead><tbody>' + rows.map(function (tr, ri) {
+        return '<tr>' + $$('td', tr).map(function (td, i) {
+          return '<td style="' + APA_FONT + 'padding:2pt 7pt;text-align:' + (i && !td.classList.contains('l') ? 'center' : 'left') + (ri === rows.length - 1 ? ';border-bottom:1pt solid #000' : '') + '">' + cleanCell(td.innerHTML) + '</td>';
+        }).join('') + '</tr>';
+      }).join('') + '</tbody></table>';
+    var note = $('.apa-note', el);
+    if (note) html += '<p style="margin:3pt 0 0;' + APA_FONT + '">' + note.innerHTML + '</p>';
+    var txt = function (node) { return node.textContent.replace(/−/g, '-').replace(/\s+/g, ' ').trim(); };
+    var text = '표 ' + num + '\n' + title + '\n' + heads.map(txt).join('\t') + '\n' + rows.map(function (tr) { return $$('td', tr).map(txt).join('\t'); }).join('\n') + (note ? '\n' + txt(note) : '');
+    return { html: html, text: text };
+  }
+  function copyApa(els, startNum) {
+    var parts = els.map(function (el, i) { return apaExport(el, (startNum || 1) + i); });
+    var html = parts.map(function (p) { return p.html; }).join(''), text = parts.map(function (p) { return p.text; }).join('\n\n');
+    var handler = function (e) { e.clipboardData.setData('text/html', html); e.clipboardData.setData('text/plain', text); e.preventDefault(); };
+    document.addEventListener('copy', handler);
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (er) { ok = false; }
+    document.removeEventListener('copy', handler);
+    window.__lastApaCopy = { html: html, text: text }; // 테스트·디버깅용
+    flash(ok ? 'APA 표 ' + els.length + '개를 복사했습니다. 한글·워드에는 서식 그대로, 엑셀에는 칸별로 붙습니다. 표 번호는 원고에 맞게 고치세요.' : '복사에 실패했습니다. 표를 드래그해 Ctrl+C로 복사하세요.');
   }
   function rcode(code) { return '<details><summary>R에서 같은 분석 재현하기 (교차검증용)</summary><pre class="rcode">' + esc(code) + '</pre></details>'; }
   function rvec(names) { return 'c(' + names.map(function (n) { return '"' + n + '"'; }).join(', ') + ')'; }
@@ -230,13 +293,14 @@
     var el = document.createElement('div');
     el.className = 'card';
     var now = new Date();
-    el.innerHTML = '<div class="tools"><button class="btn small" data-act="copy">복사</button><button class="btn small" data-act="del">삭제</button></div>' +
+    el.innerHTML = '<div class="tools"><button class="btn small" data-act="copy" title="이 카드의 모든 표를 APA 서식으로 복사">표 모두 복사</button><button class="btn small" data-act="del">삭제</button></div>' +
       '<h3>' + esc(title) + '</h3><div class="meta">' + esc(meta || '') + ' · ' + esc(state.fileName) + ' · ' + now.toLocaleString('ko-KR') + '</div>' + html;
+    decorateTables(el, title);
     var box = $('#results');
     var empty = $('.empty', box); if (empty) empty.remove();
     box.insertBefore(el, box.firstChild);
     el.querySelector('[data-act=del]').onclick = function () { el.remove(); };
-    el.querySelector('[data-act=copy]').onclick = function () { copyEl(el); };
+    el.querySelector('[data-act=copy]').onclick = function () { var t = $$('.apa', el); if (t.length) copyApa(t); else copyEl(el); };
     return el;
   }
   function copyEl(el) {
@@ -274,7 +338,7 @@
             f(d.skew, 2) + ' (' + f(d.seSkew, 2) + ')', f(d.kurt, 2) + ' (' + f(d.seKurt, 2) + ')', f(d.swW, 3), fp(d.swP)]));
         });
       });
-      var html = table(head, rows, { left: by >= 0 ? [1] : [] }) +
+      var html = table(head, rows, { left: by >= 0 ? [1] : [], title: by >= 0 ? state.names[by] + '에 따른 기술통계' : '기술통계와 정규성 검정' }) +
         '<p class="note">왜도·첨도는 SPSS/Excel과 같은 표본 보정 공식(G1, G2). 첨도는 초과첨도(정규분포 = 0). Shapiro-Wilk는 Royston(1995) 알고리즘으로 R의 shapiro.test와 같은 값을 냅니다(n = 3–5000). 중앙값은 R 기본(type 7) 방식입니다.</p>' +
         '<p class="note">N이 클 때는 정규성 검정이 사소한 이탈에도 유의해지므로, 왜도 |2|·첨도 |7| 이내 같은 기준(West, Finch, & Curran, 1995)과 함께 판단하세요.</p>' +
         rcode('psych::describe(df[, ' + rvec(v.map(function (i) { return state.names[i]; })) + '])\nshapiro.test(df$' + rname(state.names[v[0]]) + ')');
@@ -335,16 +399,16 @@
       } else if (kind === 'pair') {
         var a = getSel('p1'), b = getSel('p2'); need(a >= 0 && b >= 0 && a !== b, '서로 다른 두 측정 변수를 선택하세요.');
         var t2 = S.tTestPaired(state.cols[a], state.cols[b]);
-        html = table(['', 'n', 'M', 'SD'], [[esc(state.names[a]), t2.n, f(t2.mean1, 2), f(t2.sd1, 2)], [esc(state.names[b]), t2.n, f(t2.mean2, 2), f(t2.sd2, 2)]]) +
+        html = table(['', 'n', 'M', 'SD'], [[esc(state.names[a]), t2.n, f(t2.mean1, 2), f(t2.sd1, 2)], [esc(state.names[b]), t2.n, f(t2.mean2, 2), f(t2.sd2, 2)]], { title: '측정별 기술통계' }) +
           table(['비교', '평균차', 'SD차', 't', 'df', 'p', '95% CI', 'd<sub>z</sub>', 'r'], [[esc(state.names[a] + ' − ' + state.names[b]), f(t2.meanDiff, 2), f(t2.sdDiff, 2), f(t2.t, 2), t2.df, fp(t2.p),
-            '[' + f(t2.ciLow, 2) + ', ' + f(t2.ciHigh, 2) + ']', f(t2.dz, 2), fr(t2.r)]]) +
+            '[' + f(t2.ciLow, 2) + ', ' + f(t2.ciHigh, 2) + ']', f(t2.dz, 2), fr(t2.r)]], { title: '대응표본 t 검정 결과' }) +
           '<p class="note">d<sub>z</sub> = 평균차 / 차이점수의 SD (Lakens, 2013). r은 두 측정 간 상관.</p>' +
           rcode('t.test(df$' + rname(state.names[a]) + ', df$' + rname(state.names[b]) + ', paired = TRUE)');
         addCard('대응표본 t 검정', html, '');
       } else {
         var ov = getMulti('ov'), mu = Number($('#mu').value); need(ov.length, '변수를 선택하세요.');
         var rows = ov.map(function (i) { var t3 = S.tTestOneSample(state.cols[i], mu); return [esc(state.names[i]), t3.n, f(t3.mean, 2), f(t3.sd, 2), f(t3.t, 2), t3.df, fp(t3.p), '[' + f(t3.ciLow, 2) + ', ' + f(t3.ciHigh, 2) + ']', f(t3.d, 2)]; });
-        html = table(['변수', 'n', 'M', 'SD', 't', 'df', 'p', '평균차 95% CI', 'd'], rows) + rcode('t.test(df$' + rname(state.names[ov[0]]) + ', mu = ' + mu + ')');
+        html = table(['변수', 'n', 'M', 'SD', 't', 'df', 'p', '평균차 95% CI', 'd'], rows, { title: '일표본 t 검정 결과 (검정값 = ' + mu + ')' }) + rcode('t.test(df$' + rname(state.names[ov[0]]) + ', mu = ' + mu + ')');
         addCard('일표본 t 검정', html, 'μ₀ = ' + mu);
       }
     }
@@ -368,7 +432,7 @@
             ['집단 내', f(a.ssw, 2), a.dfW, f(a.msw, 2), '', '', '', ''], ['전체', f(a.sst, 2), a.dfB + a.dfW, '', '', '', '', '']]) +
           table(['보조 검정', '통계량', 'df', 'p'], [
             ['Welch ANOVA', 'F = ' + f(a.welch.F, 2), a.welch.df1 + ', ' + f(a.welch.df2, 2), fp(a.welch.p)],
-            ['Levene (등분산)', 'F = ' + f(a.levene.F, 2), a.levene.df1 + ', ' + a.levene.df2, fp(a.levene.p)]], { left: [0] }) +
+            ['Levene (등분산)', 'F = ' + f(a.levene.F, 2), a.levene.df1 + ', ' + a.levene.df2, fp(a.levene.p)]], { left: [0], title: 'Welch 분산분석과 등분산 검정' }) +
           '<h4>사후검정 (다중비교)</h4>' + table(['비교', '평균차', 'SE', 'Tukey p', 'Games-Howell p', 'Bonferroni p'], a.posthoc.map(function (p) {
             return [esc(p.a + ' − ' + p.b), f(p.diff, 2), f(p.se, 2), fp(p.pTukey), fp(p.pGH), fp(p.pBonf)];
           })) +
@@ -376,6 +440,107 @@
           rcode('m <- aov(' + rname(state.names[i]) + ' ~ factor(' + rname(state.names[g]) + '), data = df)\nsummary(m); TukeyHSD(m)\noneway.test(' + rname(state.names[i]) + ' ~ ' + rname(state.names[g]) + ', data = df)');
         addCard('일원분산분석: ' + state.names[i], html, '요인 = ' + state.names[g]);
       });
+    }
+  };
+
+  function boxMTable(bm) {
+    if (!isFinite(bm.M)) return '<div class="warn">' + esc(bm.note || "Box's M을 계산할 수 없습니다.") + '</div>';
+    return table(["Box's M", 'F', 'df1', 'df2', 'p', 'χ²', 'df', 'p (χ²)'], [[f(bm.M, 2), f(bm.F, 2), bm.df1, f(bm.df2, 1), fp(bm.pF), f(bm.chi2, 2), bm.df, fp(bm.pChi)]],
+      { title: '공분산 행렬의 동질성 검정 (Box의 M)', note: 'Box의 M은 정규성 위반과 큰 표본에 민감하므로 흔히 α = .001 기준으로 판단한다.' });
+  }
+  function groupDescTable(desc, names, title) {
+    var head = ['변수'];
+    desc.forEach(function (d) { head.push(esc(d.label) + ' M', 'SD'); });
+    var rows = names.map(function (nm, j) { var r = [esc(nm)]; desc.forEach(function (d) { r.push(f(d.means[j], 2), f(d.sds[j], 2)); }); return r; });
+    rows.push(['n'].concat([].concat.apply([], desc.map(function (d) { return [d.n, '']; }))));
+    return table(head, rows, { title: title });
+  }
+
+  A.manova = {
+    group: '다변량', title: '다변량분산분석 (MANOVA)',
+    desc: '일원 MANOVA: Pillai, Wilks, Hotelling, Roy 검정과 다변량 부분 η², Box의 M, 후속 단변량 분산분석.',
+    form: function () { return multiField('dv', '종속변수 (2개 이상)', 'num') + selectField('g', '집단변수 (요인)', 'any'); },
+    run: function () {
+      var dv = getMulti('dv'), g = getSel('g'); need(dv.length >= 2 && g >= 0, '종속변수 2개 이상과 집단변수를 선택하세요.');
+      var names = dv.map(function (i) { return state.names[i]; });
+      var r = S.manova(dv.map(function (i) { return state.cols[i]; }), state.cols[g], names), T = r.tests;
+      var mrow = function (lab, t) { return [lab, f(t.stat, 3), f(t.F, 2), f(t.df1, 0), f(t.df2, 2).replace(/\.00$/, ''), fp(t.p), fr(t.eta2)]; };
+      var alphaB = 0.05 / r.p;
+      var html = groupDescTable(r.desc, names, state.names[g] + '에 따른 종속변수의 기술통계') + boxMTable(r.boxM) +
+        table(['검정', '값', 'F', '가설 df', '오차 df', 'p', '부분 η²'], [
+          mrow("Pillai의 트레이스 (V)", T.pillai), mrow("Wilks의 람다 (Λ)", T.wilks), mrow("Hotelling의 트레이스", T.hotelling), mrow("Roy의 최대근", T.roy)],
+          { left: [0], title: '다변량 검정', note: 'Roy의 최대근에 대한 F는 상한값이다. 부분 η²는 SPSS와 같은 정의(Wilks: 1 − Λ^(1/s)).' }) +
+        table(['종속변수', 'F', 'df', 'p', '부분 η²'].concat(['Levene F', 'p (Levene)']), r.univariate.map(function (u, j) {
+          return [esc(u.name), f(u.F, 2), u.df1 + ', ' + u.df2, fp(u.p) + (u.p < alphaB ? ' †' : ''), fr(u.eta2), f(r.levene[j].F, 2), fp(r.levene[j].p)];
+        }), { title: '후속 단변량 분산분석', note: '† Bonferroni 보정 기준(α = .05/' + r.p + ' = ' + alphaB.toFixed(4).replace(/^0/, '') + ')에서 유의.' }) +
+        '<p class="note">N = ' + r.n + ' (목록별 제거), 집단 ' + r.G + '개. 표본 크기가 다르고 Box의 M이 유의하면 가장 강건한 Pillai의 V를 보고하는 것이 일반적입니다(Tabachnick & Fidell, 2019). 다변량 효과가 유의할 때 어떤 변수 조합이 집단을 구분하는지는 [판별분석]으로 이어서 볼 수 있습니다. 모든 검정 통계량과 F는 R의 summary.manova()와 같습니다.</p>' +
+        rcode('fit <- manova(cbind(' + names.map(rname).join(', ') + ') ~ factor(' + rname(state.names[g]) + '), data = df)\nsummary(fit, test = "Pillai"); summary(fit, test = "Wilks")\nsummary.aov(fit)');
+      addCard('MANOVA: ' + names.join(', ') + ' × ' + state.names[g], html, r.G + '집단, ' + r.p + '개 종속변수');
+    }
+  };
+
+  function ldaPlotSVG(d) {
+    var W = 520, H = 360, L = 50, R = 130, T = 20, B = 40, two = d.funcs.length >= 2;
+    var cols = ['#2b5fc7', '#c8372d', '#2f9e44', '#b8860b', '#8e44ad', '#16a085', '#d35400', '#555'];
+    var xs = d.scores.map(function (s) { return s[0]; }), ys = two ? d.scores.map(function (s) { return s[1]; }) : d.groupIndex.map(function (g) { return g; });
+    var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs), y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
+    if (!two) { y0 = -0.6; y1 = d.G - 0.4; }
+    var X = function (v) { return L + (v - x0) / ((x1 - x0) || 1) * (W - L - R); }, Y = function (v) { return T + (1 - (v - y0) / ((y1 - y0) || 1)) * (H - T - B); };
+    var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + H + '" width="100%" style="max-width:' + W + 'px" font-family="sans-serif" font-size="11">';
+    s += '<rect x="' + L + '" y="' + T + '" width="' + (W - L - R) + '" height="' + (H - T - B) + '" fill="none" stroke="#8a94a6" stroke-width="0.7"/>';
+    d.scores.forEach(function (sc, i) {
+      var g = d.groupIndex[i], jit = two ? 0 : ((i * 7919) % 100 / 100 - 0.5) * 0.5;
+      s += '<circle cx="' + X(sc[0]).toFixed(1) + '" cy="' + Y(two ? sc[1] : g + jit).toFixed(1) + '" r="2.6" fill="' + cols[g % 8] + '" fill-opacity="0.55"/>';
+    });
+    d.labels.forEach(function (l, g) {
+      var cx = d.funcs[0].centroids[g], cy = two ? d.funcs[1].centroids[g] : g;
+      s += '<rect x="' + (X(cx) - 5) + '" y="' + (Y(cy) - 5) + '" width="10" height="10" fill="' + cols[g % 8] + '" stroke="#000" stroke-width="1.2"/>';
+      s += '<circle cx="' + (W - R + 14) + '" cy="' + (T + 10 + g * 18) + '" r="4" fill="' + cols[g % 8] + '"/><text x="' + (W - R + 24) + '" y="' + (T + 14 + g * 18) + '">' + esc(l) + '</text>';
+    });
+    s += '<text x="' + (W - R + 10) + '" y="' + (T + 14 + d.G * 18 + 8) + '" fill="#8a94a6">■ 집단 중심</text>';
+    s += '<text x="' + ((L + W - R) / 2) + '" y="' + (H - 10) + '" text-anchor="middle">판별함수 1</text>';
+    if (two) s += '<text x="14" y="' + ((T + H - B) / 2) + '" text-anchor="middle" transform="rotate(-90 14 ' + ((T + H - B) / 2) + ')">판별함수 2</text>';
+    return s + '</svg>';
+  }
+
+  A.lda = {
+    group: '다변량', title: '판별분석',
+    desc: '선형판별분석(SPSS·MASS::lda와 같은 정의): 고유값, 정준상관, Wilks Λ, 표준화 계수, 구조행렬, 집단 중심, 분류표와 교차타당화.',
+    form: function () {
+      return multiField('v', '판별(예측) 변수', 'num') + selectField('g', '집단변수', 'any') +
+        '<div class="field"><div class="lab">사전확률</div><div class="inline"><label><input type="radio" name="pri" value="equal" checked>모든 집단 동일 (SPSS 기본)</label><label><input type="radio" name="pri" value="proportional">집단 크기 비례</label></div></div>';
+    },
+    run: function () {
+      var v = getMulti('v'), g = getSel('g'); need(v.length >= 1 && g >= 0, '판별변수와 집단변수를 선택하세요.');
+      var names = v.map(function (i) { return state.names[i]; });
+      var d = S.discriminant(v.map(function (i) { return state.cols[i]; }), state.cols[g], names, { priors: $('input[name=pri]:checked').value });
+      var fn = d.funcs, fh = fn.map(function (_, k) { return '함수 ' + (k + 1); });
+      // 구조행렬: SPSS처럼 가장 큰 |상관|이 있는 함수 순, 그 안에서 크기 순
+      var order = names.map(function (_, j) { var best = 0; fn.forEach(function (f2, k) { if (Math.abs(f2.structure[j]) > Math.abs(fn[best].structure[j])) best = k; }); return { j: j, k: best, v: Math.abs(fn[best].structure[j]) }; })
+        .sort(function (a, b) { return a.k - b.k || b.v - a.v; });
+      var cum = 0;
+      var confRows = function (M) {
+        return d.labels.map(function (l, a) {
+          var tot = M[a].reduce(function (x, y) { return x + y; }, 0);
+          return [esc(l)].concat(M[a].map(function (c, b) { return c + ' (' + f(100 * c / tot, 1) + '%)'; })).concat([tot]);
+        });
+      };
+      var html = table(['변수', 'Wilks Λ', 'F', 'df1', 'df2', 'p'], d.univariate.map(function (u) { return [esc(u.name), f(u.lambda, 3), f(u.F, 2), u.df1, u.df2, fp(u.p)]; }), { title: '집단 평균의 동일성 검정' }) +
+        boxMTable(d.boxM) +
+        table(['함수', '고유값', '분산 %', '누적 %', '정준상관'], fn.map(function (f2, k) { cum += f2.pctVar; return [k + 1, f(f2.eigen, 3), f(100 * f2.pctVar, 1), f(100 * cum, 1), fr(f2.canCor)]; }), { title: '고유값' }) +
+        table(['함수 검정', 'Wilks Λ', 'χ²', 'df', 'p'], d.wilksSeq.map(function (w) { return [w.from === w.to ? String(w.from) : w.from + '부터 ' + w.to + '까지', f(w.lambda, 3), f(w.chi2, 2), w.df, fp(w.p)]; }), { title: '판별함수의 유의성 (Wilks Λ)' }) +
+        table(['변수'].concat(fh), names.map(function (nm, j) { return [esc(nm)].concat(fn.map(function (f2) { return f(f2.stdCoef[j], 3); })); }), { title: '표준화 정준판별함수 계수' }) +
+        table(['변수'].concat(fh), order.map(function (o) { return [esc(names[o.j])].concat(fn.map(function (f2, k) { return f(f2.structure[o.j], 3) + (k === o.k && fn.length > 1 ? '<sup>a</sup>' : ''); })); }),
+          { title: '구조행렬', note: '판별변수와 표준화 정준판별함수 간의 집단 내 합동 상관. 변수는 함수 안에서 상관의 절댓값 크기 순으로 정렬했다.' + (fn.length > 1 ? ' a는 각 변수와 가장 큰 절대 상관을 보이는 함수.' : '') }) +
+        table(['집단'].concat(fh), d.labels.map(function (l, a) { return [esc(l)].concat(fn.map(function (f2) { return f(f2.centroids[a], 3); })); }), { title: '집단 중심에서의 판별함수 값' }) +
+        table(['변수'].concat(fh), names.map(function (nm, j) { return [esc(nm)].concat(fn.map(function (f2) { return f(f2.coef[j], 4); })); }).concat([['(상수)'].concat(fn.map(function (f2) { return f(f2.constant, 4); }))]), { title: '비표준화 정준판별함수 계수' }) +
+        table(['변수'].concat(d.labels.map(esc)), names.map(function (nm, j) { return [esc(nm)].concat(d.classFn.map(function (c) { return f(c.coef[j], 4); })); }).concat([['(상수)'].concat(d.classFn.map(function (c) { return f(c.constant, 4); }))]), { title: '분류함수 계수 (Fisher의 선형판별함수)' }) +
+        table(['실제 \\ 예측'].concat(d.labels.map(esc)).concat(['합계']), confRows(d.confusion), { left: [0], title: '분류 결과 (원 자료)', note: '정분류율 = ' + f(100 * d.accuracy, 1) + '%.' }) +
+        (d.cvConfusion ? table(['실제 \\ 예측'].concat(d.labels.map(esc)).concat(['합계']), confRows(d.cvConfusion), { left: [0], title: '분류 결과 (교차타당화: 하나씩 빼기)', note: '각 사례를 그 사례를 제외한 나머지로 도출한 함수로 분류했다. 정분류율 = ' + f(100 * d.cvAccuracy, 1) + '%.' }) : '') +
+        '<div>' + ldaPlotSVG(d) + '</div>' +
+        '<p class="note">N = ' + d.n + ' (목록별 제거). 사전확률: ' + d.labels.map(function (l, a) { return esc(l) + ' ' + f(d.priors[a], 3); }).join(', ') + '. 비표준화 계수는 집단 내 분산이 1이 되도록 정규화했고(MASS::lda와 같음), 판별함수의 부호는 임의이므로 해석은 구조행렬·집단 중심과 함께 하세요. 우연 수준의 정분류율(비례 기준) = ' + f(100 * d.counts.reduce(function (s2, c) { return s2 + Math.pow(c / d.n, 2); }, 0), 1) + '%.</p>' +
+        rcode('library(MASS)\nd <- na.omit(df[, ' + rvec(names.concat([state.names[g]])) + '])\nfit <- lda(d[, ' + rvec(names) + '], d$' + rname(state.names[g]) + ', prior = rep(1/' + d.G + ', ' + d.G + '))\nfit$scaling; table(d$' + rname(state.names[g]) + ', predict(fit)$class)\ncv <- lda(d[, ' + rvec(names) + '], d$' + rname(state.names[g]) + ', CV = TRUE)');
+      addCard('판별분석: ' + state.names[g], html, d.G + '집단, 판별변수 ' + d.p + '개');
     }
   };
 
@@ -393,8 +558,11 @@
       var cols = v.map(function (i) { return state.cols[i]; }), names = v.map(function (i) { return state.names[i]; });
       if (m === 'auto') { autoCorCard(cols, names); return; }
       var res = S.corMatrix(cols, m, mm);
+      // APA 상관표: 변수, M, SD, 상관 (아래 삼각)
+      var useRows = mm === 'listwise' ? S.completeRows(cols) : null;
+      var msd = cols.map(function (c) { var x = useRows ? useRows.map(function (i) { return c[i]; }) : S.clean(c); return [S.mean(x), S.sd(x)]; });
       var rows = names.map(function (n, a) {
-        return [(a + 1) + '. ' + esc(n)].concat(names.map(function (_, b) { return b < a ? fr(res.R[a][b]) + star(res.P[a][b]) : (b === a ? '—' : ''); }));
+        return [(a + 1) + '. ' + esc(n), f(msd[a][0], 2), f(msd[a][1], 2)].concat(names.map(function (_, b) { return b < a ? fr(res.R[a][b]) + star(res.P[a][b]) : (b === a ? '—' : ''); }));
       });
       var pairs = [];
       for (var a = 0; a < v.length; a++) for (var b = a + 1; b < v.length; b++) {
@@ -402,8 +570,8 @@
         if (mm === 'listwise') { var rr = S.completeRows(cols); ct = S.corTest(rr.map(function (r) { return cols[a][r]; }), rr.map(function (r) { return cols[b][r]; }), m); }
         pairs.push([esc(names[a] + ' – ' + names[b]), fr(ct.r), ct.n, f(ct.t, 2), fp(ct.p), '[' + fr(ct.ciLow) + ', ' + fr(ct.ciHigh) + ']']);
       }
-      var html = table([''].concat(names.map(function (_, i) { return i + 1; })), rows) +
-        '<p class="note">* p < .05, ** p < .01, *** p < .001 (양측).</p><h4>세부 결과</h4>' +
+      var html = table(['변수', 'M', 'SD'].concat(names.map(function (_, i) { return i + 1; })), rows, { title: '기술통계와 변수 간 ' + (m === 'pearson' ? 'Pearson' : 'Spearman') + ' 상관', note: mm === 'pairwise' ? '결측은 대응별 제거.' : 'N = ' + useRows.length + ' (목록별 제거).' }) +
+        '<h4>상관계수와 95% 신뢰구간</h4>' +
         table(['쌍', m === 'pearson' ? 'r' : 'ρ', 'n', 't', 'p', '95% CI (Fisher z)'], pairs) +
         (m === 'spearman' ? '<p class="note">Spearman의 p값은 SPSS와 같은 t 근사입니다. 표본이 작고 동순위가 없으면 R의 cor.test(exact = TRUE)와 약간 다를 수 있습니다.</p>' : '') +
         rcode('psych::corr.test(df[, ' + rvec(names) + '], method = "' + m + '", use = "' + (mm === 'pairwise' ? 'pairwise' : 'complete') + '")');
@@ -416,7 +584,7 @@
     var abbrev = { pearson: 'P', polychoric: '다분', tetrachoric: '사분', polyserial: '다계열' };
     var rows = names.map(function (n, a) { return [(a + 1) + '. ' + esc(n)].concat(names.map(function (_, b) { return b < a ? fr(ca.R[a][b]) : (b === a ? '—' : '<span class="note">' + abbrev[ca.kinds[a][b]] + '</span>'); })); });
     var pd = !!S.cholesky(ca.R);
-    var html = table([''].concat(names.map(function (_, i) { return i + 1; })), rows) +
+    var html = table([''].concat(names.map(function (_, i) { return i + 1; })), rows, { title: '다분·사분·다계열 상관 행렬', note: '아래 삼각은 상관계수, 위 삼각은 계산 종류.' }) +
       '<p class="note">아래 삼각: 상관계수. 위 삼각: 계산 종류 (P = Pearson, 다분 = polychoric, 사분 = tetrachoric, 다계열 = polyserial).</p>' +
       '<p class="note">순서형으로 판정된 변수: ' + esc(names.filter(function (_, i) { return ca.ordinal[i]; }).join(', ') || '없음') + '</p>' +
       (pd ? '' : '<div class="warn">이 상관행렬은 양정치가 아닙니다. 네트워크 분석에서는 가장 가까운 양정치 행렬(Higham, 2002)로 자동 보정합니다.</div>') +
@@ -442,8 +610,8 @@
       if (t.yates) { tests.push(['연속성 보정 (Yates)', f(t.yates.chi2, 3), 1, fp(t.yates.p)]); tests.push(['Fisher 정확검정 (양측)', '', '', fp(t.fisherP)]); }
       var eff = [['Cramér V', fr(t.cramerV)]];
       if (t.yates) { eff.push(['φ', fr(t.phi)]); eff.push(['오즈비 (OR)', f(t.oddsRatio, 3)]); }
-      var html = table([esc(state.names[r]) + ' \\ ' + esc(state.names[c])].concat(t.cols.map(esc)).concat(['합계']), rows) +
-        '<p class="note">셀: 관측빈도 (기대빈도), 행 백분율.</p>' + table(['검정', '값', 'df', 'p'], tests, { left: [0] }) + table(['효과크기', '값'], eff) +
+      var html = table([esc(state.names[r]) + ' \\ ' + esc(state.names[c])].concat(t.cols.map(esc)).concat(['합계']), rows, { title: state.names[r] + ' × ' + state.names[c] + ' 교차표', note: '셀 값은 관측빈도, 괄호 안은 기대빈도, 아래는 행 백분율.' }) +
+        '<p class="note">셀: 관측빈도 (기대빈도), 행 백분율.</p>' + table(['검정', '값', 'df', 'p'], tests, { left: [0], title: '독립성 검정' }) + table(['효과크기', '값'], eff, { title: '연관성 효과크기' }) +
         (t.lowExpected ? '<div class="warn">기대빈도 5 미만 셀: ' + t.lowExpected + ' / ' + t.cells + '개 (' + f(100 * t.lowExpected / t.cells, 1) + '%). 20%를 넘으면 χ² 근사가 부정확할 수 있습니다' + (t.yates ? ' — Fisher 정확검정을 보고하세요.' : '. 범주 병합을 고려하세요.') + '</div>' : '') +
         rcode('tab <- table(df$' + rname(state.names[r]) + ', df$' + rname(state.names[c]) + ')\nchisq.test(tab, correct = FALSE); fisher.test(tab)');
       addCard('교차분석', html, state.names[r] + ' × ' + state.names[c]);
@@ -457,10 +625,10 @@
     run: function () {
       var y = getSel('y'), x = getMulti('x').filter(function (i) { return i !== y; }); need(y >= 0 && x.length, '종속변수와 예측변수를 선택하세요.');
       var dc = designColumns(x), m = S.linearRegression(state.cols[y], dc.cols, dc.names);
-      var html = table(['R', 'R²', '수정 R²', '추정값 SE', 'F', 'df', 'p', 'N'], [[fr(m.R), fr(m.R2), fr(m.adjR2), f(m.see, 3), f(m.F, 2), m.dfM + ', ' + m.dfE, fp(m.p), m.n]]) +
+      var html = table(['R', 'R²', '수정 R²', '추정값 SE', 'F', 'df', 'p', 'N'], [[fr(m.R), fr(m.R2), fr(m.adjR2), f(m.see, 3), f(m.F, 2), m.dfM + ', ' + m.dfE, fp(m.p), m.n]], { title: '회귀모형 요약 (종속변수: ' + state.names[y] + ')' }) +
         table(['예측변수', 'B', 'SE', 'β', 't', 'p', '95% CI', 'VIF'], m.coefs.map(function (c) {
           return [esc(c.name), f(c.b, 3), f(c.se, 3), f(c.beta, 3), f(c.t, 2), fp(c.p), '[' + f(c.ciLow, 3) + ', ' + f(c.ciHigh, 3) + ']', f(c.vif, 2)];
-        })) +
+        }), { title: '다중회귀분석 결과 (종속변수: ' + state.names[y] + ')' }) +
         (dc.notes.length ? '<p class="note">더미코딩 — ' + esc(dc.notes.join('; ')) + '</p>' : '') +
         '<p class="note">Durbin-Watson = ' + f(m.durbinWatson, 3) + '. VIF > 10(보수적으로 > 5)이면 다중공선성을 점검하세요. 계산은 QR 분해 기반 최소제곱으로, R의 lm()과 같은 값을 냅니다.</p>' +
         (m.coefs.some(function (c) { return c.vif > 10; }) ? '<div class="warn">VIF가 10을 넘는 예측변수가 있습니다.</div>' : '') +
@@ -620,8 +788,8 @@
       var md = S.moderation(state.cols[y], state.cols[x], state.cols[w], dc.cols, { center: $('#ctr').checked, probe: $('input[name=pr]:checked').value, covNames: dc.names });
       var xn = state.names[x], wn = state.names[w], yn = state.names[y];
       md.coefs[1].name = xn; md.coefs[2].name = wn; md.coefs[3].name = xn + ' × ' + wn;
-      var html = table(['N', 'R²', '상호작용 ΔR²', 'F (ΔR²)', 'df', 'p'], [[md.n, fr(md.R2), fr(md.dR2), f(md.F, 3), md.df1 + ', ' + md.df2, fp(md.p)]]) +
-        table(['', 'B', 'SE', 't', 'p', '95% CI'], md.coefs.map(function (c) { return [esc(c.name), f(c.b, 4), f(c.se, 4), f(c.t, 3), fp(c.p), '[' + f(c.ciLow, 4) + ', ' + f(c.ciHigh, 4) + ']']; })) +
+      var html = table(['N', 'R²', '상호작용 ΔR²', 'F (ΔR²)', 'df', 'p'], [[md.n, fr(md.R2), fr(md.dR2), f(md.F, 3), md.df1 + ', ' + md.df2, fp(md.p)]], { title: '모형 요약과 상호작용 검정' }) +
+        table(['', 'B', 'SE', 't', 'p', '95% CI'], md.coefs.map(function (c) { return [esc(c.name), f(c.b, 4), f(c.se, 4), f(c.t, 3), fp(c.p), '[' + f(c.ciLow, 4) + ', ' + f(c.ciHigh, 4) + ']']; }), { title: yn + '에 대한 조절모형 회귀계수' }) +
         (md.centered ? '<p class="note">X, W는 평균중심화됨 (M<sub>X</sub> = ' + f(md.meanX, 3) + ', M<sub>W</sub> = ' + f(md.meanW, 3) + '). 상호작용항은 중심화된 X와 W의 곱입니다.</p>' : '') +
         '<h4>단순기울기: W 수준별 X의 조건부 효과</h4>' + table([esc(wn), '효과', 'SE', 't', 'p', '95% CI'], md.slopes.map(function (s) { return [f(s.w, 3), f(s.est, 4), f(s.se, 4), f(s.t, 3), fp(s.p), '[' + f(s.ciLow, 4) + ', ' + f(s.ciHigh, 4) + ']']; }));
       if (!md.binaryW) {
@@ -793,8 +961,8 @@
         '<p class="note">' + esc(PROCESS_DESC[model]) + ' · N = ' + r.n + ' (목록별 제거)' + (r.centered ? ' · 곱셈항 변수 평균중심화' : '') + (dc.notes.length ? ' · 더미코딩: ' + esc(dc.notes.join('; ')) : '') + '</p>';
       r.eqs.forEach(function (e) {
         var on = e.outcome === 'Y' ? yn : mn[Number(e.outcome.slice(1)) - 1];
-        html += '<h4>결과변수: ' + esc(on) + '</h4>' + table(['R²', 'F', 'df', 'p'], [[fr(e.R2), f(e.F, 3), e.dfM + ', ' + e.dfE, fp(e.p)]]) +
-          table(['', 'B', 'SE', 't', 'p', '95% CI'], e.coefs.map(function (c) { return [esc(rename(c.name)), f(c.b, 4), f(c.se, 4), f(c.t, 3), fp(c.p), '[' + f(c.ciLow, 4) + ', ' + f(c.ciHigh, 4) + ']']; }));
+        html += table(['R²', 'F', 'df', 'p'], [[fr(e.R2), f(e.F, 3), e.dfM + ', ' + e.dfE, fp(e.p)]], { title: '결과변수 ' + on + ': 모형 요약' }) +
+          table(['', 'B', 'SE', 't', 'p', '95% CI'], e.coefs.map(function (c) { return [esc(rename(c.name)), f(c.b, 4), f(c.se, 4), f(c.t, 3), fp(c.p), '[' + f(c.ciLow, 4) + ', ' + f(c.ciHigh, 4) + ']']; }), { title: '결과변수 ' + on + ': 회귀계수' });
       });
       // 직접효과
       html += '<h4>' + (model === 8 || model === 15 ? '조건부 직접효과 (W 수준별)' : '직접효과 (c′)') + '</h4>' +
@@ -823,7 +991,7 @@
             table([esc(wn), '조건부 간접효과', 'Boot SE', '95% Boot CI', '판단'], r.wvals.map(function (wv, wi) {
               var s2 = bs('cond:' + j + ':' + wi); return [f(wv, 3), f(r.effects['cond:' + j + ':' + wi], 4), s2 ? f(s2.se, 4) : '—', ciTxt(s2), sig(s2)];
             })) +
-            table(['조절된 매개 지수 (index)', 'Boot SE', '95% Boot CI', '판단'], [[f(r.effects['imm:' + j], 4), st ? f(st.se, 4) : '—', ciTxt(st), sig(st)]]);
+            table(['조절된 매개 지수 (index)', 'Boot SE', '95% Boot CI', '판단'], [[f(r.effects['imm:' + j], 4), st ? f(st.se, 4) : '—', ciTxt(st), sig(st)]], { title: '조절된 매개 지수: ' + xn + ' → ' + m + ' → ' + yn });
         });
         html += '<p class="note">조절된 매개 지수(Hayes, 2015) = ' + (model <= 8 ? 'a<sub>3</sub> × b (W에 따른 a 경로 변화 × b)' : 'a × b<sub>3</sub> (a × W에 따른 b 경로 변화)') + '. 이 지수의 부트스트랩 CI가 0을 포함하지 않으면 간접효과가 W에 따라 달라진다고 해석합니다. ' +
           (r.binaryW ? 'W가 이분변수이므로 지수는 두 집단 간 조건부 간접효과의 차이와 같습니다.' : '탐색 지점: ' + ($('input[name=pr]:checked').value === 'sd' ? 'M − 1SD, M, M + 1SD' : '16·50·84 백분위') + '.') + '</p>';
@@ -859,8 +1027,8 @@
       var cols = v.map(function (i) { return rev.indexOf(i) >= 0 ? state.cols[i].map(function (x) { return x === null ? null : k - x; }) : state.cols[i]; });
       var names = v.map(function (i) { return state.names[i] + (rev.indexOf(i) >= 0 ? ' (R)' : ''); });
       var r = S.reliability(cols, names);
-      var html = table(['Cronbach α', '표준화 α', '평균 문항간 r', '문항 수', 'N'], [[fr(r.alpha), fr(r.stdAlpha), fr(r.meanInterItem), r.k, r.n]]) +
-        table(['문항', 'M', 'SD', '수정된 문항-총점 r', '삭제 시 α'], r.items.map(function (it) { return [esc(it.name), f(it.mean, 2), f(it.sd, 2), fr(it.rCorrected), fr(it.alphaIfDeleted)]; })) +
+      var html = table(['Cronbach α', '표준화 α', '평균 문항간 r', '문항 수', 'N'], [[fr(r.alpha), fr(r.stdAlpha), fr(r.meanInterItem), r.k, r.n]], { title: '내적 일관성 신뢰도' }) +
+        table(['문항', 'M', 'SD', '수정된 문항-총점 r', '삭제 시 α'], r.items.map(function (it) { return [esc(it.name), f(it.mean, 2), f(it.sd, 2), fr(it.rCorrected), fr(it.alphaIfDeleted)]; }), { title: '문항 통계' }) +
         '<p class="note">결측은 목록별 제거(SPSS와 동일). R의 psych::alpha는 기본이 대응별(pairwise)이라 결측이 있으면 값이 약간 다를 수 있습니다. α는 타우 동등성을 가정하므로 McDonald ω도 함께 보고하는 것이 권장됩니다(McNeish, 2018) — ω는 현재 버전에 없습니다.</p>' +
         rcode('psych::alpha(na.omit(df[, ' + rvec(v.map(function (i) { return state.names[i]; })) + '])' + (rev.length ? ', keys = ' + rvec(rev.map(function (i) { return state.names[i]; })) : '') + ')');
       addCard('신뢰도 분석', html, v.length + '문항');
@@ -980,7 +1148,7 @@
       var zs = { '강도 Strength': S.zscore(ce.strength), '근접 Closeness': S.zscore(ce.closeness), '매개 Betweenness': S.zscore(ce.betweenness), '기대영향 EI': S.zscore(ce.expectedInfluence) };
       var html = (res.notes || []).map(function (t) { return '<div class="warn">' + esc(t) + '</div>'; }).join('') + ordNote +
         (nearPDused ? '<div class="warn">다분상관 행렬이 양정치가 아니어서 가장 가까운 양정치 행렬로 보정했습니다 (Matrix::nearPD와 같은 방법).</div>' : '') +
-        table(['N (완전 사례)', '노드', '엣지', '밀도', '평균 |가중치|', '상관'].concat(opts.method === 'ebicglasso' ? ['선택 λ'] : []), [[n, p, nEdges + ' / ' + possible, fr(nEdges / possible), fr(meanW), opts.cor === 'auto' ? 'cor_auto' : opts.cor].concat(opts.method === 'ebicglasso' ? [f(res.lambda, 4)] : [])]) +
+        table(['N (완전 사례)', '노드', '엣지', '밀도', '평균 |가중치|', '상관'].concat(opts.method === 'ebicglasso' ? ['선택 λ'] : []), [[n, p, nEdges + ' / ' + possible, fr(nEdges / possible), fr(meanW), opts.cor === 'auto' ? 'cor_auto' : opts.cor].concat(opts.method === 'ebicglasso' ? [f(res.lambda, 4)] : [])], { title: '네트워크 요약' }) +
         '<div class="net-plot">' + networkSVG(net, plotLabels, { layout: layout, pred: pred }) + '</div>' +
         '<div class="legend"><span class="sw" style="background:#2b5fc7"></span>정적 편상관<span class="sw" style="background:#c8372d"></span>부적 편상관 (점선) · 선 굵기 ∝ |가중치| · 배치: Fruchterman-Reingold' + (pred ? ' · 회색 링: 노드 예측력(R²)' : '') + '</div>' +
         (useNum ? '<p class="note">노드 번호: ' + names.map(function (nm, i) { return (i + 1) + ' = ' + esc(nm); }).join(', ') + '</p>' : '') +
@@ -1051,13 +1219,13 @@
         html += '<p class="note">엣지 부트스트랩 ' + nb + '회: 비모수 재표집, 2.5–97.5 백분위 구간. "포함 비율"은 엣지가 0이 아닌 표본의 비율.</p>' +
           table(['엣지', '원 추정치', '부트 평균', '95% 구간', '포함 비율'], rows.filter(function (r) { return r.w !== 0 || r.nz > 0.5; }).slice(0, 80).map(function (r) {
             return [esc(names[r.pr[0]] + ' – ' + names[r.pr[1]]), fr(r.w), fr(r.m), '[' + fr(r.lo) + ', ' + fr(r.hi) + ']', f(100 * r.nz, 1) + '%'];
-          })) + '<p class="note">정규화(EBICglasso) 추정에서 이 구간은 엄밀한 신뢰구간이 아니라 추정 정확도의 지표입니다(Epskamp et al., 2018). 구간이 서로 크게 겹치면 엣지 간 크기 순위를 해석하지 마세요.</p>';
+          }), { title: '엣지 가중치의 부트스트랩 구간' }) + '<p class="note">정규화(EBICglasso) 추정에서 이 구간은 엄밀한 신뢰구간이 아니라 추정 정확도의 지표입니다(Epskamp et al., 2018). 구간이 서로 크게 겹치면 엣지 간 크기 순위를 해석하지 마세요.</p>';
       }
       if (nc) {
         var cs = [['강도 Strength', corrS], ['기대영향 EI', corrE], ['매개 Betweenness', corrB], ['근접 Closeness', corrC]].map(function (m) { return [m[0], f(S.csCoefficient(props, m[1], 0.7, 0.95), 2)]; });
-        html += '<p class="note">사례 제거 부트스트랩 ' + nc + '회 (제거 비율 5–75%, 10단계).</p>' + table(['중심성', 'CS 계수 (r ≥ .70, 95%)'], cs) +
+        html += '<p class="note">사례 제거 부트스트랩 ' + nc + '회 (제거 비율 5–75%, 10단계).</p>' + table(['중심성', 'CS 계수 (r ≥ .70, 95%)'], cs, { title: '중심성 안정성 (CS 계수)' }) +
           '<p class="note">CS 계수는 .25 이상이어야 하고, .50 이상이 바람직합니다(Epskamp et al., 2018). bootnet의 corStability()와 같은 정의입니다.</p>' +
-          table(['제거 비율'].concat(props.map(function (x) { return Math.round(x * 100) + '%'; })), [['강도: 평균 r'].concat(corrS.map(function (a) { return a.length ? fr(S.mean(a.filter(S.isNum))) : '—'; }))]);
+          table(['제거 비율'].concat(props.map(function (x) { return Math.round(x * 100) + '%'; })), [['강도: 평균 r'].concat(corrS.map(function (a) { return a.length ? fr(S.mean(a.filter(S.isNum))) : '—'; }))], { title: '사례 제거 비율별 원 강도와의 평균 상관' });
       }
       box.innerHTML = html;
     }
@@ -1147,6 +1315,8 @@
       '<p class="desc"><b>검증</b>: 모든 계산은 R 4.x(stats, car, psych, qgraph 1.9.8, glasso)의 결과와 자동 대조되었습니다. 저장소의 tests/run_tests.js·run_tests2.js·run_tests3.js에서 1,780개 이상의 수치를 비교하며, 중요한 결과는 가능하면 SPSS·R로 한 번 더 확인하세요.</p>' +
       '<p class="desc"><b>결과 내보내기</b>: 각 카드의 [복사] 후 한글·워드에 붙여넣기, 또는 상단 [결과 저장]으로 HTML 파일 저장(워드에서 열 수 있음).</p>';
     var refs = [
+      ['Box, G. E. P. (1949). A general distribution theory for a class of likelihood criteria. Biometrika, 36(3/4), 317–346.', 'https://doi.org/10.1093/biomet/36.3-4.317'],
+      ['American Psychological Association. (2020). Publication manual of the American Psychological Association (7th ed.).', 'https://doi.org/10.1037/0000165-000'],
       ['Bringmann, L. F., et al. (2019). What do centrality measures measure in psychological networks? Journal of Abnormal Psychology, 128(8), 892–903.', 'https://doi.org/10.1037/abn0000446'],
       ['Copenhaver, M. D., & Holland, B. (1988). Computation of the distribution of the maximum studentized range statistic. Journal of Statistical Computation and Simulation, 30(1), 1–15.', 'https://doi.org/10.1080/00949658808811082'],
       ['Delacre, M., Lakens, D., & Leys, C. (2017). Why psychologists should by default use Welch’s t-test instead of Student’s t-test. International Review of Social Psychology, 30(1), 92–101.', 'https://doi.org/10.5334/irsp.82'],
@@ -1165,6 +1335,7 @@
       ['Preacher, K. J., & Hayes, A. F. (2008). Asymptotic and resampling strategies for assessing and comparing indirect effects in multiple mediator models. Behavior Research Methods, 40(3), 879–891.', 'https://doi.org/10.3758/BRM.40.3.879'],
       ['Rosseel, Y. (2012). lavaan: An R package for structural equation modeling. Journal of Statistical Software, 48(2), 1–36.', 'https://doi.org/10.18637/jss.v048.i02'],
       ['Royston, P. (1995). Remark AS R94: A remark on algorithm AS 181: The W-test for normality. Applied Statistics, 44(4), 547–551.', 'https://doi.org/10.2307/2986146'],
+      ['Tabachnick, B. G., & Fidell, L. S. (2019). Using multivariate statistics (7th ed.). Pearson.', 'https://www.pearson.com/en-us/subject-catalog/p/using-multivariate-statistics/P200000003097'],
       ['West, S. G., Finch, J. F., & Curran, P. J. (1995). Structural equation models with nonnormal variables. In R. H. Hoyle (Ed.), Structural equation modeling (pp. 56–75). Sage.', 'https://psycnet.apa.org/record/1995-97753-004'],
       ['Williams, D. R., & Rast, P. (2020). Back to the basics: Rethinking partial correlation network methodology. British Journal of Mathematical and Statistical Psychology, 73(2), 187–212.', 'https://doi.org/10.1111/bmsp.12173']
     ];
@@ -1176,7 +1347,8 @@
 
   function saveResults() {
     var res = $('#results').cloneNode(true);
-    $$('.tools, .datapreview, .empty, .inline', res).forEach(function (e) { e.remove(); });
+    $$('.tools, .datapreview, .empty, .inline, .apa-copy', res).forEach(function (e) { e.remove(); });
+    $$('.apa-num', res).forEach(function (b, i) { b.textContent = '표 ' + (i + 1); });
     var css = document.getElementById('appcss').textContent;
     var html = '<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>PsyStat 결과</title><style>' + css + ' body{padding:20px;max-width:1000px;margin:auto}</style></head><body data-theme="light">' + res.innerHTML + '</body></html>';
     var d = new Date(), stamp = d.getFullYear() + ('0' + (d.getMonth() + 1)).slice(-2) + ('0' + d.getDate()).slice(-2) + '_' + ('0' + d.getHours()).slice(-2) + ('0' + d.getMinutes()).slice(-2);

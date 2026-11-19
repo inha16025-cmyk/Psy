@@ -1541,6 +1541,194 @@
       total: total ? coefTable(total.fit, ['X'])[1] : null, direct: direct, boot: boot, wvals: wvals, binaryW: binaryW, centered: !!opts.center, sdx: sd(x), sdy: sd(y) };
   }
 
+  /* ------------------------------------------------------------------ */
+  /* 12. 다변량: 일원 MANOVA · 선형판별분석                              */
+  /* ------------------------------------------------------------------ */
+
+  // 집단별 자료 준비: cols(종속변수들), g(집단) → 목록별 제거
+  function groupData(cols, gin) {
+    var rows = [];
+    for (var i = 0; i < gin.length; i++) {
+      var gv = gin[i];
+      if (gv === null || gv === undefined || gv === '' || (typeof gv === 'number' && !isFinite(gv))) continue;
+      var ok = true; for (var j = 0; j < cols.length; j++) if (!isNum(cols[j][i])) { ok = false; break; }
+      if (ok) rows.push(i);
+    }
+    var labels = []; rows.forEach(function (i) { var l = String(gin[i]); if (labels.indexOf(l) < 0) labels.push(l); });
+    labels.sort(function (a, b) { var x = Number(a), y = Number(b); return (!isNaN(x) && !isNaN(y)) ? x - y : (a < b ? -1 : a > b ? 1 : 0); });
+    var X = rows.map(function (i) { return cols.map(function (c) { return c[i]; }); });
+    var gi = rows.map(function (i) { return labels.indexOf(String(gin[i])); });
+    return { X: X, g: gi, labels: labels, rows: rows };
+  }
+  function sscp(X, g, G) { // 전체평균, 집단평균, E(집단 내), H(집단 간)
+    var n = X.length, p = X[0].length, cnt = new Array(G).fill(0), gm = zeros(G, p), m = new Array(p).fill(0);
+    X.forEach(function (r, i) { cnt[g[i]]++; for (var j = 0; j < p; j++) { gm[g[i]][j] += r[j]; m[j] += r[j]; } });
+    for (var k = 0; k < G; k++) for (var j2 = 0; j2 < p; j2++) gm[k][j2] /= cnt[k];
+    for (var j3 = 0; j3 < p; j3++) m[j3] /= n;
+    var E = zeros(p, p), H = zeros(p, p);
+    X.forEach(function (r, i) { var mu = gm[g[i]]; for (var a = 0; a < p; a++) for (var b = 0; b < p; b++) E[a][b] += (r[a] - mu[a]) * (r[b] - mu[b]); });
+    for (var k2 = 0; k2 < G; k2++) for (var a2 = 0; a2 < p; a2++) for (var b2 = 0; b2 < p; b2++) H[a2][b2] += cnt[k2] * (gm[k2][a2] - m[a2]) * (gm[k2][b2] - m[b2]);
+    return { n: n, p: p, G: G, cnt: cnt, gm: gm, m: m, E: E, H: H };
+  }
+  // E^-1 H의 고유값·고유벡터 (E = L L^T, A = L^-1 H L^-T)
+  function genEigen(H, E) {
+    var L = cholesky(E);
+    if (!L) throw new Error('집단 내 공분산 행렬이 특이합니다. 종속변수 간 완전한 중복이 있는지, 집단별 사례 수가 충분한지 확인하세요.');
+    var Li = inverse(L), A = matmul(matmul(Li, H), transpose(Li));
+    for (var i = 0; i < A.length; i++) for (var j = i + 1; j < A.length; j++) { var v = (A[i][j] + A[j][i]) / 2; A[i][j] = A[j][i] = v; }
+    var e = eigenSym(A), LiT = transpose(Li);
+    return { values: e.values.map(function (v) { return Math.max(v, 0); }), vectors: matmul(LiT, e.vectors) }; // 열 k: E^-1 H 의 고유벡터
+  }
+
+  // R stats:::summary.manova와 같은 근사 F
+  function manovaTests(eig, q, dfRes) {
+    var p = eig.length, s = Math.min(p, q), m = 0.5 * (Math.abs(p - q) - 1), nn = 0.5 * (dfRes - p - 1), out = {};
+    var V = sum(eig.map(function (e) { return e / (1 + e); }));
+    var t1 = 2 * m + s + 1, t2 = 2 * nn + s + 1;
+    out.pillai = { stat: V, F: (t2 / t1 * V) / (s - V), df1: s * t1, df2: s * t2 };
+    var Lam = eig.reduce(function (a, e) { return a / (1 + e); }, 1);
+    var w1 = dfRes - 0.5 * (p - q + 1), w2 = (p * q - 2) / 4, w3 = p * p + q * q - 5;
+    w3 = w3 > 0 ? Math.sqrt(((p * q) * (p * q) - 4) / w3) : 1;
+    out.wilks = { stat: Lam, F: ((Math.pow(Lam, -1 / w3) - 1) * (w1 * w3 - 2 * w2)) / p / q, df1: p * q, df2: w1 * w3 - 2 * w2 };
+    var HL = sum(eig), h2 = 2 * (s * nn + 1);
+    out.hotelling = { stat: HL, F: (h2 * HL) / s / s / t1, df1: s * t1, df2: h2 };
+    var roy = Math.max.apply(null, eig), r1 = Math.max(p, q), r2 = dfRes - r1 + q;
+    out.roy = { stat: roy, F: (r2 * roy) / r1, df1: r1, df2: r2 };
+    Object.keys(out).forEach(function (k) { var o = out[k]; o.p = pfUpper(o.F, o.df1, o.df2); });
+    // 다변량 부분 η² (SPSS 정의)
+    out.pillai.eta2 = V / s;
+    out.wilks.eta2 = 1 - Math.pow(Lam, 1 / s);
+    out.hotelling.eta2 = (HL / s) / (1 + HL / s);
+    out.roy.eta2 = roy / (1 + roy);
+    return out;
+  }
+
+  // Box의 M 검정 (Box, 1949): χ² 및 F 근사
+  function boxM(X, g, G) {
+    var p = X[0].length, n = X.length, cnt = new Array(G).fill(0), groups = [];
+    for (var k = 0; k < G; k++) groups.push([]);
+    X.forEach(function (r, i) { groups[g[i]].push(r); cnt[g[i]]++; });
+    if (cnt.some(function (c) { return c <= p; })) return { M: NaN, note: '어떤 집단의 사례 수가 종속변수 수 이하라 Box의 M을 계산할 수 없습니다.' };
+    var Sp = zeros(p, p), logdets = 0;
+    groups.forEach(function (gr) {
+      var cs = []; for (var j = 0; j < p; j++) cs.push(gr.map(function (r) { return r[j]; }));
+      var Si = covMatrix(cs);
+      for (var a = 0; a < p; a++) for (var b = 0; b < p; b++) Sp[a][b] += (gr.length - 1) * Si[a][b];
+      logdets += (gr.length - 1) * logdetPD(Si);
+    });
+    for (var a2 = 0; a2 < p; a2++) for (var b2 = 0; b2 < p; b2++) Sp[a2][b2] /= (n - G);
+    var M = (n - G) * logdetPD(Sp) - logdets;
+    var sInv = sum(cnt.map(function (c) { return 1 / (c - 1); })), sInv2 = sum(cnt.map(function (c) { return 1 / ((c - 1) * (c - 1)); }));
+    var c1 = (sInv - 1 / (n - G)) * (2 * p * p + 3 * p - 1) / (6 * (p + 1) * (G - 1));
+    var df1 = p * (p + 1) * (G - 1) / 2, chi = M * (1 - c1);
+    var c2 = (p - 1) * (p + 2) / (6 * (G - 1)) * (sInv2 - 1 / ((n - G) * (n - G))), F, df2;
+    if (c2 - c1 * c1 > 0) { df2 = (df1 + 2) / (c2 - c1 * c1); var bb = df1 / (1 - c1 - df1 / df2); F = M / bb; }
+    else { df2 = (df1 + 2) / (c1 * c1 - c2); var b3 = df2 / (1 - c1 + 2 / df2); F = df2 * M / (df1 * (b3 - M)); }
+    return { M: M, chi2: chi, df: df1, pChi: pchisqUpper(chi, df1), F: F, df1: df1, df2: df2, pF: pfUpper(F, df1, df2) };
+  }
+
+  function manova(cols, gin, names) {
+    var gd = groupData(cols, gin), G = gd.labels.length, p = cols.length;
+    if (G < 2) throw new Error('집단이 2개 이상이어야 합니다.');
+    var ss = sscp(gd.X, gd.g, G), dfRes = ss.n - G, q = G - 1;
+    if (dfRes < p) throw new Error('사례 수가 너무 적습니다.');
+    var ge = genEigen(ss.H, ss.E);
+    var tests = manovaTests(ge.values, q, dfRes);
+    var uni = names.map(function (nm, j) {
+      var ssb = ss.H[j][j], ssw = ss.E[j][j], F = (ssb / q) / (ssw / dfRes);
+      return { name: nm, ssb: ssb, ssw: ssw, df1: q, df2: dfRes, F: F, p: pfUpper(F, q, dfRes), eta2: ssb / (ssb + ssw) };
+    });
+    var desc = gd.labels.map(function (l, k) {
+      var idx = []; gd.g.forEach(function (gg, i) { if (gg === k) idx.push(i); });
+      return { label: l, n: ss.cnt[k], means: names.map(function (_, j) { return mean(idx.map(function (i) { return gd.X[i][j]; })); }),
+        sds: names.map(function (_, j) { return sd(idx.map(function (i) { return gd.X[i][j]; })); }) };
+    });
+    return { n: ss.n, p: p, G: G, labels: gd.labels, tests: tests, eig: ge.values, univariate: uni, desc: desc, boxM: boxM(gd.X, gd.g, G),
+      levene: names.map(function (_, j) { var grs = gd.labels.map(function (_, k) { return gd.X.filter(function (_, i) { return gd.g[i] === k; }).map(function (r) { return r[j]; }); }); return leveneTest(grs, 'mean'); }) };
+  }
+
+  /*
+   * 선형판별분석 (SPSS 판별분석 / MASS::lda와 같은 정의)
+   * 비표준화 계수: 집단 내 합동공분산 W에 대해 a'Wa = 1 로 정규화
+   */
+  function discriminant(cols, gin, names, opts) {
+    opts = opts || {};
+    var gd = groupData(cols, gin), G = gd.labels.length, p = cols.length;
+    if (G < 2) throw new Error('집단이 2개 이상이어야 합니다.');
+    var ss = sscp(gd.X, gd.g, G), n = ss.n, dfW = n - G;
+    var W = ss.E.map(function (r) { return r.map(function (v) { return v / dfW; }); });
+    var ge = genEigen(ss.H, ss.E), r = Math.min(p, G - 1);
+    var eig = ge.values.slice(0, r), totalEig = sum(eig);
+    var A = []; // A[k] = 판별함수 k의 비표준화 계수
+    for (var k = 0; k < r; k++) {
+      var a = ge.vectors.map(function (row) { return row[k]; });
+      var Wa = W.map(function (row) { return sum(row.map(function (v, j) { return v * a[j]; })); }), s = Math.sqrt(sum(a.map(function (v, j) { return v * Wa[j]; })));
+      a = a.map(function (v) { return v / s; });
+      // 부호 규칙: 첫 집단 중심이 음수가 되도록 (해석 편의; 부호는 임의)
+      var c0 = sum(a.map(function (v, j) { return v * (ss.gm[0][j] - ss.m[j]); }));
+      if (c0 > 0) a = a.map(function (v) { return -v; });
+      A.push(a);
+    }
+    var funcs = A.map(function (a, k) {
+      var Wa = W.map(function (row) { return sum(row.map(function (v, j) { return v * a[j]; })); });
+      return {
+        eigen: eig[k], pctVar: eig[k] / totalEig, canCor: Math.sqrt(eig[k] / (1 + eig[k])),
+        coef: a, constant: -sum(a.map(function (v, j) { return v * ss.m[j]; })),
+        stdCoef: a.map(function (v, j) { return v * Math.sqrt(W[j][j]); }),
+        structure: Wa.map(function (v, j) { return v / Math.sqrt(W[j][j]); }),
+        centroids: ss.gm.map(function (mu) { return sum(a.map(function (v, j) { return v * (mu[j] - ss.m[j]); })); })
+      };
+    });
+    // 순차 Wilks' Λ (Bartlett χ²)
+    var wilksSeq = [];
+    for (var k2 = 0; k2 < r; k2++) {
+      var lam = 1; for (var i2 = k2; i2 < r; i2++) lam /= (1 + eig[i2]);
+      var chi = -(n - 1 - (p + G) / 2) * Math.log(lam), df = (p - k2) * (G - 1 - k2);
+      wilksSeq.push({ from: k2 + 1, to: r, lambda: lam, chi2: chi, df: df, p: pchisqUpper(chi, df) });
+    }
+    // 분류 (선형 분류함수)
+    var priors = opts.priors === 'proportional' ? ss.cnt.map(function (c) { return c / n; }) : ss.cnt.map(function () { return 1 / G; });
+    function classifyWith(Winv, gm, pri, x) {
+      var sc = gm.map(function (mu, k3) {
+        var wm = Winv.map(function (row) { return sum(row.map(function (v, j) { return v * mu[j]; })); });
+        return sum(x.map(function (v, j) { return v * wm[j]; })) - 0.5 * sum(mu.map(function (v, j) { return v * wm[j]; })) + Math.log(pri[k3]);
+      });
+      var mx = Math.max.apply(null, sc), ex = sc.map(function (v) { return Math.exp(v - mx); }), se = sum(ex);
+      var post = ex.map(function (v) { return v / se; }), best = 0;
+      for (var q = 1; q < post.length; q++) if (post[q] > post[best]) best = q;
+      return { cls: best, post: post };
+    }
+    var Winv = inverse(W);
+    var classFn = ss.gm.map(function (mu, k4) {
+      var wm = Winv.map(function (row) { return sum(row.map(function (v, j) { return v * mu[j]; })); });
+      return { coef: wm, constant: -0.5 * sum(mu.map(function (v, j) { return v * wm[j]; })) + Math.log(priors[k4]) };
+    });
+    var pred = gd.X.map(function (x) { return classifyWith(Winv, ss.gm, priors, x); });
+    var conf = zeros(G, G); pred.forEach(function (pr, i) { conf[gd.g[i]][pr.cls]++; });
+    // 교차타당화 (하나씩 빼기): 해당 사례를 뺀 평균·W로 재분류
+    var cv = null;
+    if (opts.cv !== false) {
+      cv = zeros(G, G);
+      for (var i3 = 0; i3 < n; i3++) {
+        var gi = gd.g[i3], x = gd.X[i3], cnt = ss.cnt.slice(); cnt[gi]--;
+        if (cnt[gi] < 1) continue;
+        var mu2 = ss.gm.map(function (mu, k5) { return k5 === gi ? mu.map(function (v, j) { return (v * ss.cnt[gi] - x[j]) / cnt[gi]; }) : mu; });
+        // E에서 사례 i 제거: E' = E - (n_g/(n_g-1)) (x-m_g)(x-m_g)'
+        var dlt = x.map(function (v, j) { return v - ss.gm[gi][j]; }), fac = ss.cnt[gi] / (ss.cnt[gi] - 1);
+        var W2 = ss.E.map(function (row, a2) { return row.map(function (v, b2) { return (v - fac * dlt[a2] * dlt[b2]) / (n - 1 - G); }); });
+        var pri2 = opts.priors === 'proportional' ? cnt.map(function (c) { return c / (n - 1); }) : priors;
+        cv[gi][classifyWith(inverse(W2), mu2, pri2, x).cls]++;
+      }
+    }
+    var acc = function (M) { var t = 0; for (var q = 0; q < G; q++) t += M[q][q]; return t / n; };
+    return { n: n, p: p, G: G, labels: gd.labels, counts: ss.cnt, names: names, funcs: funcs, wilksSeq: wilksSeq, priors: priors,
+      classFn: classFn, confusion: conf, accuracy: acc(conf), cvConfusion: cv, cvAccuracy: cv ? acc(cv) : NaN,
+      posteriors: pred.map(function (pr) { return pr.post; }), predicted: pred.map(function (pr) { return pr.cls; }),
+      scores: gd.X.map(function (x) { return funcs.map(function (fn) { return sum(fn.coef.map(function (v, j) { return v * x[j]; })) + fn.constant; }); }),
+      groupIndex: gd.g, boxM: boxM(gd.X, gd.g, G),
+      univariate: names.map(function (nm, j) { var ssb = ss.H[j][j], ssw = ss.E[j][j], F = (ssb / (G - 1)) / (ssw / dfW); return { name: nm, lambda: ssw / (ssb + ssw), F: F, df1: G - 1, df2: dfW, p: pfUpper(F, G - 1, dfW) }; }) };
+  }
+
   /*
    * 네트워크 안정성 (Epskamp, Borsboom & Fried, 2018; bootnet 방식)
    * bootEdgeOnce: 사례 복원추출 후 재추정 → 엣지 벡터(상삼각)
@@ -1596,6 +1784,7 @@
     // 다분상관 · 위계적 회귀 · 조절 · 매개
     pbvnorm: pbvnorm, bvnu: bvnu, thresholds: thresholds, polychoric: polychoric, polyserial: polyserial,
     isOrdinalAuto: isOrdinalAuto, corAuto: corAuto, nearPD: nearPD, fminBrent: fminBrent,
-    hierarchicalRegression: hierarchicalRegression, moderation: moderation, mediation: mediation, processModel: processModel
+    hierarchicalRegression: hierarchicalRegression, moderation: moderation, mediation: mediation, processModel: processModel,
+    manova: manova, discriminant: discriminant, boxM: boxM
   };
 });

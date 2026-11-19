@@ -80,6 +80,14 @@ textarea.paste { width: 100%; height: 160px; border: 1px solid var(--line); bord
 svg text { fill: var(--ink); }
 .legend { font-size: 12px; color: var(--muted); }
 .legend .sw { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin: 0 4px 0 10px; }
+/* APA 7판 표 */
+.apa { margin: 10px 0 14px; }
+.apa-cap { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.apa-cap .apa-copy { padding: 1px 7px; font-size: 11px; }
+.apa-title { font-style: italic; font-size: 13px; margin: 1px 0 4px; }
+.apa-note { font-size: 12px; margin-top: 2px; max-width: 900px; }
+table.res thead th { font-weight: normal; text-align: center; vertical-align: bottom; }
+table.res thead th:first-child { text-align: left; }
 @media (max-width: 1000px) {
   .layout { grid-template-columns: 1fr; }
   nav.side { border-right: 0; border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap; padding: 6px; }

@@ -116,6 +116,37 @@ const ref = require('./reference.json');
   const p15 = await lastCard();
   check('조절된 매개 (Model 15, 이분 W, 병렬 M)', p15.includes('조건부 직접효과') && p15.includes('두 집단'));
 
+  // MANOVA · 판별분석
+  await nav('manova'); await pick('dv', ['수면', '스트레스', '사회적지지']); await sel('g', '집단'); await run();
+  const mv = await lastCard();
+  check('MANOVA', mv.includes('Pillai') && mv.includes('Box') && mv.includes('후속 단변량'));
+  await nav('lda'); await pick('v', ['수면', '스트레스', '사회적지지', '우울1']); await sel('g', '집단'); await run();
+  const ld = await lastCard();
+  check('판별분석', ld.includes('구조행렬') && ld.includes('교차타당화') && ld.includes('정준상관'));
+  const ldHead = await page.evaluate(() => [...document.querySelectorAll('#results .card thead')].map(t => t.innerHTML).join('|'));
+  check('집단 이름(치료B)은 기울이지 않음', !ldHead.includes('치료<i>B</i>') && ldHead.includes('<i>df</i>1'));
+  await page.locator('#results .card').first().screenshot({ path: path.join(outDir, '09_lda.png') });
+
+  // APA 표: 번호·제목·주, 기울임, 복사 내용
+  const apa = await page.evaluate(() => {
+    const card = document.querySelector('#results .card');
+    const first = card.querySelector('.apa');
+    first.querySelector('.apa-copy').click();
+    const c = window.__lastApaCopy || {};
+    return { num: first.querySelector('.apa-num').textContent, title: first.querySelector('.apa-title').textContent,
+      html: c.html || '', text: c.text || '', italF: !!card.querySelector('thead i') };
+  });
+  check('APA 표 번호·제목', apa.num === '표 1' && apa.title.length > 3, apa.num + ' / ' + apa.title);
+  check('APA 복사 HTML (서식 인라인)', apa.html.includes('border-top:1pt solid') && apa.html.includes('font-style:italic') && apa.html.includes('<i>F</i>'));
+  check('APA 복사 텍스트 (엑셀용 탭, 일반 마이너스)', apa.text.includes('\t') && !apa.text.includes('−'));
+  check('APA 통계 기호 기울임', apa.italF);
+  await nav('desc'); await pick('v', ['수면']); await run();
+  const swh = await page.evaluate(() => [...document.querySelector('#results .card thead').querySelectorAll('th')].map(t => t.innerHTML).join('|'));
+  check('S-W 의 S·W는 기울이지 않고 W 통계량만 기울임', swh.includes('S-W <i>W</i>') && swh.includes('<i>M</i>') && swh.includes('<i>SD</i>'), swh);
+  await nav('cor'); await pick('v', ['수면', '스트레스', '사회적지지']); await run();
+  const cn = await page.evaluate(() => document.querySelector('#results .card .apa-note').innerHTML);
+  check('상관표 주석 (*p < .05)', cn.includes('<i>p</i> &lt; .05'), cn);
+
   // 실제 데이터(bfi) 붙여넣기 → 네트워크 결과가 qgraph와 같은지 화면 경로로 확인
   const N = ref.network, items = Object.keys(N.data);
   const tsv = [items.join('\t')].concat(N.data[items[0]].map((_, r) => items.map(k => N.data[k][r]).join('\t'))).join('\n');
