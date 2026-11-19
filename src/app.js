@@ -383,13 +383,15 @@
     group: '관계', title: '상관분석',
     desc: 'Pearson·Spearman 상관행렬, 유의확률, 95% 신뢰구간.',
     form: function () {
-      return multiField('v', '변수 (2개 이상)', 'num') + '<div class="field"><div class="lab">방법</div><div class="inline"><label><input type="radio" name="cm" value="pearson" checked>Pearson</label><label><input type="radio" name="cm" value="spearman">Spearman</label></div></div>' +
+      return multiField('v', '변수 (2개 이상)', 'num') + '<div class="field"><div class="lab">방법</div><div class="inline"><label><input type="radio" name="cm" value="pearson" checked>Pearson</label><label><input type="radio" name="cm" value="spearman">Spearman</label><label><input type="radio" name="cm" value="auto">다분상관 자동 (cor_auto)</label></div>' +
+        '<div class="hint">다분상관 자동: 정수형이고 수준이 7개 이하인 변수(리커트·이분)를 순서형으로 보고 다분·사분·다계열 상관을 구합니다 (qgraph::cor_auto 규칙, lavaan 방식). 결측은 대응별 처리.</div></div>' +
         '<div class="field"><div class="lab">결측 처리</div><div class="inline"><label><input type="radio" name="mm" value="pairwise" checked>대응별 제거</label><label><input type="radio" name="mm" value="listwise">목록별 제거</label></div></div>';
     },
     run: function () {
       var v = getMulti('v'); need(v.length >= 2, '변수를 2개 이상 선택하세요.');
       var m = $('input[name=cm]:checked').value, mm = $('input[name=mm]:checked').value;
       var cols = v.map(function (i) { return state.cols[i]; }), names = v.map(function (i) { return state.names[i]; });
+      if (m === 'auto') { autoCorCard(cols, names); return; }
       var res = S.corMatrix(cols, m, mm);
       var rows = names.map(function (n, a) {
         return [(a + 1) + '. ' + esc(n)].concat(names.map(function (_, b) { return b < a ? fr(res.R[a][b]) + star(res.P[a][b]) : (b === a ? '—' : ''); }));
@@ -408,6 +410,21 @@
       addCard((m === 'pearson' ? 'Pearson' : 'Spearman') + ' 상관분석', html, v.length + '개 변수, ' + (mm === 'pairwise' ? '대응별 제거' : '목록별 제거'));
     }
   };
+
+  function autoCorCard(cols, names) {
+    var ca = S.corAuto(cols), p = names.length;
+    var abbrev = { pearson: 'P', polychoric: '다분', tetrachoric: '사분', polyserial: '다계열' };
+    var rows = names.map(function (n, a) { return [(a + 1) + '. ' + esc(n)].concat(names.map(function (_, b) { return b < a ? fr(ca.R[a][b]) : (b === a ? '—' : '<span class="note">' + abbrev[ca.kinds[a][b]] + '</span>'); })); });
+    var pd = !!S.cholesky(ca.R);
+    var html = table([''].concat(names.map(function (_, i) { return i + 1; })), rows) +
+      '<p class="note">아래 삼각: 상관계수. 위 삼각: 계산 종류 (P = Pearson, 다분 = polychoric, 사분 = tetrachoric, 다계열 = polyserial).</p>' +
+      '<p class="note">순서형으로 판정된 변수: ' + esc(names.filter(function (_, i) { return ca.ordinal[i]; }).join(', ') || '없음') + '</p>' +
+      (pd ? '' : '<div class="warn">이 상관행렬은 양정치가 아닙니다. 네트워크 분석에서는 가장 가까운 양정치 행렬(Higham, 2002)로 자동 보정합니다.</div>') +
+      (ca.zeroCellPairs.length ? '<p class="note">빈 칸이 있는 2×2 표: lavaan과 같이 주변합을 유지하며 0.5를 보정했습니다.</p>' : '') +
+      '<p class="note">다분상관은 역치를 고정한 뒤 ρ를 최대우도로 추정하는 2단계 방식(Olsson, 1979)으로, lavaan::lavCor(estimator = "two.step")와 같은 값을 냅니다. 유의확률은 제시하지 않습니다.</p>' +
+      rcode('qgraph::cor_auto(df[, ' + rvec(names) + '])');
+    addCard('다분상관 자동 (cor_auto)', html, p + '개 변수');
+  }
 
   A.chisq = {
     group: '관계', title: '교차분석 (χ²)',
@@ -491,6 +508,203 @@
         '<p class="note">Wald χ² = (B/SE)². 계수·SE는 R의 glm(family = binomial)과 같습니다. Hosmer-Lemeshow는 예측확률의 분위수(10분위)로 집단을 나누는 방식(R ResourceSelection::hoslem.test와 동일)이어서, 동점 처리가 다른 SPSS와는 값이 약간 다를 수 있습니다. 표본이 크면 H-L 검정은 과민해지므로 AUC·보정 정도와 함께 보세요(Hosmer, Lemeshow, & Sturdivant, 2013).</p>' +
         rcode('df$y01 <- as.integer(df$' + rname(state.names[y]) + ' == "' + ev + '")\nm <- glm(y01 ~ ' + x.map(function (i) { return rname(state.names[i]); }).join(' + ') + ', data = df, family = binomial)\nsummary(m); exp(cbind(OR = coef(m), confint.default(m)))\nResourceSelection::hoslem.test(m$y, fitted(m), g = 10)');
       addCard('이분형 로지스틱 회귀: ' + state.names[y] + ' = ' + ev, html, x.length + '개 예측변수');
+    }
+  };
+
+  function binaryDV(yIdx, ev) { return state.cols[yIdx].map(function (v) { return v === null ? null : (String(v) === ev ? 1 : 0); }); }
+  function eventPicker() { return '<div class="field" id="ev" style="display:none"><label for="evv">사건(=1)으로 볼 범주</label><select id="evv"></select></div>'; }
+  function wireEventPicker() {
+    var i = getSel('y'), box = $('#ev');
+    if (i < 0 || !$('#htype_log') || !$('#htype_log').checked) { box.style.display = 'none'; return; }
+    var lv = levelsOf(i);
+    $('#evv').innerHTML = lv.map(function (l) { return '<option>' + esc(l) + '</option>'; }).join('');
+    $('#evv').selectedIndex = lv.length - 1; box.style.display = '';
+  }
+
+  A.hier = {
+    group: '회귀', title: '위계적 회귀',
+    desc: '블록별로 예측변수를 누적 투입: 선형(ΔR², ΔF) 또는 로지스틱(블록 χ², Nagelkerke R²). 모든 단계는 같은 사례로 비교합니다.',
+    form: function () {
+      return '<div class="field"><div class="lab">모형</div><div class="inline"><label><input type="radio" name="htype" id="htype_lin" value="lin" checked>선형</label><label><input type="radio" name="htype" id="htype_log" value="log">이분형 로지스틱</label></div></div>' +
+        selectField('y', '종속변수', 'any') + eventPicker() +
+        [1, 2, 3, 4].map(function (k) { return multiField('b' + k, '블록 ' + k + (k === 1 ? ' (예: 인구통계 통제변수)' : ' (선택)'), 'any'); }).join('') +
+        '<div class="hint">문자형 변수는 첫 범주를 기준으로 더미코딩됩니다. 상호작용항이 필요하면 [조절분석] 메뉴를 쓰세요.</div>';
+    },
+    wire: function () { $('#y').onchange = wireEventPicker; $$('input[name=htype]').forEach(function (r) { r.onchange = wireEventPicker; }); },
+    run: function () {
+      var y = getSel('y'), logistic = $('#htype_log').checked; need(y >= 0, '종속변수를 선택하세요.');
+      var used = [y], blocks = [], bnames = [], labels = [], notes = [];
+      [1, 2, 3, 4].forEach(function (k) {
+        var ids = getMulti('b' + k).filter(function (i) { return used.indexOf(i) < 0; });
+        if (!ids.length) return;
+        used = used.concat(ids);
+        var dc = designColumns(ids); blocks.push(dc.cols); bnames.push(dc.names); notes = notes.concat(dc.notes);
+        labels.push(ids.map(function (i) { return state.names[i]; }).join(', '));
+      });
+      need(blocks.length >= 1, '블록 1에 예측변수를 하나 이상 넣으세요.');
+      if (!logistic) need(state.types[y] === 'num', '선형 위계적 회귀의 종속변수는 숫자형이어야 합니다.');
+      var ev = logistic ? $('#evv').value : null;
+      var yv = logistic ? binaryDV(y, ev) : state.cols[y];
+      var h = S.hierarchicalRegression(yv, blocks, bnames, { logistic: logistic });
+      var html = '<p class="note">분석 사례 N = ' + h.n + ' (모든 블록 변수에 결측이 없는 사례; 단계 간 비교를 위해 동일 표본 사용)</p>';
+      if (!logistic) {
+        html += '<h4>모형 요약</h4>' + table(['단계', '투입 변수', 'R²', '수정 R²', 'ΔR²', 'ΔF', 'df', 'p (ΔF)', 'F (전체)', 'p'], h.steps.map(function (s, k) {
+          return [k + 1, esc(labels[k]), fr(s.model.R2), fr(s.model.adjR2), fr(s.dR2), f(s.dF, 2), s.df1 + ', ' + s.df2, fp(s.dP), f(s.model.F, 2), fp(s.model.p)];
+        }), { left: [1] });
+        h.steps.forEach(function (s, k) {
+          html += '<h4>단계 ' + (k + 1) + ' 계수</h4>' + table(['예측변수', 'B', 'SE', 'β', 't', 'p', '95% CI', 'VIF'], s.model.coefs.map(function (c) {
+            return [esc(c.name), f(c.b, 3), f(c.se, 3), f(c.beta, 3), f(c.t, 2), fp(c.p), '[' + f(c.ciLow, 3) + ', ' + f(c.ciHigh, 3) + ']', f(c.vif, 2)];
+          }));
+        });
+      } else {
+        html += '<h4>모형 요약</h4>' + table(['단계', '투입 변수', '−2LL', '블록 χ²', 'df', 'p', '모형 χ²', 'Nagelkerke R²', 'AUC'], h.steps.map(function (s, k) {
+          return [k + 1, esc(labels[k]), f(s.model.deviance, 3), f(s.blockChi2, 3), s.blockDf, fp(s.blockP), f(s.model.chi2, 3), fr(s.model.nagelkerke), fr(s.model.auc)];
+        }), { left: [1] });
+        h.steps.forEach(function (s, k) {
+          html += (s.model.warnings.length ? '<div class="warn">' + s.model.warnings.map(esc).join('<br>') + '</div>' : '') +
+            '<h4>단계 ' + (k + 1) + ' 계수</h4>' + table(['예측변수', 'B', 'SE', 'Wald χ²', 'p', 'OR', 'OR 95% CI'], s.model.coefs.map(function (c) {
+              return [esc(c.name), f(c.b, 3), f(c.se, 3), f(c.wald, 3), fp(c.p), f(c.or, 3), '[' + f(c.orLow, 3) + ', ' + f(c.orHigh, 3) + ']'];
+            }));
+        });
+      }
+      if (notes.length) html += '<p class="note">더미코딩 — ' + esc(notes.join('; ')) + '</p>';
+      var rf = function (k) { return state.names[y] + ' ~ ' + labels.slice(0, k + 1).join(', ').split(', ').map(rname).join(' + '); };
+      html += rcode('d <- na.omit(df[, ' + rvec(used.map(function (i) { return state.names[i]; })) + '])\n' +
+        h.steps.map(function (_, k) { return 'm' + (k + 1) + ' <- ' + (logistic ? 'glm(' : 'lm(') + rf(k) + ', data = d' + (logistic ? ', family = binomial' : '') + ')'; }).join('\n') +
+        '\nanova(' + h.steps.map(function (_, k) { return 'm' + (k + 1); }).join(', ') + (logistic ? ', test = "Chisq"' : '') + ')');
+      addCard('위계적 ' + (logistic ? '로지스틱' : '선형') + ' 회귀: ' + state.names[y] + (logistic ? ' = ' + ev : ''), html, blocks.length + '단계');
+    }
+  };
+
+  function slopesSVG(md, xName, wName, yName) {
+    var W = 520, H = 320, L = 60, Rm = 120, T = 20, B = 46;
+    var cvTerm = md.covMeans.reduce(function (s, m, i) { return s + m * md.b[4 + i]; }, 0);
+    var x0 = md.xRange[0], x1 = md.xRange[1];
+    var pred = function (x, w) { var xc = x - md.xMean, wc = w - md.wMean; return md.b[0] + md.b[1] * xc + md.b[2] * wc + md.b[3] * xc * wc + cvTerm; };
+    var lines = md.slopes.map(function (s) { return [pred(x0, s.w), pred(x1, s.w)]; });
+    var ys = [].concat.apply([], lines), y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys), pad = (y1 - y0) * 0.1 || 1;
+    y0 -= pad; y1 += pad;
+    var X = function (v) { return L + (v - x0) / ((x1 - x0) || 1) * (W - L - Rm); }, Y = function (v) { return T + (1 - (v - y0) / (y1 - y0)) * (H - T - B); };
+    var cols = ['#c8372d', '#6b7280', '#2b5fc7'], dash = ['6 4', '2 3', ''];
+    var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + H + '" width="100%" style="max-width:' + W + 'px" font-family="sans-serif" font-size="11">';
+    s += '<line x1="' + L + '" y1="' + (H - B) + '" x2="' + (W - Rm) + '" y2="' + (H - B) + '" stroke="#8a94a6"/><line x1="' + L + '" y1="' + T + '" x2="' + L + '" y2="' + (H - B) + '" stroke="#8a94a6"/>';
+    [0, 0.5, 1].forEach(function (t) {
+      var xv = x0 + t * (x1 - x0), yv = y0 + t * (y1 - y0);
+      s += '<text x="' + X(xv) + '" y="' + (H - B + 14) + '" text-anchor="middle">' + f(xv, 1) + '</text><text x="' + (L - 6) + '" y="' + (Y(yv) + 4) + '" text-anchor="end">' + f(yv, 1) + '</text>';
+    });
+    s += '<text x="' + ((L + W - Rm) / 2) + '" y="' + (H - 8) + '" text-anchor="middle">' + esc(xName) + '</text><text x="14" y="' + ((T + H - B) / 2) + '" text-anchor="middle" transform="rotate(-90 14 ' + ((T + H - B) / 2) + ')">' + esc(yName) + '</text>';
+    var lab = md.binaryW ? md.slopes.map(function (q) { return wName + ' = ' + f(q.w, 2); }) : ['낮음 (' + f(md.slopes[0].w, 2) + ')', '중간 (' + f(md.slopes[1].w, 2) + ')', '높음 (' + f(md.slopes[2].w, 2) + ')'];
+    var ci = md.slopes.length === 2 ? [0, 2] : [0, 1, 2];
+    lines.forEach(function (ln, i) {
+      var c = ci[i];
+      s += '<line x1="' + X(x0) + '" y1="' + Y(ln[0]).toFixed(1) + '" x2="' + X(x1) + '" y2="' + Y(ln[1]).toFixed(1) + '" stroke="' + cols[c] + '" stroke-width="2.2" stroke-dasharray="' + dash[c] + '"/>';
+      s += '<line x1="' + (W - Rm + 10) + '" y1="' + (T + 10 + i * 18) + '" x2="' + (W - Rm + 30) + '" y2="' + (T + 10 + i * 18) + '" stroke="' + cols[c] + '" stroke-width="2.2" stroke-dasharray="' + dash[c] + '"/><text x="' + (W - Rm + 34) + '" y="' + (T + 14 + i * 18) + '">' + esc(lab[i]) + '</text>';
+    });
+    s += '<text x="' + (W - Rm + 10) + '" y="' + (T - 4) + '" font-weight="600">' + esc(wName) + '</text>';
+    return s + '</svg>';
+  }
+
+  A.moderation = {
+    group: '매개·조절', title: '조절분석',
+    desc: 'PROCESS Model 1과 같은 OLS 조절모형: 상호작용항, ΔR², 단순기울기, Johnson-Neyman 구간, 상호작용 그림.',
+    form: function () {
+      return selectField('y', '종속변수 (Y)', 'num') + selectField('x', '독립변수 (X)', 'num') + selectField('w', '조절변수 (W)', 'num', '연속 또는 0/1 이분변수') +
+        multiField('cv', '공변인 (선택)', 'any') +
+        '<div class="field"><div class="inline"><label><input type="checkbox" id="ctr" checked>X와 W 평균중심화</label></div><div class="hint">평균중심화는 상호작용항의 계수를 바꾸지 않지만, X·W 주효과를 "상대 변수가 평균일 때의 효과"로 해석할 수 있게 해 줍니다.</div></div>' +
+        '<div class="field"><div class="lab">단순기울기 지점</div><div class="inline"><label><input type="radio" name="pr" value="sd" checked>M ± 1SD</label><label><input type="radio" name="pr" value="percentile">16·50·84 백분위 (PROCESS 기본)</label></div></div>';
+    },
+    run: function () {
+      var y = getSel('y'), x = getSel('x'), w = getSel('w'); need(y >= 0 && x >= 0 && w >= 0, 'Y, X, W를 모두 선택하세요.');
+      need(y !== x && y !== w && x !== w, 'Y, X, W는 서로 다른 변수여야 합니다.');
+      var cvIdx = getMulti('cv').filter(function (i) { return [x, y, w].indexOf(i) < 0; }), dc = designColumns(cvIdx);
+      var md = S.moderation(state.cols[y], state.cols[x], state.cols[w], dc.cols, { center: $('#ctr').checked, probe: $('input[name=pr]:checked').value, covNames: dc.names });
+      var xn = state.names[x], wn = state.names[w], yn = state.names[y];
+      md.coefs[1].name = xn; md.coefs[2].name = wn; md.coefs[3].name = xn + ' × ' + wn;
+      var html = table(['N', 'R²', '상호작용 ΔR²', 'F (ΔR²)', 'df', 'p'], [[md.n, fr(md.R2), fr(md.dR2), f(md.F, 3), md.df1 + ', ' + md.df2, fp(md.p)]]) +
+        table(['', 'B', 'SE', 't', 'p', '95% CI'], md.coefs.map(function (c) { return [esc(c.name), f(c.b, 4), f(c.se, 4), f(c.t, 3), fp(c.p), '[' + f(c.ciLow, 4) + ', ' + f(c.ciHigh, 4) + ']']; })) +
+        (md.centered ? '<p class="note">X, W는 평균중심화됨 (M<sub>X</sub> = ' + f(md.meanX, 3) + ', M<sub>W</sub> = ' + f(md.meanW, 3) + '). 상호작용항은 중심화된 X와 W의 곱입니다.</p>' : '') +
+        '<h4>단순기울기: W 수준별 X의 조건부 효과</h4>' + table([esc(wn), '효과', 'SE', 't', 'p', '95% CI'], md.slopes.map(function (s) { return [f(s.w, 3), f(s.est, 4), f(s.se, 4), f(s.t, 3), fp(s.p), '[' + f(s.ciLow, 4) + ', ' + f(s.ciHigh, 4) + ']']; }));
+      if (!md.binaryW) {
+        html += '<h4>Johnson-Neyman 유의성 구간 (α = .05)</h4>' + (md.jn.length
+          ? '<p>X의 효과가 유의해지는 경계: ' + esc(wn) + ' = <b>' + md.jn.map(function (v) { return f(v, 3); }).join('</b>, <b>') + '</b> (관측 범위 ' + f(md.wRange[0], 2) + '–' + f(md.wRange[1], 2) + '). ' +
+            (md.jn.length === 1 ? 'W가 이 값보다 ' + (md.jnSigBelow ? '<b>낮을</b>' : '<b>높을</b>') + ' 때 X의 효과가 유의합니다.' : '경계 사이와 바깥의 유의성은 단순기울기 표와 함께 확인하세요.') + '</p>'
+          : '<p class="note">관측된 W 범위 안에 유의성이 바뀌는 경계점이 없습니다.</p>');
+      }
+      html += '<div class="mod-plot">' + slopesSVG(md, xn, wn, yn) + '</div>' +
+        '<p class="note">계수, SE, 단순기울기는 R의 lm(Y ~ X*W)과 vcov()로 직접 계산한 값과 같고(오차 &lt; 1e-9), PROCESS Model 1(OLS SE)과 같은 정의입니다(Hayes, 2022). 그림의 공변인은 평균값으로 고정했습니다.</p>' +
+        rcode('d <- na.omit(df[, ' + rvec([yn, xn, wn].concat(cvIdx.map(function (i) { return state.names[i]; }))) + '])\n' +
+          (md.centered ? 'd$xc <- d$' + rname(xn) + ' - mean(d$' + rname(xn) + '); d$wc <- d$' + rname(wn) + ' - mean(d$' + rname(wn) + ')\nm <- lm(' + rname(yn) + ' ~ xc * wc' : 'm <- lm(' + rname(yn) + ' ~ ' + rname(xn) + ' * ' + rname(wn)) +
+          cvIdx.map(function (i) { return ' + ' + rname(state.names[i]); }).join('') + ', data = d)\nsummary(m)\n# interactions::sim_slopes(m, pred = ..., modx = ..., johnson_neyman = TRUE)');
+      addCard('조절분석: ' + xn + ' × ' + wn + ' → ' + yn, html, 'PROCESS Model 1');
+    }
+  };
+
+  function mediationSVG(names, me) {
+    var k = me.k, W = 560, H = 140 + 70 * k, bx = 110, by = 34, s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + H + '" width="100%" style="max-width:' + W + 'px" font-family="sans-serif" font-size="11">';
+    s += '<defs><marker id="ar" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#3a4152"/></marker></defs>';
+    var box = function (cx, cy, t) { return '<rect x="' + (cx - bx / 2) + '" y="' + (cy - by / 2) + '" width="' + bx + '" height="' + by + '" rx="5" fill="#ffffff" stroke="#3a4152"/><text x="' + cx + '" y="' + (cy + 4) + '" text-anchor="middle" style="fill:#1d2433">' + esc(t.length > 12 ? t.slice(0, 12) + '…' : t) + '</text>'; };
+    var arrow = function (x1, y1, x2, y2, lab) {
+      var lx = (x1 + x2) / 2, ly = (y1 + y2) / 2 + 4;
+      return '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="#3a4152" stroke-width="1.3" marker-end="url(#ar)"/>' +
+        '<text x="' + lx + '" y="' + ly + '" text-anchor="middle" paint-order="stroke" stroke="#ffffff" stroke-width="5" stroke-linejoin="round" style="fill:#1d2433">' + lab + '</text>';
+    };
+    var xc = 80, yc = W - 80, by0 = H - 40, star2 = function (p) { return star(p); };
+    var fy = me.est.fy, cdir = fy.b[1], pdir = ptTwoSidedSafe(fy, 1);
+    s += box(xc, by0, names.x) + box(yc, by0, names.y);
+    s += arrow(xc + bx / 2, by0, yc - bx / 2, by0, "c′ = " + f(cdir, 3) + star2(pdir));
+    names.m.forEach(function (mn, j) {
+      var mx = W / 2, my = 30 + j * 70, a = me.est.a[j], pa = ptTwoSidedSafe(a.fit, 1), pb = ptTwoSidedSafe(fy, 2 + j);
+      s += box(mx, my, mn);
+      s += arrow(xc + 10, by0 - by / 2, mx - bx / 2, my + 6, 'a' + (k > 1 ? j + 1 : '') + ' = ' + f(a.a, 3) + star2(pa));
+      s += arrow(mx + bx / 2, my + 6, yc - 10, by0 - by / 2, 'b' + (k > 1 ? j + 1 : '') + ' = ' + f(me.est.b[j], 3) + star2(pb));
+    });
+    return s + '</svg>';
+  }
+  function ptTwoSidedSafe(fit, j) { var t = fit.b[j] / Math.sqrt(fit.cov[j][j]); return S.ptTwoSided(t, fit.dfE); }
+
+  A.mediation = {
+    group: '매개·조절', title: '매개분석',
+    desc: 'PROCESS Model 4와 같은 OLS 매개모형 (병렬 매개변수 여러 개 가능): a, b, c, c′ 경로와 부트스트랩 간접효과 신뢰구간.',
+    form: function () {
+      return selectField('y', '종속변수 (Y)', 'num') + selectField('x', '독립변수 (X)', 'num', '0/1 이분변수도 가능') + multiField('m', '매개변수 (M; 여러 개면 병렬 매개)', 'num') +
+        multiField('cv', '공변인 (선택)', 'any') +
+        '<div class="field"><div class="inline"><label>부트스트랩 <input type="number" id="nb" value="5000" min="0" step="1000" style="width:90px"> 회</label><label>시드 <input type="number" id="seed" value="1234" style="width:80px"></label></div><div class="hint">PROCESS 기본값과 같이 5,000회 백분위 부트스트랩. 간접효과 검정은 부트스트랩 CI가 0을 포함하는지로 판단합니다(Hayes, 2022).</div></div>';
+    },
+    run: function () {
+      var y = getSel('y'), x = getSel('x'), m = getMulti('m').filter(function (i) { return i !== x && i !== y; });
+      need(y >= 0 && x >= 0 && m.length, 'Y, X, 매개변수를 선택하세요.'); need(x !== y, 'X와 Y는 서로 달라야 합니다.');
+      var cvIdx = getMulti('cv').filter(function (i) { return [x, y].concat(m).indexOf(i) < 0; }), dc = designColumns(cvIdx);
+      var B = Math.max(0, Math.floor(Number($('#nb').value) || 0)), seed = Number($('#seed').value) || 1;
+      var me = S.mediation(state.cols[y], state.cols[x], m.map(function (i) { return state.cols[i]; }), dc.cols, { boot: B, seed: seed });
+      var xn = state.names[x], yn = state.names[y], mn = m.map(function (i) { return state.names[i]; }), k = m.length;
+      var pathRow = function (label, fit, j) {
+        var c = fit.b[j] / Math.sqrt(fit.cov[j][j]), se = Math.sqrt(fit.cov[j][j]), tc = S.qt(0.975, fit.dfE);
+        return [label, f(fit.b[j], 4), f(se, 4), f(c, 3), fp(S.ptTwoSided(c, fit.dfE)), '[' + f(fit.b[j] - tc * se, 4) + ', ' + f(fit.b[j] + tc * se, 4) + ']'];
+      };
+      var rows = [];
+      me.est.a.forEach(function (a, j) { rows.push(pathRow('a' + (k > 1 ? j + 1 : '') + ': ' + esc(xn + ' → ' + mn[j]), a.fit, 1)); });
+      me.est.b.forEach(function (_, j) { rows.push(pathRow('b' + (k > 1 ? j + 1 : '') + ': ' + esc(mn[j] + ' → ' + yn), me.est.fy, 2 + j)); });
+      rows.push(pathRow("c′ (직접효과): " + esc(xn + ' → ' + yn), me.est.fy, 1));
+      rows.push(pathRow('c (총효과): ' + esc(xn + ' → ' + yn), me.est.ft, 1));
+      var std = me.sdx / me.sdy;
+      var indRows = me.est.ind.map(function (v, j) {
+        var bt = me.boot ? me.boot.ind[j] : null;
+        return [esc(xn + ' → ' + mn[j] + ' → ' + yn), f(v, 4), bt ? f(bt.se, 4) : '—', bt ? '[' + f(bt.ci[0], 4) + ', ' + f(bt.ci[1], 4) + ']' : '—', bt ? (bt.ci[0] > 0 || bt.ci[1] < 0 ? '유의' : '유의하지 않음') : '—', f(v * std, 4)];
+      });
+      if (k > 1) indRows.push(['총 간접효과', f(me.est.totalInd, 4), me.boot ? f(me.boot.total.se, 4) : '—', me.boot ? '[' + f(me.boot.total.ci[0], 4) + ', ' + f(me.boot.total.ci[1], 4) + ']' : '—',
+        me.boot ? (me.boot.total.ci[0] > 0 || me.boot.total.ci[1] < 0 ? '유의' : '유의하지 않음') : '—', f(me.est.totalInd * std, 4)]);
+      var html = '<div class="med-plot">' + mediationSVG({ x: xn, y: yn, m: mn }, me) + '</div>' +
+        '<p class="note">N = ' + me.n + ' (목록별 제거). * p &lt; .05, ** p &lt; .01, *** p &lt; .001.</p>' +
+        '<h4>경로계수</h4>' + table(['경로', 'B', 'SE', 't', 'p', '95% CI'], rows) +
+        '<h4>간접효과</h4>' + table(['경로', '효과 (a×b)', 'Boot SE', '95% Boot CI', '판단', '완전표준화'], indRows) +
+        '<p class="note">부트스트랩 ' + (me.boot ? me.boot.B : 0) + '회, 백분위 구간, 시드 = ' + seed + '. 같은 시드면 같은 결과가 재현되지만, 난수 생성기가 R·SPSS와 달라 구간 끝값은 소수 둘째~셋째 자리에서 조금 다를 수 있습니다. 완전표준화 간접효과 = ab × SD<sub>X</sub>/SD<sub>Y</sub> (X가 이분변수면 부분표준화 ab/SD<sub>Y</sub>를 보고하세요).</p>' +
+        (k === 1 ? '<p class="note">참고: Sobel z = ' + f(me.sobel[0].z, 3) + ', p = ' + fp(me.sobel[0].p) + ' (정규성 가정이 강해 부트스트랩 CI를 우선 보고하세요; Preacher & Hayes, 2008).</p>' : '') +
+        (k > 1 ? '<p class="note">병렬 매개: 각 간접효과는 다른 매개변수를 통제한 특정 간접효과입니다.</p>' : '') +
+        rcode('d <- na.omit(df[, ' + rvec([yn, xn].concat(mn, cvIdx.map(function (i) { return state.names[i]; }))) + '])\n' +
+          mn.map(function (q, j) { return 'ma' + (j + 1) + ' <- lm(' + rname(q) + ' ~ ' + rname(xn) + cvIdx.map(function (i) { return ' + ' + rname(state.names[i]); }).join('') + ', data = d)'; }).join('\n') +
+          '\nmy <- lm(' + rname(yn) + ' ~ ' + rname(xn) + mn.map(function (q) { return ' + ' + rname(q); }).join('') + cvIdx.map(function (i) { return ' + ' + rname(state.names[i]); }).join('') + ', data = d)\n' +
+          '# 또는 lavaan: ind := a*b 정의 후 sem(..., se = "bootstrap", bootstrap = 5000)');
+      addCard('매개분석: ' + xn + ' → ' + mn.join(', ') + ' → ' + yn, html, 'PROCESS Model 4' + (k > 1 ? ' (병렬 ' + k + '개)' : ''));
     }
   };
 
@@ -587,8 +801,8 @@
         '<div class="field" id="ebicopts"><label for="gam">EBIC γ (감마)</label><select id="gam"><option value="0.5" selected>0.5 (기본, 보수적)</option><option value="0.25">0.25</option><option value="0">0 (BIC)</option></select>' +
         '<div class="inline" style="margin-top:6px"><label><input type="checkbox" id="thr">threshold = TRUE (특이도 강화)</label></div></div>' +
         '<div class="field" id="pcopts" style="display:none"><label for="alp">유의하지 않은 엣지 제거 (α)</label><select id="alp"><option value="0">제거 안 함</option><option value="0.05">.05</option><option value="0.01">.01</option></select></div>' +
-        '<div class="field"><div class="lab">상관 종류</div><div class="inline"><label><input type="radio" name="cr" value="pearson" checked>Pearson</label><label><input type="radio" name="cr" value="spearman">Spearman</label></div>' +
-        '<div class="hint">리커트 문항은 qgraph의 cor_auto(다분상관)를 흔히 쓰지만 현재 버전은 다분상관을 지원하지 않습니다. 5점 이상 척도에서는 Spearman이 실용적 대안입니다.</div></div>' +
+        '<div class="field"><div class="lab">상관 종류</div><div class="inline"><label><input type="radio" name="cr" value="auto" checked>자동 (cor_auto)</label><label><input type="radio" name="cr" value="pearson">Pearson</label><label><input type="radio" name="cr" value="spearman">Spearman</label></div>' +
+        '<div class="hint">자동: 리커트·이분 문항(정수, 수준 7개 이하)은 다분·사분상관, 연속변수는 Pearson, 섞이면 다계열상관 (qgraph::cor_auto와 같은 규칙). 다분상관을 쓰면 부트스트랩이 몇 배 느려집니다.</div></div>' +
         '<div class="field"><div class="lab">안정성 분석 (부트스트랩, bootnet 방식)</div><div class="inline"><label>엣지 부트스트랩 <input type="number" id="nb" value="0" min="0" step="100" style="width:80px"> 회</label></div>' +
         '<div class="inline" style="margin-top:4px"><label>사례 제거 부트스트랩 <input type="number" id="nc" value="0" min="0" step="100" style="width:80px"> 회</label></div>' +
         '<div class="inline" style="margin-top:4px"><label>난수 시드 <input type="number" id="seed" value="1234" style="width:80px"></label></div>' +
@@ -604,7 +818,14 @@
       var cols = v.map(function (i) { return rows.map(function (r) { return state.cols[i][r]; }); });
       var n = rows.length; need(n > v.length + 2, '완전 사례 수가 너무 적습니다.');
       var opts = { method: $('#est').value, cor: $('input[name=cr]:checked').value, gamma: Number($('#gam').value), threshold: $('#thr').checked, alpha: Number($('#alp').value) || 0 };
+      var nearPDused = false, ordNote = '';
+      if (opts.cor === 'auto') {
+        opts.ordinal = cols.map(function (c) { return S.isOrdinalAuto(c); }); // 부트스트랩에서도 같은 판정 유지
+        ordNote = '<p class="note">cor_auto 순서형 판정: ' + esc(names.filter(function (_, i) { return opts.ordinal[i]; }).join(', ') || '없음 (모두 Pearson)') + '</p>';
+      }
+      opts.onNearPD = function () { nearPDused = true; };
       var res = S.estimateNetwork(cols, opts), net = res.network, p = v.length;
+      opts.onNearPD = null;
       var ce = S.centrality(net), layout = S.layoutFR(net);
       var nEdges = 0, possible = p * (p - 1) / 2, edgeRows = [];
       for (var a = 0; a < p; a++) for (var b = a + 1; b < p; b++) if (net[a][b] !== 0) { nEdges++; edgeRows.push([a, b, net[a][b]]); }
@@ -616,8 +837,9 @@
       var useNum = names.some(function (nm) { return nm.length > 6; });
       var plotLabels = useNum ? labels : names;
       var zs = { '강도 Strength': S.zscore(ce.strength), '근접 Closeness': S.zscore(ce.closeness), '매개 Betweenness': S.zscore(ce.betweenness), '기대영향 EI': S.zscore(ce.expectedInfluence) };
-      var html = (res.notes || []).map(function (t) { return '<div class="warn">' + esc(t) + '</div>'; }).join('') +
-        table(['N (완전 사례)', '노드', '엣지', '밀도', '평균 |가중치|', opts.method === 'ebicglasso' ? '선택 λ' : '상관'], [[n, p, nEdges + ' / ' + possible, fr(nEdges / possible), fr(meanW), opts.method === 'ebicglasso' ? f(res.lambda, 4) : opts.cor]]) +
+      var html = (res.notes || []).map(function (t) { return '<div class="warn">' + esc(t) + '</div>'; }).join('') + ordNote +
+        (nearPDused ? '<div class="warn">다분상관 행렬이 양정치가 아니어서 가장 가까운 양정치 행렬로 보정했습니다 (Matrix::nearPD와 같은 방법).</div>' : '') +
+        table(['N (완전 사례)', '노드', '엣지', '밀도', '평균 |가중치|', '상관'].concat(opts.method === 'ebicglasso' ? ['선택 λ'] : []), [[n, p, nEdges + ' / ' + possible, fr(nEdges / possible), fr(meanW), opts.cor === 'auto' ? 'cor_auto' : opts.cor].concat(opts.method === 'ebicglasso' ? [f(res.lambda, 4)] : [])]) +
         '<div class="net-plot">' + networkSVG(net, plotLabels, { layout: layout, pred: pred }) + '</div>' +
         '<div class="legend"><span class="sw" style="background:#2b5fc7"></span>정적 편상관<span class="sw" style="background:#c8372d"></span>부적 편상관 (점선) · 선 굵기 ∝ |가중치| · 배치: Fruchterman-Reingold' + (pred ? ' · 회색 링: 노드 예측력(R²)' : '') + '</div>' +
         (useNum ? '<p class="note">노드 번호: ' + names.map(function (nm, i) { return (i + 1) + ' = ' + esc(nm); }).join(', ') + '</p>' : '') +
@@ -635,8 +857,8 @@
         '<div class="bootbox"></div>' +
         rcode('library(qgraph)\nd <- na.omit(df[, ' + rvec(names) + '])\n' +
           (opts.method === 'ebicglasso'
-            ? 'net <- EBICglasso(cor(d' + (opts.cor === 'spearman' ? ', method = "spearman"' : '') + '), n = nrow(d), gamma = ' + opts.gamma + (opts.threshold ? ', threshold = TRUE' : '') + ')\n'
-            : 'net <- -cov2cor(solve(cor(d' + (opts.cor === 'spearman' ? ', method = "spearman"' : '') + '))); diag(net) <- 0\n') +
+            ? 'net <- EBICglasso(' + rcor(opts.cor) + ', n = nrow(d), gamma = ' + opts.gamma + (opts.threshold ? ', threshold = TRUE' : '') + ')\n'
+            : 'net <- -cov2cor(solve(' + rcor(opts.cor) + ')); diag(net) <- 0\n') +
           'qgraph(net, layout = "spring", labels = colnames(d))\ncentrality_auto(net)$node.centrality\n# 안정성: library(bootnet)\n# b1 <- bootnet(d, default = "EBICglasso", nBoots = 1000)\n# b2 <- bootnet(d, default = "EBICglasso", type = "case", nBoots = 1000); corStability(b2)');
       var card = addCard('네트워크 분석: ' + est, html, p + '개 노드');
       card.querySelector('[data-dl=svg]').onclick = function () { svgDownload(card.querySelector('.net-plot svg'), 'network', false); };
@@ -649,6 +871,8 @@
       if (nb || nc) runBootstrap(card.querySelector('.bootbox'), cols, names, opts, net, ce, nb, nc, Number($('#seed').value) || 1);
     }
   };
+
+  function rcor(c) { return c === 'auto' ? 'cor_auto(d)' : 'cor(d' + (c === 'spearman' ? ', method = "spearman"' : '') + ')'; }
 
   function runBootstrap(box, cols, names, opts, net, ce, nb, nc, seed) {
     var rand = S.rng(seed), p = names.length, orig = S.upperVec(net), pairs = [];
@@ -779,7 +1003,7 @@
   function about() {
     $$('nav.side a').forEach(function (a) { a.classList.toggle('active', a.dataset.id === 'about'); });
     $('#opts').innerHTML = '<h2>도움말</h2><p class="desc">PsyStat은 하나의 HTML 파일로 동작하는 오프라인 통계 도구입니다. 설치가 필요 없고, 외부 서버와 통신하지 않습니다.</p>' +
-      '<p class="desc"><b>검증</b>: 모든 계산은 R 4.x(stats, car, psych, qgraph 1.9.8, glasso)의 결과와 자동 대조되었습니다. 저장소의 tests/run_tests.js에서 1,100개 이상의 수치를 비교하며, 중요한 결과는 가능하면 SPSS·R로 한 번 더 확인하세요.</p>' +
+      '<p class="desc"><b>검증</b>: 모든 계산은 R 4.x(stats, car, psych, qgraph 1.9.8, glasso)의 결과와 자동 대조되었습니다. 저장소의 tests/run_tests.js, run_tests2.js에서 1,600개 이상의 수치를 비교하며, 중요한 결과는 가능하면 SPSS·R로 한 번 더 확인하세요.</p>' +
       '<p class="desc"><b>결과 내보내기</b>: 각 카드의 [복사] 후 한글·워드에 붙여넣기, 또는 상단 [결과 저장]으로 HTML 파일 저장(워드에서 열 수 있음).</p>';
     var refs = [
       ['Bringmann, L. F., et al. (2019). What do centrality measures measure in psychological networks? Journal of Abnormal Psychology, 128(8), 892–903.', 'https://doi.org/10.1037/abn0000446'],
@@ -787,11 +1011,17 @@
       ['Delacre, M., Lakens, D., & Leys, C. (2017). Why psychologists should by default use Welch’s t-test instead of Student’s t-test. International Review of Social Psychology, 30(1), 92–101.', 'https://doi.org/10.5334/irsp.82'],
       ['Epskamp, S., Borsboom, D., & Fried, E. I. (2018). Estimating psychological networks and their accuracy: A tutorial paper. Behavior Research Methods, 50(1), 195–212.', 'https://doi.org/10.3758/s13428-017-0862-1'],
       ['Epskamp, S., & Fried, E. I. (2018). A tutorial on regularized partial correlation networks. Psychological Methods, 23(4), 617–634.', 'https://doi.org/10.1037/met0000167'],
+      ['Genz, A. (2004). Numerical computation of rectangular bivariate and trivariate normal and t probabilities. Statistics and Computing, 14(3), 251–260.', 'https://doi.org/10.1023/B:STCO.0000035304.20635.31'],
       ['Foygel, R., & Drton, M. (2010). Extended Bayesian information criteria for Gaussian graphical models. Advances in Neural Information Processing Systems, 23.', 'https://arxiv.org/abs/1011.6640'],
       ['Friedman, J., Hastie, T., & Tibshirani, R. (2008). Sparse inverse covariance estimation with the graphical lasso. Biostatistics, 9(3), 432–441.', 'https://doi.org/10.1093/biostatistics/kxm045'],
+      ['Hayes, A. F. (2022). Introduction to mediation, moderation, and conditional process analysis (3rd ed.). Guilford Press.', 'https://www.guilford.com/books/Introduction-to-Mediation-Moderation-and-Conditional-Process-Analysis/Andrew-Hayes/9781462549030'],
+      ['Higham, N. J. (2002). Computing the nearest correlation matrix—a problem from finance. IMA Journal of Numerical Analysis, 22(3), 329–343.', 'https://doi.org/10.1093/imanum/22.3.329'],
       ['Hosmer, D. W., Lemeshow, S., & Sturdivant, R. X. (2013). Applied logistic regression (3rd ed.). Wiley.', 'https://doi.org/10.1002/9781118548387'],
       ['Lakens, D. (2013). Calculating and reporting effect sizes to facilitate cumulative science. Frontiers in Psychology, 4, 863.', 'https://doi.org/10.3389/fpsyg.2013.00863'],
       ['McNeish, D. (2018). Thanks coefficient alpha, we’ll take it from here. Psychological Methods, 23(3), 412–433.', 'https://doi.org/10.1037/met0000144'],
+      ['Olsson, U. (1979). Maximum likelihood estimation of the polychoric correlation coefficient. Psychometrika, 44(4), 443–460.', 'https://doi.org/10.1007/BF02296207'],
+      ['Preacher, K. J., & Hayes, A. F. (2008). Asymptotic and resampling strategies for assessing and comparing indirect effects in multiple mediator models. Behavior Research Methods, 40(3), 879–891.', 'https://doi.org/10.3758/BRM.40.3.879'],
+      ['Rosseel, Y. (2012). lavaan: An R package for structural equation modeling. Journal of Statistical Software, 48(2), 1–36.', 'https://doi.org/10.18637/jss.v048.i02'],
       ['Royston, P. (1995). Remark AS R94: A remark on algorithm AS 181: The W-test for normality. Applied Statistics, 44(4), 547–551.', 'https://doi.org/10.2307/2986146'],
       ['West, S. G., Finch, J. F., & Curran, P. J. (1995). Structural equation models with nonnormal variables. In R. H. Hoyle (Ed.), Structural equation modeling (pp. 56–75). Sage.', 'https://psycnet.apa.org/record/1995-97753-004'],
       ['Williams, D. R., & Rast, P. (2020). Back to the basics: Rethinking partial correlation network methodology. British Journal of Mathematical and Statistical Psychology, 73(2), 187–212.', 'https://doi.org/10.1111/bmsp.12173']

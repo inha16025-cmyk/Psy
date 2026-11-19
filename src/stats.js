@@ -1069,8 +1069,12 @@
   function estimateNetwork(cols, opts) {
     opts = opts || {};
     var n = cols[0].length;
-    var use = opts.cor === 'spearman' ? cols.map(rank) : cols;
-    var S = covMatrix(use);
+    var S;
+    if (opts.cor === 'auto') {
+      var ca = corAuto(cols, { ordinal: opts.ordinal });
+      S = ca.R;
+      if (!cholesky(S)) { S = nearPD(S).mat; if (opts.onNearPD) opts.onNearPD(); }
+    } else S = covMatrix(opts.cor === 'spearman' ? cols.map(rank) : cols);
     if (opts.method === 'pcor') return partialCorNetwork(S, n, opts.alpha);
     return ebicGlasso(S, n, opts);
   }
@@ -1104,6 +1108,320 @@
     var xs = pos.map(function (p2) { return p2[0]; }), ys = pos.map(function (p2) { return p2[1]; });
     var mnx = Math.min.apply(null, xs), mxx = Math.max.apply(null, xs), mny = Math.min.apply(null, ys), mxy = Math.max.apply(null, ys);
     return pos.map(function (p2) { return [(p2[0] - mnx) / ((mxx - mnx) || 1), (p2[1] - mny) / ((mxy - mny) || 1)]; });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* 10. 이변량 정규분포 · 다분/다계열 상관 (lavaan::lavCor two-step 방식) */
+  /* ------------------------------------------------------------------ */
+
+  // P(X > dh, Y > dk), 상관 r (Genz, 2004; bvnu)
+  var GL = {
+    3: { w: [0.1713244923791705, 0.3607615730481384, 0.4679139345726904], x: [-0.9324695142031522, -0.6612093864662647, -0.2386191860831970] },
+    6: { w: [.04717533638651177, .1069393259953183, .1600783285433464, .2031674267230659, .2334925365383547, .2491470458134029],
+      x: [-.9815606342467191, -.9041172563704750, -.7699026741943050, -.5873179542866171, -.3678314989981802, -.1252334085114692] },
+    10: { w: [.01761400713915212, .04060142980038694, .06267204833410906, .08327674157670475, .1019301198172404, .1181945319615184, .1316886384491766, .1420961093183821, .1491729864726037, .1527533871307259],
+      x: [-.9931285991850949, -.9639719272779138, -.9122344282513259, -.8391169718222188, -.7463319064601508, -.6360536807265150, -.5108670019508271, -.3737060887154196, -.2277858511416451, -.07652652113349733] }
+  };
+  function bvnu(dh, dk, r) {
+    if (dh === Infinity || dk === Infinity) return 0;
+    if (dh === -Infinity) return dk === -Infinity ? 1 : pnorm(-dk);
+    if (dk === -Infinity) return pnorm(-dh);
+    if (r === 0) return pnorm(-dh) * pnorm(-dk);
+    var tp = 2 * Math.PI, h = dh, k = dk, hk = h * k, bvn = 0, g = Math.abs(r) < 0.3 ? GL[3] : Math.abs(r) < 0.75 ? GL[6] : GL[10];
+    var w = g.w.concat(g.w), x = g.x.map(function (v) { return 1 - v; }).concat(g.x.map(function (v) { return 1 + v; }));
+    var i;
+    if (Math.abs(r) < 0.925) {
+      var hs = (h * h + k * k) / 2, asr = Math.asin(r) / 2;
+      for (i = 0; i < x.length; i++) { var sn = Math.sin(asr * x[i]); bvn += w[i] * Math.exp((sn * hk - hs) / (1 - sn * sn)); }
+      bvn = bvn * asr / tp + pnorm(-h) * pnorm(-k);
+    } else {
+      if (r < 0) { k = -k; hk = -hk; }
+      if (Math.abs(r) < 1) {
+        var as = 1 - r * r, a = Math.sqrt(as), bs = (h - k) * (h - k), c = (4 - hk) / 8, d = (12 - hk) / 80;
+        var asr2 = -(bs / as + hk) / 2;
+        if (asr2 > -100) bvn = a * Math.exp(asr2) * (1 - c * (bs - as) * (1 - d * bs) / 3 + c * d * as * as);
+        if (hk > -100) { var b = Math.sqrt(bs), sp = Math.sqrt(tp) * pnorm(-b / a); bvn -= Math.exp(-hk / 2) * sp * b * (1 - c * bs * (1 - d * bs) / 3); }
+        a = a / 2;
+        var acc = 0;
+        for (i = 0; i < x.length; i++) {
+          var xs = (a * x[i]) * (a * x[i]), asr3 = -(bs / xs + hk) / 2;
+          if (asr3 > -100) {
+            var sp2 = 1 + c * xs * (1 + 5 * d * xs), rs = Math.sqrt(1 - xs), ep = Math.exp(-(hk / 2) * xs / ((1 + rs) * (1 + rs))) / rs;
+            acc += Math.exp(asr3) * (sp2 - ep) * w[i];
+          }
+        }
+        bvn = (a * acc - bvn) / tp;
+      }
+      if (r > 0) bvn += pnorm(-Math.max(h, k));
+      else if (h >= k) bvn = -bvn;
+      else { var L = h < 0 ? pnorm(k) - pnorm(h) : pnorm(-h) - pnorm(-k); bvn = L - bvn; }
+    }
+    return Math.max(0, Math.min(1, bvn));
+  }
+  // 하측 누적 P(X <= h, Y <= k)
+  function pbvnorm(h, k, r) { return bvnu(-h, -k, r); }
+
+  // 브렌트 1차원 최소화 (Brent, 1973)
+  function fminBrent(fn, a, b, tol) {
+    tol = tol || 1e-10;
+    var gr = 0.3819660112501051, x = a + gr * (b - a), w = x, v = x, fx = fn(x), fw = fx, fv = fx, d = 0, e = 0;
+    for (var it = 0; it < 200; it++) {
+      var m = 0.5 * (a + b), tol1 = tol * Math.abs(x) + 1e-12, tol2 = 2 * tol1;
+      if (Math.abs(x - m) <= tol2 - 0.5 * (b - a)) break;
+      var useGolden = true;
+      if (Math.abs(e) > tol1) {
+        var r = (x - w) * (fx - fv), q = (x - v) * (fx - fw), p = (x - v) * q - (x - w) * r;
+        q = 2 * (q - r); if (q > 0) p = -p; q = Math.abs(q);
+        if (Math.abs(p) < Math.abs(0.5 * q * e) && p > q * (a - x) && p < q * (b - x)) {
+          e = d; d = p / q; var u0 = x + d;
+          if (u0 - a < tol2 || b - u0 < tol2) d = x < m ? tol1 : -tol1;
+          useGolden = false;
+        }
+      }
+      if (useGolden) { e = (x < m ? b : a) - x; d = gr * e; }
+      var u = Math.abs(d) >= tol1 ? x + d : x + (d > 0 ? tol1 : -tol1), fu = fn(u);
+      if (fu <= fx) { if (u < x) b = x; else a = x; v = w; fv = fw; w = x; fw = fx; x = u; fx = fu; }
+      else {
+        if (u < x) a = u; else b = u;
+        if (fu <= fw || w === x) { v = w; fv = fw; w = u; fw = fu; } else if (fu <= fv || v === x || v === w) { v = u; fv = fu; }
+      }
+    }
+    return { x: x, f: fx };
+  }
+
+  function ordLevels(x) { var lv = []; x.forEach(function (v) { if (isNum(v) && lv.indexOf(v) < 0) lv.push(v); }); return lv.sort(function (a, b) { return a - b; }); }
+  // 일변량 역치: 해당 변수의 모든 관측값 사용 (lavaan 방식)
+  function thresholds(x) {
+    var lv = ordLevels(x), n = 0, cnt = lv.map(function () { return 0; });
+    x.forEach(function (v) { if (isNum(v)) { cnt[lv.indexOf(v)]++; n++; } });
+    var th = [], cum = 0;
+    for (var i = 0; i < lv.length - 1; i++) { cum += cnt[i]; th.push(qnorm(cum / n)); }
+    return { levels: lv, tau: th };
+  }
+
+  // 다분상관(polychoric)/사분상관(tetrachoric): 역치 고정, ρ만 최대우도 추정
+  function polychoric(xin, yin, tx, ty) {
+    tx = tx || thresholds(xin); ty = ty || thresholds(yin);
+    var I = tx.levels.length, J = ty.levels.length, T = zeros(I, J), n = 0;
+    for (var r = 0; r < xin.length; r++) if (isNum(xin[r]) && isNum(yin[r])) { T[tx.levels.indexOf(xin[r])][ty.levels.indexOf(yin[r])]++; n++; }
+    if (I < 2 || J < 2) return { rho: NaN, n: n, table: T };
+    // lavaan 규칙 (zero.add = c(0.5, 0), zero.keep.margins = TRUE): 2×2 표에서만 처리
+    var zeroCells = 0;
+    if (I === 2 && J === 2) {
+      var zs = [];
+      for (var a0 = 0; a0 < 2; a0++) for (var b0 = 0; b0 < 2; b0++) if (T[a0][b0] === 0) zs.push([a0, b0]);
+      zeroCells = zs.length;
+      if (zs.length >= 2) return { rho: T[0][0] > 0 ? 1 : -1, n: n, table: T, zeroCells: zeroCells };
+      if (zs.length === 1) {
+        var sgn = zs[0][0] === zs[0][1] ? 1 : -1; // 대각 칸이 비면 대각 +0.5, 비대각 −0.5 (주변합 유지)
+        T[0][0] += 0.5 * sgn; T[1][1] += 0.5 * sgn; T[0][1] -= 0.5 * sgn; T[1][0] -= 0.5 * sgn;
+      }
+      if (T[0][0] * T[1][1] === T[0][1] * T[1][0]) return { rho: 0, n: n, table: T, zeroCells: zeroCells };
+    }
+    var ta = [-Infinity].concat(tx.tau, [Infinity]), tb = [-Infinity].concat(ty.tau, [Infinity]);
+    function nll(rho) {
+      var ll = 0;
+      for (var i = 0; i < I; i++) for (var j = 0; j < J; j++) {
+        if (!T[i][j]) continue;
+        var p = pbvnorm(ta[i + 1], tb[j + 1], rho) - pbvnorm(ta[i], tb[j + 1], rho) - pbvnorm(ta[i + 1], tb[j], rho) + pbvnorm(ta[i], tb[j], rho);
+        ll += T[i][j] * Math.log(Math.max(p, 1e-300));
+      }
+      return -ll;
+    }
+    var opt = fminBrent(nll, -0.9999, 0.9999, 1e-12);
+    return { rho: opt.x, n: n, table: T, zeroCells: zeroCells };
+  }
+
+  // 다계열상관(polyserial): 연속변수 x(평균·SD 고정), 순서형 y(역치 고정)에서 ρ 최대우도
+  function polyserial(xin, yin, ty) {
+    ty = ty || thresholds(yin);
+    var xs = clean(xin), m = mean(xs), s = Math.sqrt(variance(xs) * (xs.length - 1) / xs.length); // ML(N) 분산
+    var z = [], k = [];
+    for (var r = 0; r < xin.length; r++) if (isNum(xin[r]) && isNum(yin[r])) { z.push((xin[r] - m) / s); k.push(ty.levels.indexOf(yin[r])); }
+    var tb = [-Infinity].concat(ty.tau, [Infinity]);
+    function nll(rho) {
+      var sq = Math.sqrt(1 - rho * rho), ll = 0;
+      for (var i = 0; i < z.length; i++) {
+        var p = pnorm((tb[k[i] + 1] - rho * z[i]) / sq) - pnorm((tb[k[i]] - rho * z[i]) / sq);
+        ll += Math.log(Math.max(p, 1e-300));
+      }
+      return -ll;
+    }
+    return { rho: fminBrent(nll, -0.9999, 0.9999, 1e-12).x, n: z.length };
+  }
+
+  // qgraph::cor_auto 판정 규칙: 정수이고 고유값 수(결측 NA 포함) ≤ 7 이면 순서형
+  function isOrdinalAuto(x, maxLevels) {
+    maxLevels = maxLevels || 7;
+    var vals = clean(x);
+    if (!vals.every(function (v) { return v % 1 === 0; })) return false;
+    var nl = ordLevels(x).length + (vals.length < x.length ? 1 : 0);
+    return nl <= maxLevels;
+  }
+
+  // 혼합 상관행렬 (lavaan::lavCor(estimator = "two.step", missing = "pairwise")와 같은 규칙)
+  function corAuto(cols, opts) {
+    opts = opts || {};
+    var p = cols.length, R = identity(p), ord = cols.map(function (c, i) { return opts.ordinal ? opts.ordinal[i] : isOrdinalAuto(c); });
+    var th = cols.map(function (c, i) { return ord[i] ? thresholds(c) : null; });
+    var kinds = zeros(p, p).map(function (r) { return r.map(function () { return ''; }); }), notes = [];
+    for (var i = 0; i < p; i++) for (var j = i + 1; j < p; j++) {
+      var r;
+      if (ord[i] && ord[j]) { var pc = polychoric(cols[i], cols[j], th[i], th[j]); r = pc.rho; kinds[i][j] = th[i].levels.length === 2 && th[j].levels.length === 2 ? 'tetrachoric' : 'polychoric'; if (pc.zeroCells) notes.push(i + ',' + j); }
+      else if (ord[i]) { r = polyserial(cols[j], cols[i], th[i]).rho; kinds[i][j] = 'polyserial'; }
+      else if (ord[j]) { r = polyserial(cols[i], cols[j], th[j]).rho; kinds[i][j] = 'polyserial'; }
+      else { r = corTest(cols[i], cols[j], 'pearson').r; kinds[i][j] = 'pearson'; }
+      R[i][j] = R[j][i] = r; kinds[j][i] = kinds[i][j];
+    }
+    return { R: R, ordinal: ord, kinds: kinds, zeroCellPairs: notes };
+  }
+
+  // 가장 가까운 양정치 상관행렬 (Higham, 2002; Matrix::nearPD(corr = TRUE, keepDiag = TRUE)와 같은 절차)
+  function nearPD(x, opts) {
+    opts = opts || {};
+    var eigTol = 1e-6, convTol = 1e-7, posdTol = 1e-8, n = x.length;
+    var X = copyM(x), DS = zeros(n, n), it = 0, conv = Infinity;
+    function normInf(M) { return Math.max.apply(null, M.map(function (r) { return r.reduce(function (s, v) { return s + Math.abs(v); }, 0); })); }
+    while (it < 100 && conv > convTol) {
+      var Y = X, R = Y.map(function (r, i) { return r.map(function (v, j) { return v - DS[i][j]; }); });
+      var e = eigenSym(R), thr = eigTol * e.values[0], Q = e.vectors, d = e.values;
+      X = zeros(n, n);
+      for (var k = 0; k < n; k++) if (d[k] > thr) for (var a = 0; a < n; a++) for (var b = 0; b < n; b++) X[a][b] += Q[a][k] * d[k] * Q[b][k];
+      DS = X.map(function (r, i) { return r.map(function (v, j) { return v - R[i][j]; }); });
+      for (var q = 0; q < n; q++) X[q][q] = 1;
+      conv = normInf(Y.map(function (r, i) { return r.map(function (v, j) { return v - X[i][j]; }); })) / normInf(Y);
+      it++;
+    }
+    var e2 = eigenSym(X), Eps = posdTol * Math.abs(e2.values[0]);
+    if (e2.values[n - 1] < Eps) {
+      var dd = e2.values.map(function (v) { return Math.max(v, Eps); }), Q2 = e2.vectors, X2 = zeros(n, n);
+      for (var k2 = 0; k2 < n; k2++) for (var a2 = 0; a2 < n; a2++) for (var b2 = 0; b2 < n; b2++) X2[a2][b2] += Q2[a2][k2] * dd[k2] * Q2[b2][k2];
+      var D = X2.map(function (r, i) { return Math.sqrt(Math.max(Eps, 1) / r[i]); });
+      X = X2.map(function (r, i) { return r.map(function (v, j) { return v * D[i] * D[j]; }); });
+    }
+    for (var z = 0; z < n; z++) X[z][z] = 1;
+    return { mat: X, iterations: it };
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* 11. 위계적 회귀 · 조절 · 매개 (PROCESS Model 1, 4와 같은 OLS 정의)   */
+  /* ------------------------------------------------------------------ */
+
+  // blocks: [[cols...], [cols...]] 누적 투입. 모든 단계는 같은 사례(목록별 제거)
+  function hierarchicalRegression(yin, blocks, blockNames, opts) {
+    opts = opts || {};
+    var all = [yin]; blocks.forEach(function (b) { all = all.concat(b); });
+    var rows = completeRows(all), sub = function (c) { return rows.map(function (i) { return c[i]; }); };
+    var y = sub(yin), cum = [], cumNames = [], models = [];
+    blocks.forEach(function (b, k) {
+      cum = cum.concat(b.map(sub)); cumNames = cumNames.concat(blockNames[k]);
+      if (opts.logistic) models.push(logisticRegression(y, cum, cumNames, opts));
+      else models.push(linearRegression(y, cum, cumNames));
+    });
+    var steps = models.map(function (m, k) {
+      if (opts.logistic) {
+        var prevDev = k ? models[k - 1].deviance : models[0].nullDeviance, prevDf = k ? models[k - 1].dfM : 0;
+        var chi = prevDev - m.deviance, df = m.dfM - prevDf;
+        return { model: m, blockChi2: chi, blockDf: df, blockP: pchisqUpper(chi, df) };
+      }
+      var prevR2 = k ? models[k - 1].R2 : 0, df1 = m.dfM - (k ? models[k - 1].dfM : 0), df2 = m.dfE;
+      var dR2 = m.R2 - prevR2, F = (dR2 / df1) / ((1 - m.R2) / df2);
+      return { model: m, dR2: dR2, dF: F, df1: df1, df2: df2, dP: pfUpper(F, df1, df2) };
+    });
+    return { n: rows.length, steps: steps };
+  }
+
+  function olsFit(y, Xc) { // 내부용: 계수, 공분산, 자유도
+    var n = y.length, p = Xc.length + 1;
+    var X = y.map(function (_, r) { return [1].concat(Xc.map(function (c) { return c[r]; })); });
+    var fit = qrLeastSquares(X, y), b = fit.beta, sse = 0, my = mean(y), sst = 0;
+    for (var i = 0; i < n; i++) { var yh = 0; for (var j = 0; j < p; j++) yh += X[i][j] * b[j]; sse += (y[i] - yh) * (y[i] - yh); sst += (y[i] - my) * (y[i] - my); }
+    var mse = sse / (n - p);
+    return { b: b, cov: fit.XtXinv.map(function (r) { return r.map(function (v) { return v * mse; }); }), dfE: n - p, R2: 1 - sse / sst, mse: mse, sse: sse };
+  }
+  function coefTable(fit, names, conf) {
+    var tc = qt(1 - (1 - (conf || 0.95)) / 2, fit.dfE);
+    return fit.b.map(function (b, j) {
+      var se = Math.sqrt(fit.cov[j][j]), t = b / se;
+      return { name: j ? names[j - 1] : '(절편)', b: b, se: se, t: t, p: ptTwoSided(t, fit.dfE), ciLow: b - tc * se, ciHigh: b + tc * se };
+    });
+  }
+
+  // 조절분석 (PROCESS Model 1): Y = b0 + b1 X + b2 W + b3 XW + 공변인
+  function moderation(yin, xin, win, covs, opts) {
+    opts = opts || {};
+    covs = covs || [];
+    var rows = completeRows([yin, xin, win].concat(covs)), sub = function (c) { return rows.map(function (i) { return c[i]; }); };
+    var y = sub(yin), x = sub(xin), w = sub(win), cv = covs.map(sub), n = y.length;
+    var mx = opts.center ? mean(x) : 0, mw = opts.center ? mean(w) : 0;
+    var xc = x.map(function (v) { return v - mx; }), wc = w.map(function (v) { return v - mw; });
+    var xw = xc.map(function (v, i) { return v * wc[i]; });
+    var full = olsFit(y, [xc, wc, xw].concat(cv)), red = olsFit(y, [xc, wc].concat(cv));
+    var df1 = 1, F = ((full.R2 - red.R2) / df1) / ((1 - full.R2) / full.dfE);
+    var names = ['X', 'W', 'X×W'].concat((opts.covNames || []));
+    var coefs = coefTable(full, names);
+    // 단순기울기: θ(W) = b1 + b3 W
+    var b1 = full.b[1], b3 = full.b[3], v11 = full.cov[1][1], v33 = full.cov[3][3], v13 = full.cov[1][3], tc = qt(0.975, full.dfE);
+    function slopeAt(wv) { // wv: (중심화된 척도에서의) W 값
+      var est = b1 + b3 * wv, se = Math.sqrt(v11 + 2 * wv * v13 + wv * wv * v33), t = est / se;
+      return { w: wv + mw, est: est, se: se, t: t, p: ptTwoSided(t, full.dfE), ciLow: est - tc * se, ciHigh: est + tc * se };
+    }
+    var wvals, isBinary = ordLevels(w).length === 2;
+    if (isBinary) wvals = ordLevels(w);
+    else if (opts.probe === 'percentile') wvals = [quantile(w, 0.16), quantile(w, 0.5), quantile(w, 0.84)];
+    else { var m = mean(w), s = sd(w); wvals = [m - s, m, m + s]; }
+    var slopes = wvals.map(function (v) { return slopeAt(v - mw); });
+    // Johnson-Neyman: (b1 + b3 w)^2 = tc^2 (v11 + 2 w v13 + w^2 v33)
+    var A2 = b3 * b3 - tc * tc * v33, B2 = 2 * (b1 * b3 - tc * tc * v13), C2 = b1 * b1 - tc * tc * v11, disc = B2 * B2 - 4 * A2 * C2, jn = [];
+    if (!isBinary && disc >= 0 && A2 !== 0) {
+      [(-B2 - Math.sqrt(disc)) / (2 * A2), (-B2 + Math.sqrt(disc)) / (2 * A2)].forEach(function (r0) {
+        var wr = r0 + mw; if (wr >= Math.min.apply(null, w) && wr <= Math.max.apply(null, w)) jn.push(wr);
+      });
+    }
+    var wmin = Math.min.apply(null, w), wmax = Math.max.apply(null, w), sigBelow = null;
+    if (jn.length) { var probe = slopeAt((jn[0] + wmin) / 2 - mw); sigBelow = probe.p < 0.05; }
+    return { n: n, coefs: coefs, R2: full.R2, dR2: full.R2 - red.R2, F: F, df1: df1, df2: full.dfE, p: pfUpper(F, df1, full.dfE),
+      slopes: slopes, jn: jn, jnSigBelow: sigBelow, wRange: [wmin, wmax], centered: !!opts.center, meanX: mean(x), meanW: mean(w), sdX: sd(x), sdW: sd(w),
+      b: full.b, xMean: mx, wMean: mw, binaryW: isBinary, covMeans: cv.map(mean), xRange: [Math.min.apply(null, x), Math.max.apply(null, x)] };
+  }
+
+  // 매개분석 (PROCESS Model 4, 병렬 매개): X → M1..Mk → Y, 공변인 포함, 백분위 부트스트랩
+  function mediationFit(y, x, ms, cv) {
+    var a = ms.map(function (m) { var f = olsFit(m, [x].concat(cv)); return { fit: f, a: f.b[1] }; });
+    var fy = olsFit(y, [x].concat(ms, cv)), ft = olsFit(y, [x].concat(cv));
+    var b = ms.map(function (_, k) { return fy.b[2 + k]; });
+    var ind = a.map(function (ak, k) { return ak.a * b[k]; });
+    return { a: a, fy: fy, ft: ft, b: b, ind: ind, total: ft.b[1], direct: fy.b[1], totalInd: sum(ind) };
+  }
+  function mediation(yin, xin, msIn, covs, opts) {
+    opts = opts || {};
+    covs = covs || [];
+    var rows = completeRows([yin, xin].concat(msIn, covs)), sub = function (c) { return rows.map(function (i) { return c[i]; }); };
+    var y = sub(yin), x = sub(xin), ms = msIn.map(sub), cv = covs.map(sub), n = y.length;
+    var est = mediationFit(y, x, ms, cv), k = ms.length;
+    var sdx = sd(x), sdy = sd(y);
+    var res = { n: n, k: k, est: est, sdx: sdx, sdy: sdy };
+    // Sobel (단일 매개, 1차 근사)
+    res.sobel = est.a.map(function (ak, j) {
+      var sa = Math.sqrt(ak.fit.cov[1][1]), sb = Math.sqrt(est.fy.cov[2 + j][2 + j]), se = Math.sqrt(ak.a * ak.a * sb * sb + est.b[j] * est.b[j] * sa * sa), z = est.ind[j] / se;
+      return { se: se, z: z, p: 2 * pnormUpper(Math.abs(z)) };
+    });
+    var B = opts.boot === undefined ? 5000 : opts.boot;
+    if (B > 0) {
+      var rand = rng(opts.seed || 1), boots = [], totalB = [], contrast = [];
+      for (var bI = 0; bI < B; bI++) {
+        var idx = []; for (var i = 0; i < n; i++) idx.push(Math.floor(rand() * n));
+        var pick = function (c) { return idx.map(function (q) { return c[q]; }); };
+        try {
+          var e = mediationFit(pick(y), pick(x), ms.map(pick), cv.map(pick));
+          boots.push(e.ind); totalB.push(e.totalInd);
+        } catch (er) { /* 특이 재표본 생략 */ }
+      }
+      var ci = function (arr) { return [quantile(arr, 0.025), quantile(arr, 0.975)]; };
+      res.boot = { B: boots.length, ind: est.ind.map(function (_, j) { var col = boots.map(function (r) { return r[j]; }); return { se: sd(col), ci: ci(col) }; }),
+        total: { se: sd(totalB), ci: ci(totalB) } };
+    }
+    return res;
   }
 
   /*
@@ -1157,6 +1475,10 @@
     covMatrix: covMatrix, cov2cor: cov2cor, glasso: glasso, ebicGlasso: ebicGlasso, partialCorNetwork: partialCorNetwork,
     wi2net: wi2net, centrality: centrality, zscore: zscore, predictability: predictability, estimateNetwork: estimateNetwork,
     layoutFR: layoutFR, rng: rng, upperVec: upperVec, bootEdgeOnce: bootEdgeOnce, caseDropOnce: caseDropOnce,
-    csCoefficient: csCoefficient
+    csCoefficient: csCoefficient,
+    // 다분상관 · 위계적 회귀 · 조절 · 매개
+    pbvnorm: pbvnorm, bvnu: bvnu, thresholds: thresholds, polychoric: polychoric, polyserial: polyserial,
+    isOrdinalAuto: isOrdinalAuto, corAuto: corAuto, nearPD: nearPD, fminBrent: fminBrent,
+    hierarchicalRegression: hierarchicalRegression, moderation: moderation, mediation: mediation
   };
 });

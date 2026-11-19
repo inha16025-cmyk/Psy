@@ -75,12 +75,37 @@ const ref = require('./reference.json');
   await page.selectOption('#est', 'pcor'); await page.dispatchEvent('#est', 'change'); await run();
   check('편상관 네트워크', (await lastCard()).includes('예측력'));
 
+  // 다분상관 (예시 자료의 리커트 문항)
+  await nav('cor'); await pick('v', ['우울1', '우울2', '불안1', '수면']); await page.check('input[name=cm][value=auto]'); await run();
+  const pc = await lastCard();
+  check('다분상관 자동', pc.includes('cor_auto') && pc.includes('다분') && pc.includes('다계열'));
+
+  // 위계적 회귀 (선형 / 로지스틱)
+  await nav('hier'); await sel('y', '스트레스'); await pick('b1', ['연령', '성별']); await pick('b2', ['수면', '사회적지지']); await run();
+  const hr = await lastCard();
+  check('위계적 선형회귀', hr.includes('ΔR²') && hr.includes('단계 2 계수') && hr.includes('성별[여]'));
+  await nav('hier'); await page.check('#htype_log'); await page.dispatchEvent('#htype_log', 'change'); await sel('y', '치료반응');
+  await pick('b1', ['연령']); await pick('b2', ['우울1', '사회적지지']); await run();
+  check('위계적 로지스틱', (await lastCard()).includes('블록 χ²'));
+
+  // 조절
+  await nav('moderation'); await sel('y', '스트레스'); await sel('x', '수면'); await sel('w', '사회적지지'); await pick('cv', ['연령']); await run();
+  const mo = await lastCard();
+  check('조절분석', mo.includes('Johnson-Neyman') && mo.includes('단순기울기'));
+  await page.locator('#results .card').first().screenshot({ path: path.join(outDir, '05_moderation.png') });
+
+  // 매개 (병렬 2개)
+  await nav('mediation'); await sel('y', '스트레스'); await sel('x', '사회적지지'); await pick('m', ['수면', '우울1']); await page.fill('#nb', '1000'); await run();
+  const me = await lastCard();
+  check('매개분석', me.includes('Boot CI') && me.includes('총 간접효과'));
+  await page.locator('#results .card').first().screenshot({ path: path.join(outDir, '06_mediation.png') });
+
   // 실제 데이터(bfi) 붙여넣기 → 네트워크 결과가 qgraph와 같은지 화면 경로로 확인
   const N = ref.network, items = Object.keys(N.data);
   const tsv = [items.join('\t')].concat(N.data[items[0]].map((_, r) => items.map(k => N.data[k][r]).join('\t'))).join('\n');
   await nav('data'); await page.fill('#pastebox', tsv); await page.click('#pasteGo');
   check('붙여넣기 (TSV)', (await page.textContent('#datainfo')).includes(N.n + '행'));
-  await nav('network'); await page.click('[data-all="v"]'); await run();
+  await nav('network'); await page.click('[data-all="v"]'); await page.check('input[name=cr][value=pearson]'); await run();
   const w = await page.evaluate(() => {
     const t = [...document.querySelectorAll('#results .card')][0].querySelectorAll('table.res');
     return t[t.length - 1].innerText;
