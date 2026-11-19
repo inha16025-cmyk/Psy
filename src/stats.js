@@ -1425,6 +1425,123 @@
   }
 
   /*
+   * 조건부 과정 모형 (Hayes, 2022의 PROCESS 모형 번호를 따름; OLS 방정식 + 백분위 부트스트랩)
+   *  6: 순차 매개 M1 → M2 → … (k = 2–4)
+   *  7: W가 X→M (a) 경로 조절        8: 7 + W가 X→Y (c′) 조절
+   * 14: W가 M→Y (b) 경로 조절        15: 14 + W가 X→Y (c′) 조절
+   * 7/8/14/15는 매개변수가 여러 개면 병렬로 각각 조절된다.
+   */
+  function processModel(yin, xin, msIn, win, covs, opts) {
+    opts = opts || {};
+    var model = opts.model, k = msIn.length, hasW = [7, 8, 14, 15].indexOf(model) >= 0;
+    if ([6, 7, 8, 14, 15].indexOf(model) < 0) throw new Error('지원하지 않는 모형 번호입니다.');
+    if (model === 6 && (k < 2 || k > 4)) throw new Error('순차 매개(Model 6)는 매개변수 2–4개가 필요합니다.');
+    if (hasW && !win) throw new Error('조절변수 W가 필요합니다.');
+    covs = covs || [];
+    var all = [yin, xin].concat(msIn, hasW ? [win] : [], covs);
+    var rows = completeRows(all), sub = function (c) { return rows.map(function (i) { return c[i]; }); };
+    var y = sub(yin), x = sub(xin), ms = msIn.map(sub), w = hasW ? sub(win) : null, cv = covs.map(sub), n = y.length;
+    var cX = opts.center ? mean(x) : 0, cW = hasW && opts.center ? mean(w) : 0, cM = ms.map(function (m) { return opts.center ? mean(m) : 0; });
+    var wvals = null, binaryW = false;
+    if (hasW) {
+      binaryW = ordLevels(w).length === 2;
+      if (binaryW) wvals = ordLevels(w);
+      else if (opts.probe === 'percentile') wvals = [quantile(w, 0.16), quantile(w, 0.5), quantile(w, 0.84)];
+      else { var mw = mean(w), sw = sd(w); wvals = [mw - sw, mw, mw + sw]; }
+    }
+    var mod = function (a, c0) { return a.map(function (v) { return v - c0; }); };
+    var prod = function (a, ca, b, cb) { return a.map(function (v, i) { return (v - ca) * (b[i] - cb); }); };
+
+    // 한 번 적합 → { eqs, effects(이름→값) }
+    function fitOnce(y, x, ms, w, cv) {
+      var eqs = [], eff = {}, xx = mod(x, cX), Xw = hasW ? prod(x, cX, w, cW) : null, ww = hasW ? mod(w, cW) : null;
+      var mEq = [];
+      for (var j = 0; j < k; j++) {
+        var pred, names;
+        if (model === 6) { pred = [xx].concat(ms.slice(0, j).map(function (m, q) { return mod(m, cM[q]); })); names = ['X'].concat(ms.slice(0, j).map(function (_, q) { return 'M' + (q + 1); })); }
+        else if (model === 7 || model === 8) { pred = [xx, ww, Xw]; names = ['X', 'W', 'X×W']; }
+        else { pred = [xx]; names = ['X']; }
+        var f = olsFit(ms[j], pred.concat(cv));
+        mEq.push(f); eqs.push({ outcome: 'M' + (j + 1), fit: f, names: names, nPred: pred.length + cv.length });
+      }
+      var yPred = [xx], yNames = ['X'];
+      ms.forEach(function (m, j) { yPred.push(mod(m, cM[j])); yNames.push('M' + (j + 1)); });
+      if (model === 8) { yPred.push(ww, Xw); yNames.push('W', 'X×W'); }
+      if (model === 14 || model === 15) {
+        yPred.push(ww); yNames.push('W');
+        ms.forEach(function (m, j) { yPred.push(prod(m, cM[j], w, cW)); yNames.push('M' + (j + 1) + '×W'); });
+        if (model === 15) { yPred.push(Xw); yNames.push('X×W'); }
+      }
+      var fy = olsFit(y, yPred.concat(cv));
+      eqs.push({ outcome: 'Y', fit: fy, names: yNames, nPred: yPred.length + cv.length });
+      var bIdx = function (j) { return 2 + j; }; // Y식에서 M_j 계수 위치 (절편=0, X=1)
+      if (model === 6) {
+        // 순서를 지키는 모든 매개 부분집합 경로
+        for (var mask = 1; mask < (1 << k); mask++) {
+          var path = []; for (var q = 0; q < k; q++) if (mask & (1 << q)) path.push(q);
+          var e = mEq[path[0]].b[1];
+          for (var t = 1; t < path.length; t++) e *= mEq[path[t]].b[2 + path[t - 1]]; // M_t 식에서 M_{s} 계수: 절편, X, M1.. 순서
+          e *= fy.b[bIdx(path[path.length - 1])];
+          eff['ind:' + path.join('-')] = e;
+        }
+      } else {
+        for (var j2 = 0; j2 < k; j2++) {
+          var bj = fy.b[bIdx(j2)];
+          if (model === 7 || model === 8) {
+            var a1 = mEq[j2].b[1], a3 = mEq[j2].b[3];
+            eff['imm:' + j2] = a3 * bj;
+            wvals.forEach(function (wv, wi) { eff['cond:' + j2 + ':' + wi] = (a1 + a3 * (wv - cW)) * bj; });
+          } else {
+            var a = mEq[j2].b[1], b1 = bj, b3 = fy.b[2 + k + 1 + j2];
+            eff['imm:' + j2] = a * b3;
+            wvals.forEach(function (wv, wi) { eff['cond:' + j2 + ':' + wi] = a * (b1 + b3 * (wv - cW)); });
+          }
+        }
+      }
+      return { eqs: eqs, eff: eff };
+    }
+
+    var est = fitOnce(y, x, ms, w, cv);
+    // 총효과 (Model 6에서만 의미 있게 분해: c = c′ + Σ간접)
+    var total = null;
+    if (model === 6) { var ft = olsFit(y, [mod(x, cX)].concat(cv)); total = { fit: ft }; }
+    // 직접효과
+    var fy = est.eqs[k].fit, tc = qt(0.975, fy.dfE), direct = [];
+    if (model === 8 || model === 15) {
+      var xwPos = est.eqs[k].names.indexOf('X×W') + 1, c1 = fy.b[1], c3 = fy.b[xwPos];
+      wvals.forEach(function (wv) {
+        var wc = wv - cW, e = c1 + c3 * wc, se = Math.sqrt(fy.cov[1][1] + 2 * wc * fy.cov[1][xwPos] + wc * wc * fy.cov[xwPos][xwPos]), t = e / se;
+        direct.push({ w: wv, est: e, se: se, t: t, p: ptTwoSided(t, fy.dfE), ciLow: e - tc * se, ciHigh: e + tc * se });
+      });
+    } else {
+      var se0 = Math.sqrt(fy.cov[1][1]), t0 = fy.b[1] / se0;
+      direct.push({ w: null, est: fy.b[1], se: se0, t: t0, p: ptTwoSided(t0, fy.dfE), ciLow: fy.b[1] - tc * se0, ciHigh: fy.b[1] + tc * se0 });
+    }
+    var keys = Object.keys(est.eff), boot = null, B = opts.boot === undefined ? 5000 : opts.boot;
+    if (B > 0) {
+      var rand = rng(opts.seed || 1), draws = keys.map(function () { return []; }), ok = 0;
+      for (var bI = 0; bI < B; bI++) {
+        var idx = []; for (var i = 0; i < n; i++) idx.push(Math.floor(rand() * n));
+        var pk = function (c) { return idx.map(function (q) { return c[q]; }); };
+        try {
+          var e2 = fitOnce(pk(y), pk(x), ms.map(pk), hasW ? pk(w) : null, cv.map(pk)).eff;
+          keys.forEach(function (kk, q) { draws[q].push(e2[kk]); }); ok++;
+        } catch (er) { /* 특이 재표본 생략 */ }
+      }
+      boot = { B: ok, stats: {} };
+      // Model 6 총 간접효과
+      if (model === 6) { var tot = draws[0].map(function (_, r) { return sum(draws.map(function (d) { return d[r]; })); }); boot.stats.totalInd = { se: sd(tot), ci: [quantile(tot, 0.025), quantile(tot, 0.975)] }; }
+      keys.forEach(function (kk, q) { boot.stats[kk] = { se: sd(draws[q]), ci: [quantile(draws[q], 0.025), quantile(draws[q], 0.975)] }; });
+    }
+    var eqOut = est.eqs.map(function (e) {
+      var R2 = e.fit.R2, dfM = e.nPred, F = (R2 / dfM) / ((1 - R2) / e.fit.dfE);
+      return { outcome: e.outcome, names: e.names, coefs: coefTable(e.fit, e.names.concat((opts.covNames || []))), R2: R2, F: F, dfM: dfM, dfE: e.fit.dfE, p: pfUpper(F, dfM, e.fit.dfE) };
+    });
+    return { model: model, n: n, k: k, eqs: eqOut, effects: est.eff, totalInd: model === 6 ? sum(keys.map(function (kk) { return est.eff[kk]; })) : null,
+      total: total ? coefTable(total.fit, ['X'])[1] : null, direct: direct, boot: boot, wvals: wvals, binaryW: binaryW, centered: !!opts.center, sdx: sd(x), sdy: sd(y) };
+  }
+
+  /*
    * 네트워크 안정성 (Epskamp, Borsboom & Fried, 2018; bootnet 방식)
    * bootEdgeOnce: 사례 복원추출 후 재추정 → 엣지 벡터(상삼각)
    * caseDropOnce: 사례의 prop 비율을 제거 후 재추정 → 중심성
@@ -1479,6 +1596,6 @@
     // 다분상관 · 위계적 회귀 · 조절 · 매개
     pbvnorm: pbvnorm, bvnu: bvnu, thresholds: thresholds, polychoric: polychoric, polyserial: polyserial,
     isOrdinalAuto: isOrdinalAuto, corAuto: corAuto, nearPD: nearPD, fminBrent: fminBrent,
-    hierarchicalRegression: hierarchicalRegression, moderation: moderation, mediation: mediation
+    hierarchicalRegression: hierarchicalRegression, moderation: moderation, mediation: mediation, processModel: processModel
   };
 });

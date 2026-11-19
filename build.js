@@ -1,7 +1,7 @@
 // 단일 HTML 파일 빌드: node build.js → dist/PsyStat.html
 'use strict';
 var fs = require('fs'), path = require('path'), crypto = require('crypto');
-var VERSION = '0.2.0';
+var VERSION = '0.3.0';
 var src = function (f) { return fs.readFileSync(path.join(__dirname, 'src', f), 'utf8'); };
 var html = src('index.template.html')
   .replace('__VERSION__', VERSION)

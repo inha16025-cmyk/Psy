@@ -708,6 +708,147 @@
     }
   };
 
+  // 개념 모형 그림 (Hayes 방식): 6 = 순차, 7/8 = a 경로 조절, 14/15 = b 경로 조절
+  function processSVG(model, nm) {
+    var k = nm.m.length, W = 600, H = model === 6 ? 230 : 120 + 66 * k + 40, bw = 104, bh = 32;
+    var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + H + '" width="100%" style="max-width:' + W + 'px" font-family="sans-serif" font-size="11">' +
+      '<defs><marker id="ar2" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#3a4152"/></marker></defs>';
+    var box = function (p, t, dashed) { return '<rect x="' + (p[0] - bw / 2) + '" y="' + (p[1] - bh / 2) + '" width="' + bw + '" height="' + bh + '" rx="5" fill="#ffffff" stroke="#3a4152"' + (dashed ? ' stroke-dasharray="4 3"' : '') + '/><text x="' + p[0] + '" y="' + (p[1] + 4) + '" text-anchor="middle" style="fill:#1d2433">' + esc(t.length > 13 ? t.slice(0, 13) + '…' : t) + '</text>'; };
+    // 상자 테두리에서 시작·끝나도록 선분 단축
+    var edge = function (a, b) {
+      var dx = b[0] - a[0], dy = b[1] - a[1], ta = Math.min(Math.abs((bw / 2) / (dx || 1e-9)), Math.abs((bh / 2) / (dy || 1e-9))), tb = ta;
+      return [[a[0] + dx * ta, a[1] + dy * ta], [b[0] - dx * tb, b[1] - dy * tb]];
+    };
+    var lines = [], arrow = function (a, b) { var e = edge(a, b); lines.push(e); return '<line x1="' + e[0][0].toFixed(1) + '" y1="' + e[0][1].toFixed(1) + '" x2="' + e[1][0].toFixed(1) + '" y2="' + e[1][1].toFixed(1) + '" stroke="#3a4152" stroke-width="1.3" marker-end="url(#ar2)"/>'; };
+    var toMid = function (from, ln) { var mx = (ln[0][0] + ln[1][0]) / 2, my = (ln[0][1] + ln[1][1]) / 2; var e = edge(from, [mx, my]); return '<line x1="' + e[0][0].toFixed(1) + '" y1="' + e[0][1].toFixed(1) + '" x2="' + mx.toFixed(1) + '" y2="' + my.toFixed(1) + '" stroke="#2b5fc7" stroke-width="1.3" stroke-dasharray="5 3" marker-end="url(#ar2)"/>'; };
+    var X = [70, H - 30], Y = [W - 70, H - 30], Mp = [];
+    if (model === 6) for (var j = 0; j < k; j++) Mp.push([150 + (W - 300) * (k === 1 ? 0.5 : j / (k - 1)), 40 + (j % 2) * 50]);
+    else for (var j2 = 0; j2 < k; j2++) Mp.push([W / 2, 34 + j2 * 66]);
+    var body = '';
+    var aLines = [], bLines = [], cLine;
+    Mp.forEach(function (p) { body += arrow(X, p); aLines.push(lines[lines.length - 1]); });
+    if (model === 6) for (var a = 0; a < k; a++) for (var b = a + 1; b < k; b++) body += arrow(Mp[a], Mp[b]);
+    Mp.forEach(function (p) { body += arrow(p, Y); bLines.push(lines[lines.length - 1]); });
+    body += arrow(X, Y); cLine = lines[lines.length - 1];
+    if (model !== 6) {
+      var Wp = model === 7 || model === 8 ? [70, 34] : [W - 70, 34];
+      (model === 7 || model === 8 ? aLines : bLines).forEach(function (ln) { body += toMid(Wp, ln); });
+      if (model === 8 || model === 15) body += toMid(Wp, cLine);
+      body += box(Wp, nm.w, true);
+    }
+    s += body + box(X, nm.x) + box(Y, nm.y);
+    Mp.forEach(function (p, i) { s += box(p, nm.m[i]); });
+    return s + '</svg>';
+  }
+
+  var PROCESS_DESC = {
+    6: 'Model 6 · 순차 매개: X → M1 → M2 (→ M3 → M4) → Y',
+    7: 'Model 7 · 조절된 매개 (W가 X→M 경로 조절)',
+    8: 'Model 8 · 조절된 매개 (W가 X→M과 X→Y 경로 조절)',
+    14: 'Model 14 · 조절된 매개 (W가 M→Y 경로 조절)',
+    15: 'Model 15 · 조절된 매개 (W가 M→Y와 X→Y 경로 조절)'
+  };
+
+  A.process = {
+    group: '매개·조절', title: '조절된 매개·순차 매개',
+    desc: 'PROCESS Model 6, 7, 8, 14, 15와 같은 조건부 과정 모형: 경로계수, 조절된 매개 지수, 조건부 간접효과, 부트스트랩 신뢰구간.',
+    form: function () {
+      return '<div class="field"><label for="pm">모형</label><select id="pm">' + Object.keys(PROCESS_DESC).map(function (k) { return '<option value="' + k + '"' + (k === '7' ? ' selected' : '') + '>' + PROCESS_DESC[k] + '</option>'; }).join('') + '</select></div>' +
+        '<div id="pmfig" style="margin-bottom:10px"></div>' +
+        selectField('y', '종속변수 (Y)', 'num') + selectField('x', '독립변수 (X)', 'num', '0/1 이분변수도 가능') +
+        selectField('m1', '매개변수 M1', 'num') + selectField('m2', '매개변수 M2', 'num', '순차 매개에서는 M1 → M2 → … 순서가 곧 인과 순서입니다.') + selectField('m3', '매개변수 M3 (선택)', 'num') + selectField('m4', '매개변수 M4 (선택)', 'num') +
+        '<div id="wbox">' + selectField('w', '조절변수 (W)', 'num', '연속 또는 0/1 이분변수') + '</div>' +
+        multiField('cv', '공변인 (선택, 모든 방정식에 투입)', 'any') +
+        '<div class="field" id="wopts"><div class="inline"><label><input type="checkbox" id="ctr">곱셈항 변수 평균중심화</label></div>' +
+        '<div class="lab" style="margin-top:6px">조건부 효과 탐색 지점</div><div class="inline"><label><input type="radio" name="pr" value="sd" checked>M ± 1SD</label><label><input type="radio" name="pr" value="percentile">16·50·84 백분위</label></div>' +
+        '<div class="hint">조건부 간접효과와 조절된 매개 지수는 중심화 여부와 관계없이 같습니다. 중심화는 계수 표의 주효과 해석만 바꿉니다.</div></div>' +
+        '<div class="field"><div class="inline"><label>부트스트랩 <input type="number" id="nb" value="5000" min="0" step="1000" style="width:90px"> 회</label><label>시드 <input type="number" id="seed" value="1234" style="width:80px"></label></div></div>';
+    },
+    wire: function () {
+      var upd = function () {
+        var m = Number($('#pm').value), hasW = m !== 6;
+        $('#wbox').style.display = hasW ? '' : 'none'; $('#wopts').style.display = hasW ? '' : 'none';
+        $('#pmfig').innerHTML = processSVG(m, { x: 'X', y: 'Y', w: 'W', m: m === 6 ? ['M1', 'M2'] : ['M'] });
+      };
+      $('#pm').onchange = upd; upd();
+    },
+    run: function () {
+      var model = Number($('#pm').value), hasW = model !== 6;
+      var y = getSel('y'), x = getSel('x'), w = hasW ? getSel('w') : -1;
+      var mIdx = ['m1', 'm2', 'm3', 'm4'].map(getSel).filter(function (i) { return i >= 0; });
+      need(y >= 0 && x >= 0, 'Y와 X를 선택하세요.'); need(mIdx.length >= (model === 6 ? 2 : 1), model === 6 ? '순차 매개는 M1, M2가 필요합니다.' : '매개변수를 하나 이상 선택하세요.');
+      if (hasW) need(w >= 0, '조절변수 W를 선택하세요.');
+      var used = [y, x].concat(mIdx, hasW ? [w] : []);
+      need(used.filter(function (v, i) { return used.indexOf(v) !== i; }).length === 0, 'Y, X, M, W에 같은 변수를 두 번 넣을 수 없습니다.');
+      var cvIdx = getMulti('cv').filter(function (i) { return used.indexOf(i) < 0; }), dc = designColumns(cvIdx);
+      var B = Math.max(0, Math.floor(Number($('#nb').value) || 0)), seed = Number($('#seed').value) || 1;
+      var r = S.processModel(state.cols[y], state.cols[x], mIdx.map(function (i) { return state.cols[i]; }), hasW ? state.cols[w] : null, dc.cols,
+        { model: model, center: hasW && $('#ctr').checked, probe: $('input[name=pr]:checked').value, boot: B, seed: seed, covNames: dc.names });
+      var xn = state.names[x], yn = state.names[y], wn = hasW ? state.names[w] : '', mn = mIdx.map(function (i) { return state.names[i]; });
+      var rename = function (t) { return t.replace(/^X×W$/, xn + ' × ' + wn).replace(/^M(\d)×W$/, function (_, d) { return mn[d - 1] + ' × ' + wn; }).replace(/^X$/, xn).replace(/^W$/, wn).replace(/^M(\d)$/, function (_, d) { return mn[d - 1]; }); };
+      var bs = function (key) { return r.boot ? r.boot.stats[key] : null; };
+      var ciTxt = function (st) { return st ? '[' + f(st.ci[0], 4) + ', ' + f(st.ci[1], 4) + ']' : '—'; };
+      var sig = function (st) { return st ? (st.ci[0] > 0 || st.ci[1] < 0 ? '유의' : '유의하지 않음') : '—'; };
+      var html = '<div>' + processSVG(model, { x: xn, y: yn, w: wn, m: mn }) + '</div>' +
+        '<p class="note">' + esc(PROCESS_DESC[model]) + ' · N = ' + r.n + ' (목록별 제거)' + (r.centered ? ' · 곱셈항 변수 평균중심화' : '') + (dc.notes.length ? ' · 더미코딩: ' + esc(dc.notes.join('; ')) : '') + '</p>';
+      r.eqs.forEach(function (e) {
+        var on = e.outcome === 'Y' ? yn : mn[Number(e.outcome.slice(1)) - 1];
+        html += '<h4>결과변수: ' + esc(on) + '</h4>' + table(['R²', 'F', 'df', 'p'], [[fr(e.R2), f(e.F, 3), e.dfM + ', ' + e.dfE, fp(e.p)]]) +
+          table(['', 'B', 'SE', 't', 'p', '95% CI'], e.coefs.map(function (c) { return [esc(rename(c.name)), f(c.b, 4), f(c.se, 4), f(c.t, 3), fp(c.p), '[' + f(c.ciLow, 4) + ', ' + f(c.ciHigh, 4) + ']']; }));
+      });
+      // 직접효과
+      html += '<h4>' + (model === 8 || model === 15 ? '조건부 직접효과 (W 수준별)' : '직접효과 (c′)') + '</h4>' +
+        table((model === 8 || model === 15 ? [esc(wn)] : []).concat(['효과', 'SE', 't', 'p', '95% CI']), r.direct.map(function (d) {
+          return (d.w === null ? [] : [f(d.w, 3)]).concat([f(d.est, 4), f(d.se, 4), f(d.t, 3), fp(d.p), '[' + f(d.ciLow, 4) + ', ' + f(d.ciHigh, 4) + ']']);
+        }));
+      if (model === 6) {
+        var rows = [], keys = Object.keys(r.effects).sort(function (a, b) { // PROCESS와 같은 사전식 경로 순서
+          var pa = a.slice(4).split('-').map(Number), pb = b.slice(4).split('-').map(Number);
+          for (var q = 0; q < Math.min(pa.length, pb.length); q++) if (pa[q] !== pb[q]) return pa[q] - pb[q];
+          return pa.length - pb.length;
+        });
+        keys.forEach(function (key) {
+          var path = key.slice(4).split('-').map(Number), lab = [xn].concat(path.map(function (q) { return mn[q]; }), [yn]).join(' → ');
+          var st = bs(key); rows.push([esc(lab), f(r.effects[key], 4), st ? f(st.se, 4) : '—', ciTxt(st), sig(st), f(r.effects[key] * r.sdx / r.sdy, 4)]);
+        });
+        var tst = r.boot ? r.boot.stats.totalInd : null;
+        rows.push(['총 간접효과', f(r.totalInd, 4), tst ? f(tst.se, 4) : '—', ciTxt(tst), sig(tst), f(r.totalInd * r.sdx / r.sdy, 4)]);
+        html += '<h4>총효과 (c)</h4>' + table(['효과', 'SE', 't', 'p', '95% CI'], [[f(r.total.b, 4), f(r.total.se, 4), f(r.total.t, 3), fp(r.total.p), '[' + f(r.total.ciLow, 4) + ', ' + f(r.total.ciHigh, 4) + ']']]) +
+          '<h4>간접효과</h4>' + table(['경로', '효과', 'Boot SE', '95% Boot CI', '판단', '완전표준화'], rows) +
+          '<p class="note">총효과 = 직접효과 + 총 간접효과 (' + f(r.total.b, 4) + ' = ' + f(r.direct[0].est, 4) + ' + ' + f(r.totalInd, 4) + '). 각 경로는 해당 매개변수 순서를 거치는 특정 간접효과입니다.</p>';
+      } else {
+        mn.forEach(function (m, j) {
+          var st = bs('imm:' + j);
+          html += '<h4>간접효과: ' + esc(xn + ' → ' + m + ' → ' + yn) + '</h4>' +
+            table([esc(wn), '조건부 간접효과', 'Boot SE', '95% Boot CI', '판단'], r.wvals.map(function (wv, wi) {
+              var s2 = bs('cond:' + j + ':' + wi); return [f(wv, 3), f(r.effects['cond:' + j + ':' + wi], 4), s2 ? f(s2.se, 4) : '—', ciTxt(s2), sig(s2)];
+            })) +
+            table(['조절된 매개 지수 (index)', 'Boot SE', '95% Boot CI', '판단'], [[f(r.effects['imm:' + j], 4), st ? f(st.se, 4) : '—', ciTxt(st), sig(st)]]);
+        });
+        html += '<p class="note">조절된 매개 지수(Hayes, 2015) = ' + (model <= 8 ? 'a<sub>3</sub> × b (W에 따른 a 경로 변화 × b)' : 'a × b<sub>3</sub> (a × W에 따른 b 경로 변화)') + '. 이 지수의 부트스트랩 CI가 0을 포함하지 않으면 간접효과가 W에 따라 달라진다고 해석합니다. ' +
+          (r.binaryW ? 'W가 이분변수이므로 지수는 두 집단 간 조건부 간접효과의 차이와 같습니다.' : '탐색 지점: ' + ($('input[name=pr]:checked').value === 'sd' ? 'M − 1SD, M, M + 1SD' : '16·50·84 백분위') + '.') + '</p>';
+      }
+      html += '<p class="note">부트스트랩 ' + (r.boot ? r.boot.B : 0) + '회, 백분위 구간, 시드 = ' + seed + '. 계수와 점추정치는 R lm()으로 직접 계산한 값과 같습니다(오차 &lt; 1e-14). 부트스트랩 구간은 난수 생성기가 달라 PROCESS·R과 소수 셋째 자리 정도에서 다를 수 있습니다.</p>' +
+        rcode(processRcode(model, yn, xn, mn, wn, cvIdx.map(function (i) { return state.names[i]; })));
+      addCard('조건부 과정 모형 (Model ' + model + ')', html, mn.length + '개 매개변수' + (hasW ? ', W = ' + wn : ''));
+    }
+  };
+
+  function processRcode(model, yn, xn, mn, wn, cvs) {
+    var cv = cvs.map(function (c) { return ' + ' + rname(c); }).join(''), X = rname(xn), Wv = rname(wn), Y = rname(yn);
+    var lines = ['d <- na.omit(df[, ' + rvec([yn, xn].concat(mn, wn ? [wn] : [], cvs)) + '])'];
+    mn.forEach(function (m, j) {
+      var rhs = model === 6 ? [X].concat(mn.slice(0, j).map(rname)).join(' + ') : (model === 7 || model === 8 ? X + ' * ' + Wv : X);
+      lines.push('fm' + (j + 1) + ' <- lm(' + rname(m) + ' ~ ' + rhs + cv + ', data = d)');
+    });
+    var yr = [X].concat(mn.map(rname));
+    if (model === 8) yr.push(Wv, X + ':' + Wv);
+    if (model === 14 || model === 15) { yr.push(Wv); mn.forEach(function (m) { yr.push(rname(m) + ':' + Wv); }); if (model === 15) yr.push(X + ':' + Wv); }
+    lines.push('fy <- lm(' + Y + ' ~ ' + yr.join(' + ') + cv + ', data = d)');
+    lines.push('# 간접효과 부트스트랩: 위 방정식을 boot::boot()로 재표집하거나, PROCESS for R (Hayes) 사용');
+    return lines.join('\n');
+  }
+
   A.alpha = {
     group: '척도', title: '신뢰도 (Cronbach α)',
     desc: 'Cronbach α, 표준화 α, 수정된 문항-총점 상관, 문항 삭제 시 α.',
@@ -1003,7 +1144,7 @@
   function about() {
     $$('nav.side a').forEach(function (a) { a.classList.toggle('active', a.dataset.id === 'about'); });
     $('#opts').innerHTML = '<h2>도움말</h2><p class="desc">PsyStat은 하나의 HTML 파일로 동작하는 오프라인 통계 도구입니다. 설치가 필요 없고, 외부 서버와 통신하지 않습니다.</p>' +
-      '<p class="desc"><b>검증</b>: 모든 계산은 R 4.x(stats, car, psych, qgraph 1.9.8, glasso)의 결과와 자동 대조되었습니다. 저장소의 tests/run_tests.js, run_tests2.js에서 1,600개 이상의 수치를 비교하며, 중요한 결과는 가능하면 SPSS·R로 한 번 더 확인하세요.</p>' +
+      '<p class="desc"><b>검증</b>: 모든 계산은 R 4.x(stats, car, psych, qgraph 1.9.8, glasso)의 결과와 자동 대조되었습니다. 저장소의 tests/run_tests.js·run_tests2.js·run_tests3.js에서 1,780개 이상의 수치를 비교하며, 중요한 결과는 가능하면 SPSS·R로 한 번 더 확인하세요.</p>' +
       '<p class="desc"><b>결과 내보내기</b>: 각 카드의 [복사] 후 한글·워드에 붙여넣기, 또는 상단 [결과 저장]으로 HTML 파일 저장(워드에서 열 수 있음).</p>';
     var refs = [
       ['Bringmann, L. F., et al. (2019). What do centrality measures measure in psychological networks? Journal of Abnormal Psychology, 128(8), 892–903.', 'https://doi.org/10.1037/abn0000446'],
@@ -1014,6 +1155,7 @@
       ['Genz, A. (2004). Numerical computation of rectangular bivariate and trivariate normal and t probabilities. Statistics and Computing, 14(3), 251–260.', 'https://doi.org/10.1023/B:STCO.0000035304.20635.31'],
       ['Foygel, R., & Drton, M. (2010). Extended Bayesian information criteria for Gaussian graphical models. Advances in Neural Information Processing Systems, 23.', 'https://arxiv.org/abs/1011.6640'],
       ['Friedman, J., Hastie, T., & Tibshirani, R. (2008). Sparse inverse covariance estimation with the graphical lasso. Biostatistics, 9(3), 432–441.', 'https://doi.org/10.1093/biostatistics/kxm045'],
+      ['Hayes, A. F. (2015). An index and test of linear moderated mediation. Multivariate Behavioral Research, 50(1), 1–22.', 'https://doi.org/10.1080/00273171.2014.962683'],
       ['Hayes, A. F. (2022). Introduction to mediation, moderation, and conditional process analysis (3rd ed.). Guilford Press.', 'https://www.guilford.com/books/Introduction-to-Mediation-Moderation-and-Conditional-Process-Analysis/Andrew-Hayes/9781462549030'],
       ['Higham, N. J. (2002). Computing the nearest correlation matrix—a problem from finance. IMA Journal of Numerical Analysis, 22(3), 329–343.', 'https://doi.org/10.1093/imanum/22.3.329'],
       ['Hosmer, D. W., Lemeshow, S., & Sturdivant, R. X. (2013). Applied logistic regression (3rd ed.). Wiley.', 'https://doi.org/10.1002/9781118548387'],

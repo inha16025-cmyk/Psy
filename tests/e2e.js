@@ -100,6 +100,22 @@ const ref = require('./reference.json');
   check('매개분석', me.includes('Boot CI') && me.includes('총 간접효과'));
   await page.locator('#results .card').first().screenshot({ path: path.join(outDir, '06_mediation.png') });
 
+  // 조건부 과정 모형
+  await nav('process'); await page.selectOption('#pm', '6'); await page.dispatchEvent('#pm', 'change');
+  await sel('y', '스트레스'); await sel('x', '사회적지지'); await sel('m1', '우울1'); await sel('m2', '불안1'); await sel('m3', '수면'); await page.fill('#nb', '500'); await run();
+  const p6 = await lastCard();
+  check('순차 매개 (Model 6, M 3개)', p6.includes('총 간접효과') && p6.includes('우울1 → 불안1 → 수면'));
+  await page.locator('#results .card').first().screenshot({ path: path.join(outDir, '07_serial.png') });
+  await nav('process'); await page.selectOption('#pm', '7'); await page.dispatchEvent('#pm', 'change');
+  await sel('y', '스트레스'); await sel('x', '우울1'); await sel('m1', '수면'); await sel('w', '사회적지지'); await page.fill('#nb', '500'); await run();
+  const p7 = await lastCard();
+  check('조절된 매개 (Model 7)', p7.includes('조절된 매개 지수') && p7.includes('조건부 간접효과'));
+  await page.locator('#results .card').first().screenshot({ path: path.join(outDir, '08_modmed.png') });
+  await nav('process'); await page.selectOption('#pm', '15'); await page.dispatchEvent('#pm', 'change');
+  await sel('y', '스트레스'); await sel('x', '우울1'); await sel('m1', '수면'); await sel('m2', '불안2'); await sel('w', '치료반응'); await page.fill('#nb', '300'); await run();
+  const p15 = await lastCard();
+  check('조절된 매개 (Model 15, 이분 W, 병렬 M)', p15.includes('조건부 직접효과') && p15.includes('두 집단'));
+
   // 실제 데이터(bfi) 붙여넣기 → 네트워크 결과가 qgraph와 같은지 화면 경로로 확인
   const N = ref.network, items = Object.keys(N.data);
   const tsv = [items.join('\t')].concat(N.data[items[0]].map((_, r) => items.map(k => N.data[k][r]).join('\t'))).join('\n');
