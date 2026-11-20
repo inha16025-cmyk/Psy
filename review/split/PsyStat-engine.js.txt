@@ -1,4 +1,4 @@
-/* PsyStat 0.6.0 계산 엔진 — PsyStat.html과 같은 폴더에 두세요 */
+/* PsyStat 0.6.1 계산 엔진 — PsyStat.html과 같은 폴더에 두세요 */
 /*
  * PsyStat 통계 엔진 (stats) — 조각 1/2: 특수함수·분포·행렬·기초통계·검정·회귀·신뢰도
  * 외부 라이브러리·네트워크 통신 없음. 순수 JavaScript.

@@ -114,7 +114,7 @@ table.res thead th:first-child { text-align: left; }
   <b style="font-size:16px">PsyStat의 스크립트가 실행되지 않았습니다.</b><br>
   이 상자가 보이면 HTML은 열렸지만 계산 코드(JavaScript)가 동작하지 않은 것입니다. 다음을 순서대로 확인해 주세요.
   <ol style="margin:8px 0 0 18px;padding:0">
-    <li><b>파일 크기</b>: 파일 속성에서 크기가 약 <b>   166,753바이트</b> (분할판: PsyStat-engine.js 132,139바이트도 같은 폴더에 있어야 함)인지 확인하세요. 훨씬 작다면 자료 전송(망연계) 과정에서 보안 프로그램이 스크립트를 제거한 것입니다. 보안 담당자에게 이 파일의 반입 예외(스크립트 포함 HTML) 승인을 요청하세요. 원본 SHA-256: <code style="font-size:12px;word-break:break-all">(스크립트 본문) 6ddaf9bff0845da98bd0a581cf6ded7950b276e9df5303f795505b1b13c94553</code></li>
+    <li><b>파일 크기</b>: 파일 속성에서 크기가 약 <b>   172,437바이트</b> (분할판: PsyStat-engine.js 132,139바이트도 같은 폴더에 있어야 함)인지 확인하세요. 훨씬 작다면 자료 전송(망연계) 과정에서 보안 프로그램이 스크립트를 제거한 것입니다. 보안 담당자에게 이 파일의 반입 예외(스크립트 포함 HTML) 승인을 요청하세요. 원본 SHA-256: <code style="font-size:12px;word-break:break-all">(스크립트 본문) 6ddaf9bff0845da98bd0a581cf6ded7950b276e9df5303f795505b1b13c94553</code></li>
     <li><b>브라우저 정책</b>: 기관 정책으로 로컬 파일(file://)의 JavaScript가 차단되었을 수 있습니다. Chrome이 있다면 Chrome으로 열어 보고, 같은 증상이면 전산 담당자에게 문의하세요.</li>
     <li><b>문서 보안(DRM) 뷰어</b>: 탐색기에서 파일을 더블클릭했을 때 일반 브라우저가 아닌 보안 뷰어로 열리면 스크립트가 꺼져 있을 수 있습니다.</li>
   </ol>
@@ -135,8 +135,41 @@ table.res thead th:first-child { text-align: left; }
   };
 })();
 </script>
+<script>/* PsyStat 자가 점검: 블록이 원본과 같은지 확인 (외부 통신 없음) */
+(function () {
+  var E = [{"n":"서식(style)","L":7529,"f":"13gve1m","h":":root {\n  --bg: #f6f7f9; --panel: #fffff","t":" 1px solid var(--line); }\n}\n@media print {\n  header.top, nav.side, section.opts, .card .tools { disp","te":100,"A":["cuuthg","dzw62p","jdpyzf"],"Z":["o4pfv9","xif81","121emb9"]},{"n":"보조 스크립트 2","L":611,"f":"1eevuh6","h":"\n// 이 줄이 실행되면 스크립트는 허용된 것: 안내 상자를 숨기고, 이","t":"다. 아래 내용을 캡처해 보내 주세요.';\n    var e = document.getElementById('jserr'); e.style.display = '';\n    e.te","te":100,"A":[],"Z":[]},{"n":"보조 스크립트 3","L":280,"f":"50oy8s","h":"if (!window.PsyStats || !window.PsySEM) ","t":"요.'; window.__psyEngineMissing = true; }","te":0,"A":[],"Z":[]},{"n":"화면 코드 1/4","L":41776,"f":"1s9o55q","h":"/* PsyStat 화면(UI) 코드 — 조각 1/4: 공통 도우미·자료","t":" = wireLevelPicker; NS.boxMTable = boxMTable; NS.groupDescTable = groupDescTable;\n  NS.ldaPlotSVG = ","te":100,"A":["1vhqtwn","1q02828","1n10wjn","mf0yij","awg3jl","1imwr87","1nibjjh","10kx04b","6h5ehu","1qvzxn4","3v26zs","1a0xddp","1tuzmfr","a63mug","dsv0iz","100v64b","14q906f","m25m37","mzjkji","fq9wze"],"Z":["1qcsj3t","1tpiifm","1uksnzs","masw7n","1yriwok","1x6ff7t","4tasko","1lxfo1e","1n2ck9h","d3w1wz","80q2xo","w58n4d","1a1ploe","1jopqv3","ngzru7","qiafii","v8kg88","bk1apc","10eiiw7","9485u"]},{"n":"화면 코드 2/4","L":43755,"f":"1ihggmx","h":"/* PsyStat 화면(UI) 코드 — 조각 2/4: 상관~조건부 과정","t":"= ptTwoSidedSafe; NS.processSVG = processSVG;\n  NS.PROCESS_DESC = PROCESS_DESC; NS.processRcode = pr","te":100,"A":["189qglq","19s5f6g","1s6egep","1gu3aqu","rbgbtc","ne6lil","10vsa3v","4ziway","ms1nsf","1m96wcq","5escx6","1vqiwo5","1lk5itk","3989j8","vhvknd","ts3rmx","1db915u","11lxmqx","6wbv6v","128tij2","1iz00gk"],"Z":["vn9tsf","1bu1eib","1xpqsle","phw7dx","1q7ukkm","120fahg","qtnpfg","4vgvcl","1irvfdw","11s6i93","1p986q3","1kwyc93","12x015g","1t7ep9f","149uzd7","1l4fmu1","1z0y9px","6axve9","1156xek","1fx4iqt","x7xvcs"]},{"n":"화면 코드 3/4","L":25930,"f":"1ezardm","h":"/* PsyStat 화면(UI) 코드 — 조각 3/4: 구조방정식·신뢰도","t":"G = networkSVG; NS.centralityPlotSVG = centralityPlotSVG; NS.svgDownload = svgDownload; NS.download ","te":100,"A":["mwks7x","qkyta6","1n58cbw","1db4a7","zitkx7","elx9i4","10r6bd6","1yaubbh","wm7kry","bp30co","4mw9ut","1gjsmd4"],"Z":["4abnno","1suaifw","1pegdcn","1uoewsv","1ftjxyh","1e8d5gc","1k2a5wr","8lvs78","trlzw3","1sz8vr7","1yasqoo","12nuo2k"]},{"n":"화면 코드 4/4","L":28116,"f":"f9yni8","h":"/* PsyStat 화면(UI) 코드 — 조각 4/4: 네트워크 분석·데","t":"s = savedResults; NS.select = select; NS.buildNav = buildNav;\n  NS.about = about; NS.saveResults = s","te":100,"A":["wjte0s","z18439","1j8ppn9","11xhowz","13ff605","1xigmb6","1jduwgo","19hhyf6","12xs6sk","u1k9wr","dgy7wr","t165c0","4pvhj3","uee9os"],"Z":["11kd019","siijmu","31ixpo","18f6vel","37mkh7","zu3u12","1c807qr","ye7e1a","8mnqhw","1cbt0jy","1x7tsta","15yieei","1p3u1ax","52z5ep"]}], CH = 2000;
+  function fnv(t) { var h = 0x811c9dc5; for (var i = 0; i < t.length; i++) { h ^= t.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return h.toString(36); }
+  var me = document.currentScript;
+  document.addEventListener('DOMContentLoaded', function () {
+  var els = [].slice.call(document.querySelectorAll('style, script')).filter(function (e) { return e !== me && !e.src; });
+  var act = els.map(function (e) { return e.textContent.replace(/\r\n?/g, '\n'); }), rows = [], bad = 0, used = {};
+  E.forEach(function (x) {
+    var t = null, i, k = -1;
+    for (i = 0; i < act.length && k < 0; i++) if (!used[i] && act[i].slice(0, x.h.length) === x.h) k = i;
+    for (i = 0; i < act.length && k < 0; i++) if (!used[i] && act[i].length >= x.t.length + x.te && act[i].slice(act[i].length - x.te - x.t.length, act[i].length - x.te) === x.t) k = i;
+    if (k >= 0) { used[k] = true; t = act[k]; }
+    if (t === null) { bad++; rows.push(x.n + ': 블록을 찾지 못함 (앞부분과 뒷부분이 모두 원본과 다름 또는 블록 없음), 원본 ' + x.L + '자'); return; }
+    if (t.length === x.L && fnv(t) === x.f) { rows.push(x.n + ': 정상 (' + x.L + '자)'); return; }
+    bad++;
+    var a = 0, z = 0;
+    while (a < x.A.length && (a + 1) * CH <= t.length && fnv(t.slice(a * CH, (a + 1) * CH)) === x.A[a]) a++;
+    while (z < x.Z.length && (z + 1) * CH <= t.length && fnv(t.slice(t.length - (z + 1) * CH, t.length - z * CH)) === x.Z[z]) z++;
+    var head = a * CH, tail = z * CH, line = t.slice(0, head).split('\n').length;
+    rows.push(x.n + ': 원본과 다름 — 원본 ' + x.L + '자, 도착 ' + t.length + '자 (차이 ' + (t.length - x.L) + '자). 앞에서 ' + head + '자, 뒤에서 ' + tail + '자까지 일치 → 블록의 약 ' + line + '행부터 달라짐. 그 지점의 도착 내용: "' + t.slice(head, head + 70).replace(/\s+/g, ' ') + '"');
+  });
+  if (act.length !== E.length) { bad++; rows.push('블록 수: 원본 ' + E.length + '개, 도착 ' + act.length + '개'); }
+  window.__psyIntegrity = { bad: bad, rows: rows };
+  if (!bad) return;
+  var box = document.getElementById('jsfail'), out = document.getElementById('jserr');
+  if (!box || !out) return;
+  box.style.display = ''; out.style.display = '';
+  box.firstElementChild.textContent = '파일 점검 결과: 원본과 다른 부분이 있습니다. 아래 내용을 사진으로 보내 주세요.';
+  out.textContent += '[파일 자가 점검 · v0.6.1]\n' + rows.join('\n') + '\n';
+  });
+})();
+</script>
 <header class="top">
-  <h1>PsyStat <small>오프라인 통계 · v0.6.0</small></h1>
+  <h1>PsyStat <small>오프라인 통계 · v0.6.1</small></h1>
   <button class="btn" id="openBtn">파일 열기 (CSV·XLSX)</button>
   <button class="btn" id="exBtn">예시 데이터</button>
   <input type="file" id="file" accept=".csv,.txt,.tsv,.xlsx" style="display:none">
