@@ -1,16 +1,13 @@
-/* PsyStat 0.5.2 계산 엔진 — PsyStat.html과 같은 폴더에 두세요 */
+/* PsyStat 0.6.0 계산 엔진 — PsyStat.html과 같은 폴더에 두세요 */
 /*
- * PsyStat 통계 엔진 (stats.js)
- * - 외부 라이브러리·네트워크 통신 없음. 순수 JavaScript.
- * - 브라우저(window.PsyStats)와 Node.js(module.exports) 양쪽에서 동작.
- * - 검증: tests/ 폴더의 테스트가 R(qgraph, glasso, psych, car, stats)과
- *   Python(scipy, statsmodels) 결과와 수치를 대조한다.
+ * PsyStat 통계 엔진 (stats) — 조각 1/2: 특수함수·분포·행렬·기초통계·검정·회귀·신뢰도
+ * 외부 라이브러리·네트워크 통신 없음. 순수 JavaScript.
+ * 조각들은 G.__PsyStatsNS 로 함수를 공유하며, 마지막 조각이 G.PsyStats 를 만든다.
+ * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 계산 코드는 분할 전과 동일)
  */
-(function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory();
-  else root.PsyStats = factory();
-})(typeof self !== 'undefined' ? self : this, function () {
+(function (G) {
   'use strict';
+  var NS = G.__PsyStatsNS || (G.__PsyStatsNS = {});
 
   /* ------------------------------------------------------------------ */
   /* 1. 특수함수                                                          */
@@ -855,6 +852,34 @@
     return { n: n, k: k, alpha: alpha, stdAlpha: stdAlpha, meanInterItem: rbar, items: items };
   }
 
+  // 다음 조각으로 내보내기
+  NS.LANCZOS = LANCZOS; NS.lgamma = lgamma; NS.betacf = betacf; NS.ibeta = ibeta; NS.gammaP = gammaP; NS.gammaQcf = gammaQcf; NS.gammaQ = gammaQ; NS.pnorm = pnorm;
+  NS.pnormUpper = pnormUpper; NS.qnorm = qnorm; NS.pt = pt; NS.ptTwoSided = ptTwoSided; NS.pfUpper = pfUpper; NS.pchisqUpper = pchisqUpper; NS.pchisq = pchisq; NS.invertCdf = invertCdf;
+  NS.qt = qt; NS.qchisq = qchisq; NS.qf = qf; NS.wprob = wprob; NS.ptukey = ptukey; NS.zeros = zeros; NS.identity = identity; NS.transpose = transpose;
+  NS.matmul = matmul; NS.copyM = copyM; NS.cholesky = cholesky; NS.logdetPD = logdetPD; NS.inverse = inverse; NS.eigenSym = eigenSym; NS.qrLeastSquares = qrLeastSquares; NS.isNum = isNum;
+  NS.clean = clean; NS.sum = sum; NS.mean = mean; NS.variance = variance; NS.sd = sd; NS.sortNum = sortNum; NS.quantile = quantile; NS.quantileSPSS = quantileSPSS;
+  NS.rank = rank; NS.pearson = pearson; NS.shapiroWilk = shapiroWilk; NS.descriptives = descriptives; NS.leveneTest = leveneTest; NS.onewayCore = onewayCore; NS.tTestOneSample = tTestOneSample; NS.tTestPaired = tTestPaired;
+  NS.tTestIndependent = tTestIndependent; NS.anovaOneway = anovaOneway; NS.corTest = corTest; NS.corMatrix = corMatrix; NS.completeRows = completeRows; NS.lchoose = lchoose; NS.fisherExact2x2 = fisherExact2x2; NS.crosstab = crosstab;
+  NS.linearRegression = linearRegression; NS.logisticIRLS = logisticIRLS; NS.devianceLogit = devianceLogit; NS.logisticRegression = logisticRegression; NS.hosmerLemeshow = hosmerLemeshow; NS.aucROC = aucROC; NS.reliability = reliability;
+})(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);
+
+/*
+ * PsyStat 통계 엔진 (stats) — 조각 2/2: 네트워크·다분상관·조절·매개·다변량·안정성
+ * 외부 라이브러리·네트워크 통신 없음. 순수 JavaScript.
+ * 조각들은 G.__PsyStatsNS 로 함수를 공유하며, 마지막 조각이 G.PsyStats 를 만든다.
+ * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 계산 코드는 분할 전과 동일)
+ */
+(function (G) {
+  'use strict';
+  var NS = G.__PsyStatsNS || (G.__PsyStatsNS = {});
+  // 앞 조각에서 가져오기
+  var lgamma = NS.lgamma, ibeta = NS.ibeta, gammaP = NS.gammaP, gammaQ = NS.gammaQ, pnorm = NS.pnorm, pnormUpper = NS.pnormUpper, qnorm = NS.qnorm, pt = NS.pt;
+  var ptTwoSided = NS.ptTwoSided, pfUpper = NS.pfUpper, pchisqUpper = NS.pchisqUpper, pchisq = NS.pchisq, qt = NS.qt, qchisq = NS.qchisq, qf = NS.qf, ptukey = NS.ptukey;
+  var zeros = NS.zeros, identity = NS.identity, transpose = NS.transpose, matmul = NS.matmul, copyM = NS.copyM, cholesky = NS.cholesky, logdetPD = NS.logdetPD, inverse = NS.inverse;
+  var eigenSym = NS.eigenSym, qrLeastSquares = NS.qrLeastSquares, isNum = NS.isNum, clean = NS.clean, sum = NS.sum, mean = NS.mean, variance = NS.variance, sd = NS.sd;
+  var quantile = NS.quantile, quantileSPSS = NS.quantileSPSS, rank = NS.rank, pearson = NS.pearson, shapiroWilk = NS.shapiroWilk, descriptives = NS.descriptives, leveneTest = NS.leveneTest, tTestOneSample = NS.tTestOneSample;
+  var tTestPaired = NS.tTestPaired, tTestIndependent = NS.tTestIndependent, anovaOneway = NS.anovaOneway, corTest = NS.corTest, corMatrix = NS.corMatrix, completeRows = NS.completeRows, fisherExact2x2 = NS.fisherExact2x2, crosstab = NS.crosstab;
+  var linearRegression = NS.linearRegression, logisticRegression = NS.logisticRegression, reliability = NS.reliability;
   /* ------------------------------------------------------------------ */
   /* 9. 네트워크 분석 (가우시안 그래프 모형)                              */
   /* ------------------------------------------------------------------ */
@@ -1763,7 +1788,7 @@
     return cs;
   }
 
-  return {
+  G.PsyStats = {
     // 분포
     lgamma: lgamma, ibeta: ibeta, gammaP: gammaP, gammaQ: gammaQ,
     pnorm: pnorm, qnorm: qnorm, pt: pt, ptTwoSided: ptTwoSided, qt: qt, pfUpper: pfUpper, qf: qf,
@@ -1788,7 +1813,7 @@
     hierarchicalRegression: hierarchicalRegression, moderation: moderation, mediation: mediation, processModel: processModel,
     manova: manova, discriminant: discriminant, boxM: boxM
   };
-});
+})(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);
 
 /*
  * PsyStat 구조방정식 엔진 (sem.js)

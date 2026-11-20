@@ -7,7 +7,7 @@
 
 | 형태 | 파일 | 언제 |
 |---|---|---|
-| 단일 파일판 | `dist/PsyStat.html` (약 289KB) | 파일 하나만 옮기면 될 때 |
+| 단일 파일판 | `dist/PsyStat.html` (약 298KB, 스크립트 블록 각 60KB 이하) | 기본. 파일 하나만 옮기면 될 때 |
 | **분할판** | `dist/split/PsyStat.html` (약 161KB) + `dist/split/PsyStat-engine.js` (약 129KB) | 자료 전송 시스템이 큰 파일을 자를 때. **두 파일을 같은 폴더에** 두고 HTML을 엽니다 |
 
 기능과 코드는 같습니다. 분할판은 같은 폴더의 엔진 파일을 읽도록 CSP에 `'self'`만 추가했고, `connect-src 'none'`은 그대로여서 네트워크 통신은 계속 차단됩니다. 엔진 파일이 없거나 잘리면 화면에 그 사실을 알려 줍니다.
@@ -105,4 +105,6 @@ R과의 최대 상대오차(2026-11-19 실행 결과, 다섯 테스트 묶음 �
 
 ## 개발
 
-`src/`(stats.js = 통계 엔진, app.js = 화면, style.css, index.template.html)를 고친 뒤 `node build.js`를 실행하면 `dist/PsyStat.html`이 다시 만들어집니다.
+코드는 `src/stats/stats-1.js`·`stats-2.js`(통계 엔진), `src/sem.js`(구조방정식), `src/app/app-1~4.js`(화면), `src/style.css`, `src/index.template.html`에 있습니다. 고친 뒤 `node build.js`를 실행하면 `dist/`가 다시 만들어집니다. `src/stats.js`는 Node 테스트용 로더입니다.
+
+**스크립트 블록 60KB 제한**: 메일 등 전송 과정에서 큰 `<script>` 블록이 손상된 사례(0.5.0: 286KB → 83KB 도착)가 있어, 0.6.0부터 코드를 조각으로 나눠 각 블록을 60KB 이하로 유지합니다. 빌드가 이 한도를 자동 검사하며, 넘으면 빌드가 실패합니다. 새 기능을 넣다 조각이 커지면 조각을 하나 더 만들어 `build.js`의 목록에 추가하세요.

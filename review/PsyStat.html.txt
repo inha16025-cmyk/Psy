@@ -114,7 +114,7 @@ table.res thead th:first-child { text-align: left; }
   <b style="font-size:16px">PsyStat의 스크립트가 실행되지 않았습니다.</b><br>
   이 상자가 보이면 HTML은 열렸지만 계산 코드(JavaScript)가 동작하지 않은 것입니다. 다음을 순서대로 확인해 주세요.
   <ol style="margin:8px 0 0 18px;padding:0">
-    <li><b>파일 크기</b>: 파일 속성에서 크기가 약 <b>   288,955바이트</b>인지 확인하세요. 훨씬 작다면 자료 전송(망연계) 과정에서 보안 프로그램이 스크립트를 제거한 것입니다. 보안 담당자에게 이 파일의 반입 예외(스크립트 포함 HTML) 승인을 요청하세요. 원본 SHA-256: <code style="font-size:12px;word-break:break-all">(스크립트 본문) 044ef5fee3083a6bd748366e39eb456ee664ce52279b0bfb652dff013ba76344</code></li>
+    <li><b>파일 크기</b>: 파일 속성에서 크기가 약 <b>   298,346바이트</b>인지 확인하세요. 훨씬 작다면 자료 전송(망연계) 과정에서 보안 프로그램이 스크립트를 제거한 것입니다. 보안 담당자에게 이 파일의 반입 예외(스크립트 포함 HTML) 승인을 요청하세요. 원본 SHA-256: <code style="font-size:12px;word-break:break-all">(스크립트 본문) 6ddaf9bff0845da98bd0a581cf6ded7950b276e9df5303f795505b1b13c94553</code></li>
     <li><b>브라우저 정책</b>: 기관 정책으로 로컬 파일(file://)의 JavaScript가 차단되었을 수 있습니다. Chrome이 있다면 Chrome으로 열어 보고, 같은 증상이면 전산 담당자에게 문의하세요.</li>
     <li><b>문서 보안(DRM) 뷰어</b>: 탐색기에서 파일을 더블클릭했을 때 일반 브라우저가 아닌 보안 뷰어로 열리면 스크립트가 꺼져 있을 수 있습니다.</li>
   </ol>
@@ -136,7 +136,7 @@ table.res thead th:first-child { text-align: left; }
 })();
 </script>
 <header class="top">
-  <h1>PsyStat <small>오프라인 통계 · v0.5.2</small></h1>
+  <h1>PsyStat <small>오프라인 통계 · v0.6.0</small></h1>
   <button class="btn" id="openBtn">파일 열기 (CSV·XLSX)</button>
   <button class="btn" id="exBtn">예시 데이터</button>
   <input type="file" id="file" accept=".csv,.txt,.tsv,.xlsx" style="display:none">
@@ -152,17 +152,14 @@ table.res thead th:first-child { text-align: left; }
   <main class="results" id="results"></main>
 </div>
 <script>/*
- * PsyStat 통계 엔진 (stats.js)
- * - 외부 라이브러리·네트워크 통신 없음. 순수 JavaScript.
- * - 브라우저(window.PsyStats)와 Node.js(module.exports) 양쪽에서 동작.
- * - 검증: tests/ 폴더의 테스트가 R(qgraph, glasso, psych, car, stats)과
- *   Python(scipy, statsmodels) 결과와 수치를 대조한다.
+ * PsyStat 통계 엔진 (stats) — 조각 1/2: 특수함수·분포·행렬·기초통계·검정·회귀·신뢰도
+ * 외부 라이브러리·네트워크 통신 없음. 순수 JavaScript.
+ * 조각들은 G.__PsyStatsNS 로 함수를 공유하며, 마지막 조각이 G.PsyStats 를 만든다.
+ * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 계산 코드는 분할 전과 동일)
  */
-(function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory();
-  else root.PsyStats = factory();
-})(typeof self !== 'undefined' ? self : this, function () {
+(function (G) {
   'use strict';
+  var NS = G.__PsyStatsNS || (G.__PsyStatsNS = {});
 
   /* ------------------------------------------------------------------ */
   /* 1. 특수함수                                                          */
@@ -1007,6 +1004,34 @@ table.res thead th:first-child { text-align: left; }
     return { n: n, k: k, alpha: alpha, stdAlpha: stdAlpha, meanInterItem: rbar, items: items };
   }
 
+  // 다음 조각으로 내보내기
+  NS.LANCZOS = LANCZOS; NS.lgamma = lgamma; NS.betacf = betacf; NS.ibeta = ibeta; NS.gammaP = gammaP; NS.gammaQcf = gammaQcf; NS.gammaQ = gammaQ; NS.pnorm = pnorm;
+  NS.pnormUpper = pnormUpper; NS.qnorm = qnorm; NS.pt = pt; NS.ptTwoSided = ptTwoSided; NS.pfUpper = pfUpper; NS.pchisqUpper = pchisqUpper; NS.pchisq = pchisq; NS.invertCdf = invertCdf;
+  NS.qt = qt; NS.qchisq = qchisq; NS.qf = qf; NS.wprob = wprob; NS.ptukey = ptukey; NS.zeros = zeros; NS.identity = identity; NS.transpose = transpose;
+  NS.matmul = matmul; NS.copyM = copyM; NS.cholesky = cholesky; NS.logdetPD = logdetPD; NS.inverse = inverse; NS.eigenSym = eigenSym; NS.qrLeastSquares = qrLeastSquares; NS.isNum = isNum;
+  NS.clean = clean; NS.sum = sum; NS.mean = mean; NS.variance = variance; NS.sd = sd; NS.sortNum = sortNum; NS.quantile = quantile; NS.quantileSPSS = quantileSPSS;
+  NS.rank = rank; NS.pearson = pearson; NS.shapiroWilk = shapiroWilk; NS.descriptives = descriptives; NS.leveneTest = leveneTest; NS.onewayCore = onewayCore; NS.tTestOneSample = tTestOneSample; NS.tTestPaired = tTestPaired;
+  NS.tTestIndependent = tTestIndependent; NS.anovaOneway = anovaOneway; NS.corTest = corTest; NS.corMatrix = corMatrix; NS.completeRows = completeRows; NS.lchoose = lchoose; NS.fisherExact2x2 = fisherExact2x2; NS.crosstab = crosstab;
+  NS.linearRegression = linearRegression; NS.logisticIRLS = logisticIRLS; NS.devianceLogit = devianceLogit; NS.logisticRegression = logisticRegression; NS.hosmerLemeshow = hosmerLemeshow; NS.aucROC = aucROC; NS.reliability = reliability;
+})(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);
+</script>
+<script>/*
+ * PsyStat 통계 엔진 (stats) — 조각 2/2: 네트워크·다분상관·조절·매개·다변량·안정성
+ * 외부 라이브러리·네트워크 통신 없음. 순수 JavaScript.
+ * 조각들은 G.__PsyStatsNS 로 함수를 공유하며, 마지막 조각이 G.PsyStats 를 만든다.
+ * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 계산 코드는 분할 전과 동일)
+ */
+(function (G) {
+  'use strict';
+  var NS = G.__PsyStatsNS || (G.__PsyStatsNS = {});
+  // 앞 조각에서 가져오기
+  var lgamma = NS.lgamma, ibeta = NS.ibeta, gammaP = NS.gammaP, gammaQ = NS.gammaQ, pnorm = NS.pnorm, pnormUpper = NS.pnormUpper, qnorm = NS.qnorm, pt = NS.pt;
+  var ptTwoSided = NS.ptTwoSided, pfUpper = NS.pfUpper, pchisqUpper = NS.pchisqUpper, pchisq = NS.pchisq, qt = NS.qt, qchisq = NS.qchisq, qf = NS.qf, ptukey = NS.ptukey;
+  var zeros = NS.zeros, identity = NS.identity, transpose = NS.transpose, matmul = NS.matmul, copyM = NS.copyM, cholesky = NS.cholesky, logdetPD = NS.logdetPD, inverse = NS.inverse;
+  var eigenSym = NS.eigenSym, qrLeastSquares = NS.qrLeastSquares, isNum = NS.isNum, clean = NS.clean, sum = NS.sum, mean = NS.mean, variance = NS.variance, sd = NS.sd;
+  var quantile = NS.quantile, quantileSPSS = NS.quantileSPSS, rank = NS.rank, pearson = NS.pearson, shapiroWilk = NS.shapiroWilk, descriptives = NS.descriptives, leveneTest = NS.leveneTest, tTestOneSample = NS.tTestOneSample;
+  var tTestPaired = NS.tTestPaired, tTestIndependent = NS.tTestIndependent, anovaOneway = NS.anovaOneway, corTest = NS.corTest, corMatrix = NS.corMatrix, completeRows = NS.completeRows, fisherExact2x2 = NS.fisherExact2x2, crosstab = NS.crosstab;
+  var linearRegression = NS.linearRegression, logisticRegression = NS.logisticRegression, reliability = NS.reliability;
   /* ------------------------------------------------------------------ */
   /* 9. 네트워크 분석 (가우시안 그래프 모형)                              */
   /* ------------------------------------------------------------------ */
@@ -1915,7 +1940,7 @@ table.res thead th:first-child { text-align: left; }
     return cs;
   }
 
-  return {
+  G.PsyStats = {
     // 분포
     lgamma: lgamma, ibeta: ibeta, gammaP: gammaP, gammaQ: gammaQ,
     pnorm: pnorm, qnorm: qnorm, pt: pt, ptTwoSided: ptTwoSided, qt: qt, pfUpper: pfUpper, qf: qf,
@@ -1940,7 +1965,7 @@ table.res thead th:first-child { text-align: left; }
     hierarchicalRegression: hierarchicalRegression, moderation: moderation, mediation: mediation, processModel: processModel,
     manova: manova, discriminant: discriminant, boxM: boxM
   };
-});
+})(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);
 </script>
 <script>/*
  * PsyStat 구조방정식 엔진 (sem.js)
@@ -2449,13 +2474,16 @@ table.res thead th:first-child { text-align: left; }
   return { parseModel: parseModel, buildModel: buildModel, fitSEM: fitSEM, bootstrapOnce: bootstrapOnce, pnchisq: pnchisq, compileExpr: compileExpr };
 });
 </script>
-<script>/* PsyStat 화면(UI) 코드 — 외부 통신 없음 */
-(function () {
+<script>/* PsyStat 화면(UI) 코드 — 조각 1/4: 공통 도우미·자료 읽기·APA 표·결과 카드·기술통계~판별분석
+ * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다.
+ * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 코드는 분할 전과 동일) */
+(function (G) {
   'use strict';
-  if (window.__psyEngineMissing || !window.PsyStats) return; // 계산 엔진이 없으면 화면을 시작하지 않음 (안내 상자 표시)
+  if (G.__psyEngineMissing || !G.PsyStats) return; // 계산 엔진이 없으면 화면을 시작하지 않음
+  var NS = G.__PsyAppNS || (G.__PsyAppNS = {});
+  function select() { return NS.select.apply(this, arguments); } // 뒤 조각에 정의됨 (호출 시점에 연결)
   var S = window.PsyStats;
   var state = { names: [], cols: [], types: [], nrows: 0, fileName: '' };
-  var current = 'data';
   var $ = function (sel, el) { return (el || document).querySelector(sel); };
   var $$ = function (sel, el) { return Array.prototype.slice.call((el || document).querySelectorAll(sel)); };
 
@@ -2566,7 +2594,7 @@ table.res thead th:first-child { text-align: left; }
       if (allNum) { cols.push(raw.map(function (v) { return MISSING[v] === 1 ? null : Number(v.replace(/,/g, '')); })); types.push('num'); }
       else { cols.push(raw.map(function (v) { return MISSING[v] === 1 ? null : v; })); types.push('text'); }
     }
-    state = { names: header, cols: cols, types: types, nrows: body.length, fileName: fileName || '' };
+    state.names = header; state.cols = cols; state.types = types; state.nrows = body.length; state.fileName = fileName || ''; // 객체를 바꾸지 않고 필드만 갱신 (조각 간 공유)
     updateInfo();
     select('data');
   }
@@ -2996,6 +3024,28 @@ table.res thead th:first-child { text-align: left; }
     }
   };
 
+  // 다음 조각으로 내보내기
+  NS.S = S; NS.state = state; NS.$ = $; NS.$$ = $$; NS.esc = esc; NS.f = f; NS.fp = fp; NS.fr = fr;
+  NS.star = star; NS.ITAL = ITAL; NS.ITAL_RE = ITAL_RE; NS.italHead = italHead; NS.table = table; NS.ABBR = ABBR; NS.decorateTables = decorateTables; NS.APA_FONT = APA_FONT;
+  NS.cleanCell = cleanCell; NS.apaExport = apaExport; NS.copyApa = copyApa; NS.rcode = rcode; NS.rvec = rvec; NS.rname = rname; NS.MISSING = MISSING; NS.setData = setData;
+  NS.parseDelimited = parseDelimited; NS.decodeText = decodeText; NS.readXlsx = readXlsx; NS.openFile = openFile; NS.exampleData = exampleData; NS.updateInfo = updateInfo; NS.varOptions = varOptions; NS.levelsOf = levelsOf;
+  NS.selectField = selectField; NS.multiField = multiField; NS.getMulti = getMulti; NS.getSel = getSel; NS.wireMulti = wireMulti; NS.need = need; NS.designColumns = designColumns; NS.addCard = addCard;
+  NS.copyEl = copyEl; NS.flash = flash; NS.errorCard = errorCard; NS.A = A; NS.twoLevelPicker = twoLevelPicker; NS.wireLevelPicker = wireLevelPicker; NS.boxMTable = boxMTable; NS.groupDescTable = groupDescTable;
+  NS.ldaPlotSVG = ldaPlotSVG;
+})(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);
+</script>
+<script>/* PsyStat 화면(UI) 코드 — 조각 2/4: 상관~조건부 과정 모형
+ * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다.
+ * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 코드는 분할 전과 동일) */
+(function (G) {
+  'use strict';
+  if (G.__psyEngineMissing || !G.PsyStats) return; // 계산 엔진이 없으면 화면을 시작하지 않음
+  var NS = G.__PsyAppNS || (G.__PsyAppNS = {});
+  // 앞 조각에서 가져오기
+  var S = NS.S, state = NS.state, $ = NS.$, $$ = NS.$$, esc = NS.esc, f = NS.f, fp = NS.fp, fr = NS.fr;
+  var star = NS.star, table = NS.table, rcode = NS.rcode, rvec = NS.rvec, rname = NS.rname, levelsOf = NS.levelsOf, selectField = NS.selectField, multiField = NS.multiField;
+  var getMulti = NS.getMulti, getSel = NS.getSel, need = NS.need, designColumns = NS.designColumns, addCard = NS.addCard, A = NS.A;
+  function select() { return NS.select.apply(this, arguments); } // 뒤 조각에 정의됨 (호출 시점에 연결)
   A.cor = {
     group: '관계', title: '상관분석',
     desc: 'Pearson·Spearman 상관행렬, 유의확률, 95% 신뢰구간.',
@@ -3469,6 +3519,22 @@ table.res thead th:first-child { text-align: left; }
     return lines.join('\n');
   }
 
+  // 다음 조각으로 내보내기
+  NS.autoCorCard = autoCorCard; NS.binaryDV = binaryDV; NS.eventPicker = eventPicker; NS.wireEventPicker = wireEventPicker; NS.slopesSVG = slopesSVG; NS.mediationSVG = mediationSVG; NS.ptTwoSidedSafe = ptTwoSidedSafe; NS.processSVG = processSVG;
+  NS.PROCESS_DESC = PROCESS_DESC; NS.processRcode = processRcode;
+})(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);
+</script>
+<script>/* PsyStat 화면(UI) 코드 — 조각 3/4: 구조방정식·신뢰도·네트워크 그림
+ * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다.
+ * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 코드는 분할 전과 동일) */
+(function (G) {
+  'use strict';
+  if (G.__psyEngineMissing || !G.PsyStats) return; // 계산 엔진이 없으면 화면을 시작하지 않음
+  var NS = G.__PsyAppNS || (G.__PsyAppNS = {});
+  // 앞 조각에서 가져오기
+  var S = NS.S, state = NS.state, $ = NS.$, $$ = NS.$$, esc = NS.esc, f = NS.f, fp = NS.fp, fr = NS.fr;
+  var star = NS.star, table = NS.table, rcode = NS.rcode, rvec = NS.rvec, varOptions = NS.varOptions, multiField = NS.multiField, getMulti = NS.getMulti, need = NS.need;
+  var addCard = NS.addCard, A = NS.A;
   /* ---------------- 구조방정식 ---------------- */
   function semDiagram(res) {
     var m = res.model, P = res.params, lat = m.latents;
@@ -3741,6 +3807,22 @@ table.res thead th:first-child { text-align: left; }
     a.href = URL.createObjectURL(b); a.download = name; document.body.appendChild(a); a.click(); a.remove();
   }
 
+  // 다음 조각으로 내보내기
+  NS.semDiagram = semDiagram; NS.SEM_HELP = SEM_HELP; NS.semBootstrap = semBootstrap; NS.networkSVG = networkSVG; NS.centralityPlotSVG = centralityPlotSVG; NS.svgDownload = svgDownload; NS.download = download;
+})(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);
+</script>
+<script>/* PsyStat 화면(UI) 코드 — 조각 4/4: 네트워크 분석·데이터 화면·화면 전환·시작
+ * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다.
+ * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 코드는 분할 전과 동일) */
+(function (G) {
+  'use strict';
+  if (G.__psyEngineMissing || !G.PsyStats) return; // 계산 엔진이 없으면 화면을 시작하지 않음
+  var NS = G.__PsyAppNS || (G.__PsyAppNS = {});
+  // 앞 조각에서 가져오기
+  var S = NS.S, state = NS.state, $ = NS.$, $$ = NS.$$, esc = NS.esc, f = NS.f, fr = NS.fr, table = NS.table;
+  var rcode = NS.rcode, rvec = NS.rvec, setData = NS.setData, parseDelimited = NS.parseDelimited, openFile = NS.openFile, exampleData = NS.exampleData, updateInfo = NS.updateInfo, multiField = NS.multiField;
+  var getMulti = NS.getMulti, wireMulti = NS.wireMulti, need = NS.need, addCard = NS.addCard, errorCard = NS.errorCard, A = NS.A, networkSVG = NS.networkSVG, centralityPlotSVG = NS.centralityPlotSVG;
+  var svgDownload = NS.svgDownload, download = NS.download;
   A.network = {
     group: '네트워크', title: '네트워크 분석 (GGM)',
     desc: '가우시안 그래프 모형: EBICglasso(qgraph 동일 절차) 또는 편상관 네트워크, 중심성, 부트스트랩 안정성.',
@@ -3896,6 +3978,7 @@ table.res thead th:first-child { text-align: left; }
   }
 
   /* ---------------- 화면 전환 ---------------- */
+  var current = 'data';
   var savedResults = null;
   function select(id) {
     current = id;
@@ -4018,7 +4101,10 @@ table.res thead th:first-child { text-align: left; }
     select('data');
   });
   window.PsyStatApp = { setData: setData, parseDelimited: parseDelimited, select: select, exampleData: exampleData };
-})();
+  // 다음 조각으로 내보내기
+  NS.rcor = rcor; NS.runBootstrap = runBootstrap; NS.dataView = dataView; NS.dataPreview = dataPreview; NS.current = current; NS.savedResults = savedResults; NS.select = select; NS.buildNav = buildNav;
+  NS.about = about; NS.saveResults = saveResults;
+})(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);
 </script>
 </body>
 </html>

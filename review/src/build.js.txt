@@ -3,11 +3,17 @@
 //  2) dist/split/PsyStat.html + PsyStat-engine.js — 분할판 (자료 전송 크기 제한 대응; 두 파일을 같은 폴더에 둠)
 'use strict';
 var fs = require('fs'), path = require('path'), crypto = require('crypto');
-var VERSION = '0.5.2';
+var VERSION = '0.6.0';
 var ENGINE = 'PsyStat-engine.js';
 var src = function (f) { return fs.readFileSync(path.join(__dirname, 'src', f), 'utf8'); };
+// 조각 파일 (각 60KB 이하): 메일 등 전송 시스템이 큰 <script> 블록을 손상시키는 문제 대응
+var STATS_PARTS = ['stats/stats-1.js', 'stats/stats-2.js'];
+var APP_PARTS = ['app/app-1.js', 'app/app-2.js', 'app/app-3.js', 'app/app-4.js'];
+var MAX_BLOCK = 60 * 1024;
+var tags = function (parts) { return parts.map(function (p) { return '<script>' + src(p) + '</script>'; }).join('\n'); };
+var allSrc = function (parts) { return parts.map(src).join('\n'); };
 var sha256 = function (s) { return crypto.createHash('sha256').update(s).digest('hex'); };
-var bodyHash = sha256(src('stats.js') + src('sem.js') + src('app.js'));
+var bodyHash = sha256(allSrc(STATS_PARTS) + src('sem.js') + allSrc(APP_PARTS));
 
 function fill(html, sizeNote) {
   html = html.replace('__SHA__', '(스크립트 본문) ' + bodyHash).replace('__SIZENOTE__', sizeNote || '').replace('__BYTES__', '@@@@@@@@@@');
@@ -22,25 +28,31 @@ var base = src('index.template.html').replace('__VERSION__', VERSION).replace('/
 
 // 1) 단일 파일판
 var single = fill(base
-  .replace('/*__STATS__*/', function () { return src('stats.js'); })
+  .replace('<script>/*__STATS__*/</script>', function () { return tags(STATS_PARTS); })
   .replace('/*__SEM__*/', function () { return src('sem.js'); })
-  .replace('/*__APP__*/', function () { return src('app.js'); }), '');
+  .replace('<script>/*__APP__*/</script>', function () { return tags(APP_PARTS); }), '');
 checkUrls(single);
 fs.mkdirSync(path.join(__dirname, 'dist', 'split'), { recursive: true });
+function checkBlocks(name, html) {
+  var re = /<(script|style)[^>]*>([\s\S]*?)<\/\1>/g, m, k = 0, max = 0;
+  while ((m = re.exec(html))) { var b = Buffer.byteLength(m[2]); k++; max = Math.max(max, b); if (b > MAX_BLOCK) throw new Error(name + ': ' + m[1] + ' 블록 ' + b + '바이트 > 한도 ' + MAX_BLOCK); }
+  console.log('  ' + name + ': 블록 ' + k + '개, 가장 큰 블록 ' + max.toLocaleString('en-US') + '바이트 (한도 ' + MAX_BLOCK.toLocaleString('en-US') + ')');
+}
+checkBlocks('단일 파일판', single);
 fs.writeFileSync(path.join(__dirname, 'dist', 'PsyStat.html'), single);
 
 // 2) 분할판: 엔진(stats.js + sem.js)은 별도 파일, CSP는 같은 폴더의 로컬 스크립트만 추가 허용('self'). 외부 통신은 여전히 차단.
-var engine = '/* PsyStat ' + VERSION + ' 계산 엔진 — PsyStat.html과 같은 폴더에 두세요 */\n' + src('stats.js') + '\n' + src('sem.js');
+var engine = '/* PsyStat ' + VERSION + ' 계산 엔진 — PsyStat.html과 같은 폴더에 두세요 */\n' + allSrc(STATS_PARTS) + '\n' + src('sem.js');
 var splitHtml = base
   .replace("script-src 'unsafe-inline';", "script-src 'unsafe-inline' 'self';")
   .replace('<script>/*__STATS__*/</script>\n<script>/*__SEM__*/</script>',
     '<script src="' + ENGINE + '"></script>\n<script>if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById(\'jsfail\'); b.style.display = \'\'; ' +
     'b.firstElementChild.textContent = \'계산 엔진 파일(' + ENGINE + ')을 찾지 못했습니다. PsyStat.html과 같은 폴더에 두었는지, 파일이 잘리지 않았는지(크기 ' +
     Buffer.byteLength(engine).toLocaleString('en-US') + '바이트) 확인하세요.\'; window.__psyEngineMissing = true; }</script>')
-  .replace('/*__APP__*/', function () { return src('app.js'); });
+  .replace('<script>/*__APP__*/</script>', function () { return tags(APP_PARTS); });
 if (splitHtml.indexOf(ENGINE) < 0) throw new Error('분할판 생성 실패: 템플릿 자리표시자를 찾지 못함');
 splitHtml = fill(splitHtml, ' (분할판: ' + ENGINE + ' ' + Buffer.byteLength(engine).toLocaleString('en-US') + '바이트도 같은 폴더에 있어야 함)');
-checkUrls(splitHtml);
+checkUrls(splitHtml); checkBlocks('분할판 HTML', splitHtml);
 fs.writeFileSync(path.join(__dirname, 'dist', 'split', 'PsyStat.html'), splitHtml);
 fs.writeFileSync(path.join(__dirname, 'dist', 'split', ENGINE), engine);
 
