@@ -1017,6 +1017,194 @@
     return lines.join('\n');
   }
 
+  /* ---------------- 구조방정식 ---------------- */
+  function semDiagram(res) {
+    var m = res.model, P = res.params, lat = m.latents;
+    var structVars = lat.slice();
+    P.forEach(function (p) { if (p.op === '~') [p.lhs, p.rhs].forEach(function (v) { if (structVars.indexOf(v) < 0) structVars.push(v); }); });
+    var preds = {}; structVars.forEach(function (v) { preds[v] = []; });
+    P.forEach(function (p) { if (p.op === '~') preds[p.lhs].push(p.rhs); });
+    var depth = {}, dget = function (v, seen) { if (depth[v] !== undefined) return depth[v]; if (seen[v]) return 0; seen[v] = 1; var d = 0; preds[v].forEach(function (u) { d = Math.max(d, dget(u, seen) + 1); }); depth[v] = d; return d; };
+    structVars.forEach(function (v) { dget(v, {}); });
+    var ncol = Math.max.apply(null, structVars.map(function (v) { return depth[v]; }).concat([0])) + 1, cols = [];
+    for (var c = 0; c < ncol; c++) cols.push(structVars.filter(function (v) { return depth[v] === c; }));
+    var inds = function (f) { return P.filter(function (p) { return p.op === '=~' && p.lhs === f; }); };
+    var bw = 46, bh = 20, gapI = 5, rx = 52, ry = 21, blockH = 2 * ry + 34 + bh + 34;
+    var boxW = function (name) { var w = 0; for (var i = 0; i < name.length; i++) w += name.charCodeAt(i) > 255 ? 10.5 : 6.2; return Math.max(34, Math.min(96, w + 10)); };
+    var rowW = function (v) { var L = inds(v); return L.reduce(function (a, q) { return a + boxW(q.rhs) + gapI; }, -gapI); };
+    var colW = cols.map(function (cv) { return Math.max(150, Math.max.apply(null, cv.map(function (v) { return rowW(v); }).concat([0])) + 30); });
+    var nSkip = P.filter(function (p) { return p.op === '~' && Math.abs((depth[p.lhs] || 0) - (depth[p.rhs] || 0)) !== 1; }).length, topPad = nSkip ? 70 + 22 * nSkip : 0;
+    var W = colW.reduce(function (a, b) { return a + b + 60; }, 20), H = Math.max.apply(null, cols.map(function (cv) { return cv.length * blockH; })) + 30 + topPad;
+    var pos = {}, x0 = 20;
+    cols.forEach(function (cv, ci) {
+      var cx = x0 + colW[ci] / 2, top = topPad + (H - topPad - cv.length * blockH) / 2;
+      cv.forEach(function (v, k) { pos[v] = [cx, top + k * blockH + ry + 10]; });
+      x0 += colW[ci] + 60;
+    });
+    var std = function (p) { return fr(p.std).replace(/^−\./, '−.'); };
+    var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + H + '" width="100%" style="max-width:' + Math.min(W, 1000) + 'px" font-family="sans-serif" font-size="10.5">' +
+      '<defs><marker id="sa" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#3a4152"/></marker></defs>';
+    var halo = ' paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" style="fill:#1d2433"';
+    var isLat = function (v) { return lat.indexOf(v) >= 0; };
+    var shapeEdge = function (v, tx, ty) { // 도형 경계점
+      var p0 = pos[v], dx = tx - p0[0], dy = ty - p0[1], L = Math.sqrt(dx * dx + dy * dy) || 1;
+      if (isLat(v)) { var t = 1 / Math.sqrt((dx * dx) / (rx * rx) + (dy * dy) / (ry * ry)); return [p0[0] + dx * t, p0[1] + dy * t]; }
+      var t2 = Math.min(Math.abs((bw / 2 + 8) / (dx || 1e-9)), Math.abs((bh / 2 + 2) / (dy || 1e-9))); return [p0[0] + dx * t2, p0[1] + dy * t2];
+    };
+    // 구조 경로
+    var skipK = 0;
+    P.forEach(function (p) {
+      if (p.op !== '~') return;
+      var A0 = pos[p.rhs], B0 = pos[p.lhs], dd = Math.abs(depth[p.lhs] - depth[p.rhs]);
+      // 사이에 다른 변수가 가로막는지 확인 → 곡선으로 우회
+      var blocked = structVars.some(function (u) {
+        if (u === p.lhs || u === p.rhs) return false;
+        var U = pos[u], vx = B0[0] - A0[0], vy = B0[1] - A0[1], L2 = vx * vx + vy * vy, t = ((U[0] - A0[0]) * vx + (U[1] - A0[1]) * vy) / L2;
+        if (t <= 0.05 || t >= 0.95) return false;
+        var px = A0[0] + t * vx - U[0], py = A0[1] + t * vy - U[1];
+        return Math.sqrt(px * px + py * py) < ry + 12;
+      });
+      if (blocked || dd === 0) {
+        var cx = (A0[0] + B0[0]) / 2, cy = Math.min(A0[1], B0[1]) - 70 - 22 * (skipK++);
+        var a1 = shapeEdge(p.rhs, cx, cy), b1 = shapeEdge(p.lhs, cx, cy), my = (a1[1] + 2 * cy + b1[1]) / 4;
+        s += '<path d="M' + a1[0].toFixed(1) + ' ' + a1[1].toFixed(1) + ' Q' + cx.toFixed(1) + ' ' + cy.toFixed(1) + ' ' + b1[0].toFixed(1) + ' ' + b1[1].toFixed(1) + '" fill="none" stroke="#3a4152" stroke-width="1.4" marker-end="url(#sa)"/>' +
+          '<text x="' + cx.toFixed(1) + '" y="' + (my - 2).toFixed(1) + '" text-anchor="middle"' + halo + '>' + std(p) + star(p.p) + '</text>';
+        return;
+      }
+      var a = shapeEdge(p.rhs, B0[0], B0[1]), b = shapeEdge(p.lhs, A0[0], A0[1]);
+      s += '<line x1="' + a[0].toFixed(1) + '" y1="' + a[1].toFixed(1) + '" x2="' + b[0].toFixed(1) + '" y2="' + b[1].toFixed(1) + '" stroke="#3a4152" stroke-width="1.4" marker-end="url(#sa)"/>' +
+        '<text x="' + ((a[0] + b[0]) / 2).toFixed(1) + '" y="' + ((a[1] + b[1]) / 2 - 3).toFixed(1) + '" text-anchor="middle"' + halo + '>' + std(p) + star(p.p) + '</text>';
+    });
+    // 잠재·구조변수 간 공분산 (곡선)
+    P.forEach(function (p) {
+      if (p.op !== '~~' || p.lhs === p.rhs || !pos[p.lhs] || !pos[p.rhs]) return;
+      var a = pos[p.lhs], b = pos[p.rhs], mx = (a[0] + b[0]) / 2 - (a[0] === b[0] ? 70 : 0), my = (a[1] + b[1]) / 2 - (a[0] === b[0] ? 0 : 40);
+      var a2 = shapeEdge(p.lhs, mx, my), b2 = shapeEdge(p.rhs, mx, my);
+      s += '<path d="M' + a2[0].toFixed(1) + ' ' + a2[1].toFixed(1) + ' Q' + mx.toFixed(1) + ' ' + my.toFixed(1) + ' ' + b2[0].toFixed(1) + ' ' + b2[1].toFixed(1) + '" fill="none" stroke="#2b5fc7" stroke-width="1.1" stroke-dasharray="4 3" marker-start="url(#sa)" marker-end="url(#sa)"/>' +
+        '<text x="' + mx.toFixed(1) + '" y="' + (my + 3).toFixed(1) + '" text-anchor="middle"' + halo + '>' + std(p) + star(p.p) + '</text>';
+    });
+    // 잠재변수와 지표
+    structVars.forEach(function (v) {
+      var p0 = pos[v], L = inds(v);
+      if (isLat(v)) {
+        var y2 = p0[1] + ry + 34, xs = p0[0] - rowW(v) / 2;
+        L.forEach(function (q) {
+          var wq = boxW(q.rhs), bx = xs + wq / 2; xs += wq + gapI;
+          s += '<line x1="' + p0[0] + '" y1="' + (p0[1] + ry) + '" x2="' + bx.toFixed(1) + '" y2="' + y2 + '" stroke="#8a94a6" stroke-width="1" marker-end="url(#sa)"/>' +
+            '<rect x="' + (bx - wq / 2).toFixed(1) + '" y="' + y2 + '" width="' + wq.toFixed(1) + '" height="' + bh + '" fill="#ffffff" stroke="#3a4152"/>' +
+            '<text x="' + bx.toFixed(1) + '" y="' + (y2 + 14) + '" text-anchor="middle" style="fill:#1d2433">' + esc(q.rhs.length > 12 ? q.rhs.slice(0, 12) + '…' : q.rhs) + '<title>' + esc(q.rhs) + '</title></text>' +
+            '<text x="' + bx.toFixed(1) + '" y="' + (y2 + bh + 12) + '" text-anchor="middle" font-size="9.5" style="fill:#5b6475">' + std(q) + '</text>';
+        });
+        s += '<ellipse cx="' + p0[0] + '" cy="' + p0[1] + '" rx="' + rx + '" ry="' + ry + '" fill="#ffffff" stroke="#1d2433" stroke-width="1.4"/>';
+      } else s += '<rect x="' + (p0[0] - bw / 2 - 8) + '" y="' + (p0[1] - bh / 2 - 2) + '" width="' + (bw + 16) + '" height="' + (bh + 4) + '" fill="#ffffff" stroke="#1d2433" stroke-width="1.4"/>';
+      s += '<text x="' + p0[0] + '" y="' + (p0[1] + 4) + '" text-anchor="middle" font-weight="600" style="fill:#1d2433">' + esc(v.length > 10 ? v.slice(0, 10) + '…' : v) + '</text>';
+    });
+    return s + '</svg>';
+  }
+
+  var SEM_HELP = '<details><summary>문법 도움말 (lavaan과 같음)</summary><pre class="rcode">' + esc(
+    '잠재변수 =~ 지표1 + 지표2 + 지표3   # 측정모형 (첫 지표 적재량 = 1 고정)\n' +
+    '결과 ~ 원인1 + 원인2                # 회귀(구조) 경로\n' +
+    '변수1 ~~ 변수2                      # (잔차)공분산\n' +
+    '결과 ~ a*원인                       # 라벨 a 붙이기 (같은 라벨 = 동일성 제약)\n' +
+    '간접 := a*b                         # 정의 모수 (간접효과, 총효과 등)\n' +
+    '잠재 =~ NA*지표1 + 지표2            # 첫 적재량 자유 추정 (이때는 잠재 ~~ 1*잠재 로 분산 고정)\n' +
+    '# 기본값(lavaan sem과 동일): 외생 잠재변수 간 공분산, 결과변수 간 잔차공분산은 자동 추가') + '</pre></details>';
+
+  A.sem = {
+    group: '구조방정식', title: '구조방정식 (CFA·SEM)',
+    desc: '확인적 요인분석과 잠재변수 구조모형. lavaan 문법, ML·MLR 추정, 적합도, 표준화 추정치, CR·AVE, 간접효과 부트스트랩.',
+    form: function () {
+      var nums = varOptions('num');
+      return '<div class="field"><label for="syn">모형 문법</label><textarea id="syn" class="paste" style="height:190px" spellcheck="false" placeholder="예)\n요인1 =~ 문항1 + 문항2 + 문항3\n요인2 =~ 문항4 + 문항5 + 문항6\n요인2 ~ 요인1"></textarea>' +
+        '<div class="inline" style="margin-top:4px"><button class="btn small" id="tplCfa">CFA 틀</button><button class="btn small" id="tplMed">잠재 매개 틀</button></div>' + SEM_HELP + '</div>' +
+        '<div class="field"><div class="lab">변수 넣기 (누르면 커서 위치에 삽입)</div><div class="varlist" style="max-height:120px;padding:4px;display:flex;flex-wrap:wrap;gap:4px">' +
+        nums.map(function (v) { return '<button class="btn small vins" data-v="' + esc(v.name) + '">' + esc(v.name) + '</button>'; }).join('') + '</div></div>' +
+        '<div class="field"><div class="lab">추정법</div><div class="inline"><label><input type="radio" name="est" value="ML" checked>ML</label><label><input type="radio" name="est" value="MLR">MLR (강건 표준오차·척도화 χ²)</label></div>' +
+        '<div class="hint">MLR은 정규성 위반에 강건합니다(리커트 5점 이상 자료에서 흔히 권장). 결측은 목록별 제거입니다(FIML 미지원).</div></div>' +
+        '<div class="field"><div class="inline"><label>정의 모수(:=) 부트스트랩 <input type="number" id="nb" value="1000" min="0" step="500" style="width:80px"> 회</label><label>시드 <input type="number" id="seed" value="1234" style="width:70px"></label></div>' +
+        '<div class="hint">:= 가 있을 때만 실행. lavaan 기본(1000회, 백분위 구간)과 같습니다.</div></div>';
+    },
+    wire: function () {
+      var ta = $('#syn');
+      try { var saved = localStorage.getItem('psystat_sem_syntax'); if (saved) ta.value = saved; } catch (e) { /* 저장소 사용 불가 */ }
+      $$('.vins').forEach(function (b) {
+        b.onclick = function () { var st = ta.selectionStart, en = ta.selectionEnd; ta.value = ta.value.slice(0, st) + b.dataset.v + ta.value.slice(en); ta.focus(); ta.selectionStart = ta.selectionEnd = st + b.dataset.v.length; };
+      });
+      var nums = varOptions('num').map(function (v) { return v.name; }), v = function (i) { return nums[i] || ('문항' + (i + 1)); };
+      $('#tplCfa').onclick = function () { ta.value = '# 확인적 요인분석: 요인 이름은 자유롭게 바꾸세요\n요인1 =~ ' + [v(0), v(1), v(2)].join(' + ') + '\n요인2 =~ ' + [v(3), v(4), v(5)].join(' + ') + '\n'; };
+      $('#tplMed').onclick = function () {
+        ta.value = '# 잠재변수 매개모형: X → M → Y\nX =~ ' + [v(0), v(1), v(2)].join(' + ') + '\nM =~ ' + [v(3), v(4), v(5)].join(' + ') + '\nY =~ ' + [v(6), v(7), v(8)].join(' + ') +
+          '\nM ~ a*X\nY ~ b*M + c*X\n간접효과 := a*b\n총효과 := c + a*b\n';
+      };
+    },
+    run: function () {
+      var syn = $('#syn').value; need(syn.trim(), '모형 문법을 입력하세요.');
+      try { localStorage.setItem('psystat_sem_syntax', syn); } catch (e) { /* 저장소 사용 불가 */ }
+      var data = {}; state.names.forEach(function (n, i) { if (state.types[i] === 'num') data[n] = state.cols[i]; });
+      var est = $('input[name=est]:checked').value, res = PsySEM.fitSEM(syn, data, { estimator: est }), F = res.fit, P = res.params;
+      var robust = est === 'MLR' && F.scalingFactor;
+      var fitRows = [[est === 'MLR' ? 'ML (비척도화)' : 'ML', res.N, f(F.chisq, 2), F.df, fp(F.pvalue), fr(F.cfi), fr(F.tli), fr(F.rmsea) + ' [' + fr(F.rmseaLow) + ', ' + fr(F.rmseaHigh) + ']', fr(F.srmr)]];
+      if (robust) fitRows.push(['MLR (강건)', res.N, f(F.chisqScaled, 2), F.df, fp(F.pScaled), fr(F.cfiRobust), fr(F.tliRobust), fr(F.rmseaRobust) + ' [' + fr(F.rmseaRobustLow) + ', ' + fr(F.rmseaRobustHigh) + ']', fr(F.srmr)]);
+      var html = res.warnings.map(function (w) { return '<div class="warn">' + esc(w) + '</div>'; }).join('') +
+        table(['추정', 'N', 'χ²', 'df', 'p', 'CFI', 'TLI', 'RMSEA [90% CI]', 'SRMR'], fitRows, { left: [0], title: '모형 적합도',
+          note: (robust ? 'MLR 척도화 계수 = ' + F.scalingFactor.toFixed(3) + ' (Yuan-Bentler, Mplus 방식); 강건 CFI·TLI·RMSEA는 Brosseau-Liard와 Savalei의 수정식. ' : '') +
+            'AIC = ' + f(F.aic, 2) + ', BIC = ' + f(F.bic, 2) + ', 자유 모수 = ' + F.npar + '. 흔히 쓰는 기준은 CFI·TLI ≥ .95, RMSEA ≤ .06, SRMR ≤ .08(Hu & Bentler, 1999)이지만 고정 절단값으로 기계적으로 판단하지 않는 것이 권장된다.' });
+      var rowP = function (p, lab) { return [lab, p.free ? f(p.est, 3) : f(p.est, 2) + '<sup>a</sup>', p.free ? f(p.se, 3) : '—', p.free ? f(p.z, 2) : '—', p.free ? fp(p.p) : '—', fr(p.std)]; };
+      var meas = P.filter(function (p) { return p.op === '=~'; });
+      if (meas.length) html += table(['요인 → 지표', 'B', 'SE', 'z', 'p', 'β'], meas.map(function (p) { return rowP(p, esc(p.lhs + ' → ' + p.rhs)); }),
+        { left: [0], title: '측정모형: 요인적재량', note: 'B = 비표준화 추정치, β = 완전표준화 추정치. a 척도 지정을 위해 고정한 모수.' });
+      var regs = P.filter(function (p) { return p.op === '~'; });
+      if (regs.length) html += table(['경로', 'B', 'SE', 'z', 'p', '95% CI', 'β'], regs.map(function (p) {
+        return [esc(p.rhs + ' → ' + p.lhs) + (p.label ? ' <span class="note">(' + esc(p.label) + ')</span>' : ''), f(p.est, 3), f(p.se, 3), f(p.z, 2), fp(p.p), '[' + f(p.ciLow, 3) + ', ' + f(p.ciHigh, 3) + ']', fr(p.std)];
+      }), { left: [0], title: '구조모형: 경로계수' });
+      var covs = P.filter(function (p) { return p.op === '~~' && p.lhs !== p.rhs; });
+      if (covs.length) html += table(['공분산', 'B', 'SE', 'z', 'p', 'r'], covs.map(function (p) { return rowP(p, esc(p.lhs + ' ↔ ' + p.rhs)); }), { left: [0], title: '공분산과 상관', note: 'r은 (잔차) 상관.' });
+      var r2map = {}; res.r2.forEach(function (r) { r2map[r.name] = r.r2; });
+      var vars = P.filter(function (p) { return p.op === '~~' && p.lhs === p.rhs; });
+      html += table(['변수', '(잔차)분산', 'SE', 'p', 'R²'], vars.map(function (p) { return [esc(p.lhs), f(p.est, 3), p.free ? f(p.se, 3) : '—', p.free ? fp(p.p) : '—', r2map[p.lhs] !== undefined ? fr(r2map[p.lhs]) : '—']; }),
+        { left: [0], title: '분산과 설명량 (R²)', note: '외생 잠재변수는 분산, 내생변수는 잔차분산.' });
+      if (res.reliability.length) {
+        var lat = res.model.latents, id = res.model.idx, Sf = res.M.Sf;
+        var corr = function (a, b) { return Sf[id[a]][id[b]] / Math.sqrt(Sf[id[a]][id[a]] * Sf[id[b]][id[b]]); };
+        html += table(['요인', '문항 수', 'CR', 'AVE'].concat(lat.length > 1 ? lat.map(function (_, i) { return String(i + 1); }) : []), res.reliability.map(function (r, a) {
+          return [(a + 1) + '. ' + esc(r.factor), r.k, fr(r.cr), fr(r.ave)].concat(lat.length > 1 ? lat.map(function (b, j) { return j < a ? fr(corr(lat[a], b)) : (j === a ? '<b>' + fr(Math.sqrt(r.ave)) + '</b>' : ''); }) : []);
+        }), { left: [0], title: '집중타당도와 판별타당도', note: 'CR = 개념신뢰도(구성신뢰도), AVE = 평균분산추출. 대각선(굵게)은 √AVE, 아래 삼각은 잠재변수 간 상관(모형 추정). 표준화 적재량으로 계산했으며 교차적재와 오차공분산이 없다고 가정한다. 흔한 기준: CR ≥ .70, AVE ≥ .50, √AVE > 상관(Fornell & Larcker, 1981).' });
+      }
+      if (res.defined) {
+        html += table(['정의 모수', '식', '추정치', 'SE', 'z', 'p', '95% CI (델타)', '95% Boot CI'], res.defined.map(function (d) {
+          return [esc(d.name), '<span class="note">' + esc(d.expr) + '</span>', f(d.est, 3), f(d.se, 3), f(d.z, 2), fp(d.p), '[' + f(d.ciLow, 3) + ', ' + f(d.ciHigh, 3) + ']', '<span class="bootci">계산 중…</span>'];
+        }), { left: [0, 1], title: '간접효과와 정의 모수', note: '델타 방법 표준오차는 ' + (est === 'MLR' ? '강건 공분산행렬' : '기대정보') + '을 사용했다. 간접효과의 유의성은 부트스트랩 구간이 0을 포함하는지로 판단하는 것이 권장된다.' });
+      }
+      html += '<h4>경로도 (완전표준화 추정치)</h4><div class="sem-plot">' + semDiagram(res) + '</div>' +
+        '<p class="note">타원 = 잠재변수, 사각형 = 관측변수, 점선 양방향 화살표 = 공분산. 지표 아래 숫자는 표준화 적재량. 지표 간 잔차공분산은 그림에서 생략했습니다. * p &lt; .05, ** p &lt; .01, *** p &lt; .001.</p>' +
+        '<p class="note">N = ' + res.N + ' (목록별 제거), 추정법 ' + est + ', 반복 ' + res.iterations + '회' + (res.converged ? '' : ' (<b>미수렴</b>)') + '. 추정치·표준오차·적합도는 lavaan 0.6의 sem()/cfa()와 같은 기본값과 공식으로 계산되며, 저장소의 tests/run_tests5.js에서 실제 자료로 대조했습니다.</p>' +
+        rcode('library(lavaan)\nmodel <- \'\n' + syn.trim() + '\n\'\nfit <- sem(model, data = df, estimator = "' + est + '"' + (res.defined ? ', se = "bootstrap", bootstrap = 1000' : '') + ')\nsummary(fit, fit.measures = TRUE, standardized = TRUE)' + (res.defined ? '\nparameterEstimates(fit, boot.ci.type = "perc")' : ''));
+      var card = addCard('구조방정식: ' + (regs.length ? 'SEM' : 'CFA') + ' (' + est + ')', html, res.model.latents.length + '개 잠재변수, ' + res.model.observed.length + '개 관측변수');
+      var nb = Math.max(0, Math.floor(Number($('#nb').value) || 0));
+      if (res.defined && nb) semBootstrap(card, res, nb, Number($('#seed').value) || 1);
+      else $$('.bootci', card).forEach(function (e) { e.textContent = '—'; });
+    }
+  };
+
+  function semBootstrap(card, res, B, seed) {
+    var rand = S.rng(seed), draws = res.defined.map(function () { return []; }), done = 0, ok = 0, cells = $$('.bootci', card), t0 = Date.now();
+    function step() {
+      var until = Date.now() + 120;
+      while (done < B && Date.now() < until) { var o = PsySEM.bootstrapOnce(res, rand); done++; if (o) { ok++; o.defined.forEach(function (v, j) { draws[j].push(v); }); } }
+      cells.forEach(function (c) { c.textContent = done + '/' + B + '…'; });
+      if (done < B) { setTimeout(step, 0); return; }
+      cells.forEach(function (c, j) {
+        var lo = S.quantile(draws[j], 0.025), hi = S.quantile(draws[j], 0.975);
+        c.innerHTML = '[' + f(lo, 3) + ', ' + f(hi, 3) + ']' + (lo > 0 || hi < 0 ? '' : '');
+      });
+      var note = card.querySelectorAll('.apa-note');
+      var defNote = [].filter.call(note, function (n) { return n.textContent.indexOf('델타') >= 0; })[0];
+      if (defNote) defNote.insertAdjacentHTML('beforeend', ' 부트스트랩: ' + ok + '/' + B + '회 수렴, 백분위 구간, 시드 = ' + seed + ' (' + ((Date.now() - t0) / 1000).toFixed(0) + '초).');
+    }
+    setTimeout(step, 30);
+  }
+
   A.alpha = {
     group: '척도', title: '신뢰도 (Cronbach α)',
     desc: 'Cronbach α, 표준화 α, 수정된 문항-총점 상관, 문항 삭제 시 α.',
@@ -1291,7 +1479,7 @@
     $('#runBtn').onclick = function () {
       var btn = $('#runBtn'); btn.disabled = true; btn.textContent = '계산 중…';
       setTimeout(function () {
-        try { an.run(); } catch (e) { errorCard(e); if (window.console) console.error(e); }
+        try { an.run(); } catch (e) { errorCard(e); if (window.console) console.warn(e); }
         btn.disabled = false; btn.textContent = '분석 실행';
         $('#results').scrollTop = 0; window.scrollTo(0, 0);
       }, 20);
@@ -1312,7 +1500,7 @@
   function about() {
     $$('nav.side a').forEach(function (a) { a.classList.toggle('active', a.dataset.id === 'about'); });
     $('#opts').innerHTML = '<h2>도움말</h2><p class="desc">PsyStat은 하나의 HTML 파일로 동작하는 오프라인 통계 도구입니다. 설치가 필요 없고, 외부 서버와 통신하지 않습니다.</p>' +
-      '<p class="desc"><b>검증</b>: 모든 계산은 R 4.x(stats, car, psych, qgraph 1.9.8, glasso)의 결과와 자동 대조되었습니다. 저장소의 tests/run_tests.js·run_tests2.js·run_tests3.js에서 1,780개 이상의 수치를 비교하며, 중요한 결과는 가능하면 SPSS·R로 한 번 더 확인하세요.</p>' +
+      '<p class="desc"><b>검증</b>: 모든 계산은 R 4.x(stats, car, psych, qgraph 1.9.8, glasso)의 결과와 자동 대조되었습니다. 저장소의 tests/tests/ 폴더의 테스트(run_tests 1–5)에서 2,600개 이상의 수치를 비교하며, 중요한 결과는 가능하면 SPSS·R로 한 번 더 확인하세요.</p>' +
       '<p class="desc"><b>결과 내보내기</b>: 각 카드의 [복사] 후 한글·워드에 붙여넣기, 또는 상단 [결과 저장]으로 HTML 파일 저장(워드에서 열 수 있음).</p>';
     var refs = [
       ['Box, G. E. P. (1949). A general distribution theory for a class of likelihood criteria. Biometrika, 36(3/4), 317–346.', 'https://doi.org/10.1093/biomet/36.3-4.317'],
@@ -1323,17 +1511,22 @@
       ['Epskamp, S., Borsboom, D., & Fried, E. I. (2018). Estimating psychological networks and their accuracy: A tutorial paper. Behavior Research Methods, 50(1), 195–212.', 'https://doi.org/10.3758/s13428-017-0862-1'],
       ['Epskamp, S., & Fried, E. I. (2018). A tutorial on regularized partial correlation networks. Psychological Methods, 23(4), 617–634.', 'https://doi.org/10.1037/met0000167'],
       ['Genz, A. (2004). Numerical computation of rectangular bivariate and trivariate normal and t probabilities. Statistics and Computing, 14(3), 251–260.', 'https://doi.org/10.1023/B:STCO.0000035304.20635.31'],
+      ['Brosseau-Liard, P. E., & Savalei, V. (2014). Adjusting incremental fit indices for nonnormality. Multivariate Behavioral Research, 49(5), 460–470.', 'https://doi.org/10.1080/00273171.2014.933697'],
+      ['Brosseau-Liard, P. E., Savalei, V., & Li, L. (2012). An investigation of the sample performance of two nonnormality corrections for RMSEA. Multivariate Behavioral Research, 47(6), 904–930.', 'https://doi.org/10.1080/00273171.2012.715252'],
+      ['Fornell, C., & Larcker, D. F. (1981). Evaluating structural equation models with unobservable variables and measurement error. Journal of Marketing Research, 18(1), 39–50.', 'https://doi.org/10.1177/002224378101800104'],
       ['Foygel, R., & Drton, M. (2010). Extended Bayesian information criteria for Gaussian graphical models. Advances in Neural Information Processing Systems, 23.', 'https://arxiv.org/abs/1011.6640'],
       ['Friedman, J., Hastie, T., & Tibshirani, R. (2008). Sparse inverse covariance estimation with the graphical lasso. Biostatistics, 9(3), 432–441.', 'https://doi.org/10.1093/biostatistics/kxm045'],
       ['Hayes, A. F. (2015). An index and test of linear moderated mediation. Multivariate Behavioral Research, 50(1), 1–22.', 'https://doi.org/10.1080/00273171.2014.962683'],
       ['Hayes, A. F. (2022). Introduction to mediation, moderation, and conditional process analysis (3rd ed.). Guilford Press.', 'https://www.guilford.com/books/Introduction-to-Mediation-Moderation-and-Conditional-Process-Analysis/Andrew-Hayes/9781462549030'],
       ['Higham, N. J. (2002). Computing the nearest correlation matrix—a problem from finance. IMA Journal of Numerical Analysis, 22(3), 329–343.', 'https://doi.org/10.1093/imanum/22.3.329'],
+      ['Hu, L., & Bentler, P. M. (1999). Cutoff criteria for fit indexes in covariance structure analysis. Structural Equation Modeling, 6(1), 1–55.', 'https://doi.org/10.1080/10705519909540118'],
       ['Hosmer, D. W., Lemeshow, S., & Sturdivant, R. X. (2013). Applied logistic regression (3rd ed.). Wiley.', 'https://doi.org/10.1002/9781118548387'],
       ['Lakens, D. (2013). Calculating and reporting effect sizes to facilitate cumulative science. Frontiers in Psychology, 4, 863.', 'https://doi.org/10.3389/fpsyg.2013.00863'],
       ['McNeish, D. (2018). Thanks coefficient alpha, we’ll take it from here. Psychological Methods, 23(3), 412–433.', 'https://doi.org/10.1037/met0000144'],
       ['Olsson, U. (1979). Maximum likelihood estimation of the polychoric correlation coefficient. Psychometrika, 44(4), 443–460.', 'https://doi.org/10.1007/BF02296207'],
       ['Preacher, K. J., & Hayes, A. F. (2008). Asymptotic and resampling strategies for assessing and comparing indirect effects in multiple mediator models. Behavior Research Methods, 40(3), 879–891.', 'https://doi.org/10.3758/BRM.40.3.879'],
       ['Rosseel, Y. (2012). lavaan: An R package for structural equation modeling. Journal of Statistical Software, 48(2), 1–36.', 'https://doi.org/10.18637/jss.v048.i02'],
+      ['Yuan, K.-H., & Bentler, P. M. (2000). Three likelihood-based methods for mean and covariance structure analysis with nonnormal missing data. Sociological Methodology, 30(1), 165–200.', 'https://doi.org/10.1111/0081-1750.00078'],
       ['Royston, P. (1995). Remark AS R94: A remark on algorithm AS 181: The W-test for normality. Applied Statistics, 44(4), 547–551.', 'https://doi.org/10.2307/2986146'],
       ['Tabachnick, B. G., & Fidell, L. S. (2019). Using multivariate statistics (7th ed.). Pearson.', 'https://www.pearson.com/en-us/subject-catalog/p/using-multivariate-statistics/P200000003097'],
       ['West, S. G., Finch, J. F., & Curran, P. J. (1995). Structural equation models with nonnormal variables. In R. H. Hoyle (Ed.), Structural equation modeling (pp. 56–75). Sage.', 'https://psycnet.apa.org/record/1995-97753-004'],

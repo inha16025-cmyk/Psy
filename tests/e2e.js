@@ -147,6 +147,30 @@ const ref = require('./reference.json');
   const cn = await page.evaluate(() => document.querySelector('#results .card .apa-note').innerHTML);
   check('상관표 주석 (*p < .05)', cn.includes('<i>p</i> &lt; .05'), cn);
 
+  // 구조방정식: 예시 자료로 잠재 매개 틀 + 부트스트랩
+  await nav('sem'); await page.click('#tplMed');
+  await page.fill('#syn', 'X =~ 우울1 + 우울2 + 우울3\nM =~ 불안1 + 불안2 + 불안3\nY ~ b*M + c*X\nM ~ a*X\nY =~ 수면 + 스트레스 + 사회적지지\nind := a*b');
+  await page.fill('#nb', '200'); await run();
+  await page.waitForFunction(() => { const c = document.querySelector('#results .card .bootci'); return c && c.textContent.startsWith('['); }, null, { timeout: 120000 });
+  const sm = await lastCard();
+  check('SEM 잠재 매개 + 부트스트랩', sm.includes('모형 적합도') && sm.includes('측정모형') && sm.includes('경로계수') && sm.includes('ind') && sm.includes('CR'));
+  check('SEM 경로도', await page.locator('#results .card .sem-plot svg ellipse').count() === 3);
+  await page.locator('#results .card').first().screenshot({ path: path.join(outDir, '10_sem.png') });
+
+  // 실제 자료(HolzingerSwineford1939) CFA: 화면 χ² = lavaan
+  const H = require('./reference5.json').hs;
+  const hk = Object.keys(H.data);
+  const htsv = [hk.join('\t')].concat(H.data[hk[0]].map((_, r) => hk.map(k => H.data[k][r]).join('\t'))).join('\n');
+  await nav('data'); await page.fill('#pastebox', htsv); await page.click('#pasteGo');
+  await nav('sem'); await page.fill('#syn', H.cfa.model); await page.check('input[name=est][value=MLR]'); await run();
+  const hc = await lastCard();
+  const chiML = H.cfa.mlr.fit.chisq.toFixed(2), chiS = H.cfa.mlr.fit['chisq.scaled'].toFixed(2), cfiR = H.cfa.mlr.fit['cfi.robust'].toFixed(3).replace(/^0/, '');
+  check('HS CFA 화면값 = lavaan (χ², 척도화 χ², 강건 CFI)', hc.includes(chiML) && hc.includes(chiS) && hc.includes(cfiR), chiML + ' / ' + chiS + ' / ' + cfiR);
+  // 문법 오류 메시지
+  await nav('sem'); await page.fill('#syn', 'F1 =~ x1 + 없는변수'); await run();
+  check('SEM 문법 오류 안내', (await lastCard()).includes('자료에 없습니다'));
+  await page.locator('#results .card').first().locator('[data-act=del]').click();
+
   // 실제 데이터(bfi) 붙여넣기 → 네트워크 결과가 qgraph와 같은지 화면 경로로 확인
   const N = ref.network, items = Object.keys(N.data);
   const tsv = [items.join('\t')].concat(N.data[items[0]].map((_, r) => items.map(k => N.data[k][r]).join('\t'))).join('\n');
@@ -183,7 +207,7 @@ const ref = require('./reference.json');
 
   check('JS 오류 없음', errors.length === 0, errors.join(' | '));
   check('외부 네트워크 요청 없음', requests.length === 0, requests.join(' '));
-  const errCards = await page.locator('#results .card h3', { hasText: '오류' }).count();
+  const errCards = await page.locator('#results .card h3', { hasText: '오류' }).count(); // 의도한 문법 오류 카드는 위에서 삭제함
   check('오류 카드 없음', errCards === 0);
   await browser.close();
   console.log(fails ? `\n${fails}개 실패` : '\n모든 E2E 테스트 통과');

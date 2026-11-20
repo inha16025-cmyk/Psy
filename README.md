@@ -1,7 +1,7 @@
 # PsyStat — 폐쇄망용 단일 파일 통계 도구
 
 **`dist/PsyStat.html` 파일 하나**를 브라우저(Chrome/Edge)로 열면 바로 동작합니다.
-설치·인터넷·관리자 권한이 필요 없고, 크기는 약 215 KB입니다.
+설치·인터넷·관리자 권한이 필요 없고, 크기는 약 260 KB입니다.
 
 ## 보안 담당자 검토용 요약
 
@@ -22,6 +22,7 @@
 | **매개·조절** | 조절(PROCESS Model 1): 평균중심화, 상호작용 ΔR², 단순기울기(±1SD 또는 16·50·84 백분위), Johnson-Neyman 구간, 상호작용 그림; 매개(PROCESS Model 4, 병렬 매개 가능): a·b·c·c′, 부트스트랩 간접효과 CI(기본 5,000회, 시드 고정), 완전표준화 간접효과, Sobel, 경로 그림 |
 | **조건부 과정 모형** | PROCESS Model 6(순차 매개, 매개변수 2–4개, 모든 경로 간접효과·총효과 분해), Model 7·8(W가 a 경로 / + 직접효과 조절), Model 14·15(W가 b 경로 / + 직접효과 조절); 병렬 매개변수 여러 개, 조절된 매개 지수, W 수준별 조건부 간접·직접효과, 부트스트랩 CI, 개념 모형 그림 |
 | **다변량** | 일원 MANOVA(Pillai·Wilks·Hotelling·Roy, 다변량 부분 η², Box의 M, 후속 단변량 ANOVA와 Bonferroni 기준); 선형판별분석(고유값, 정준상관, 순차 Wilks Λ, 표준화 계수, 구조행렬, 집단 중심, Fisher 분류함수, 분류표, 하나씩 빼기 교차타당화, 판별점수 그림) |
+| **구조방정식** | lavaan 문법(`=~`, `~`, `~~`, 라벨, `:=`, `NA*`, 고정값)으로 CFA·완전 SEM·잠재변수 매개; lavaan `sem()`/`cfa()`와 같은 기본값(첫 적재량 고정, fixed.x, 외생 잠재변수 공분산, 순수 결과변수 잔차공분산); ML(기대정보 SE)·MLR(Huber-White 샌드위치 SE, Yuan-Bentler Mplus 척도화 χ², 강건 CFI·TLI·RMSEA); χ², CFI, TLI, RMSEA [90% CI], SRMR, AIC, BIC; 완전표준화 추정치, R², CR·AVE·Fornell-Larcker 표; 정의 모수의 델타 방법 SE와 부트스트랩 백분위 CI; 경로도 |
 | 척도 | Cronbach α, 표준화 α, 수정된 문항-총점 r, 문항 삭제 시 α, 역채점 |
 | **네트워크** | EBICglasso(qgraph와 같은 절차, threshold 옵션, 상관 기본값 = cor_auto; 비양정치면 nearPD 자동 보정), 편상관 네트워크(+유의성 필터, 예측력), 강도·근접·매개·기대영향 중심성, 네트워크 그림(SVG/PNG 저장), **엣지 부트스트랩·사례 제거 부트스트랩(CS 계수)** |
 
@@ -41,10 +42,12 @@ Rscript tests/make_reference3.R  # 기준값 3 (조건부 과정 모형, lm + �
 node tests/run_tests3.js         # 123개 수치 대조
 Rscript tests/make_reference4.R  # 기준값 4 (MANOVA, Box의 M, MASS::lda)
 node tests/run_tests4.js         # 221개 수치 대조
+Rscript tests/make_reference5.R  # 기준값 5 (lavaan 0.6-17: CFA·SEM, ML·MLR, 부트스트랩)
+node tests/run_tests5.js         # 603개 수치 대조
 node tests/e2e.js                # 실제 브라우저(Chromium)에서 전체 화면 흐름 테스트
 ```
 
-R과의 최대 상대오차(2026-11-19 실행 결과, 네 테스트 묶음 합산 2,005개 항목):
+R과의 최대 상대오차(2026-11-19 실행 결과, 다섯 테스트 묶음 합산 2,608개 항목):
 
 | 분석 | 최대 상대오차 |
 |---|---|
@@ -71,14 +74,20 @@ R과의 최대 상대오차(2026-11-19 실행 결과, 네 테스트 묶음 합�
 | MANOVA 4개 검정 통계량·근사 F·df (summary.manova), 단변량 F | 8e-15 |
 | Box의 M과 χ² 근사 (공식 직접 계산; Python pingouin.box_m과도 일치) | 2e-15 |
 | 판별분석: 계수(MASS::lda scaling), 고유값, 정준상관, 사후확률, 분류, 교차타당화 분류표 | 3e-14 |
+| SEM: 추정치·표준오차(ML, MLR)·표준화 추정치·정의 모수 (lavaan, HolzingerSwineford1939 CFA·SEM) | 1e-6 |
+| SEM: χ², CFI, TLI, RMSEA·CI·p-close, SRMR, AIC, BIC, 척도화 χ², 강건 CFI·TLI·RMSEA | 1e-6 |
+| SEM: PoliticalDemocracy(동일성 제약·잔차공분산) | 8e-5 (아래 주) |
+| SEM: 정의 모수 부트스트랩 CI (lavaan 2,000회와 비교, 절대오차) | 5e-3 |
 
-네트워크·다분상관 검증에는 실제 공개 자료인 `psychTools::bfi`(Revelle)를, 판별분석·MANOVA 검증에는 실제 자료인 Fisher의 `iris`를 사용했습니다. 나머지 검증 자료는 R로 만든 **가상(시뮬레이션) 자료**입니다. 프로그램 안의 [예시 데이터]도 가상 자료입니다.
+네트워크·다분상관 검증에는 실제 공개 자료인 `psychTools::bfi`(Revelle)를, 판별분석·MANOVA 검증에는 Fisher의 `iris`를, 구조방정식 검증에는 lavaan에 내장된 `HolzingerSwineford1939`와 `PoliticalDemocracy`(Bollen, 1989)를 사용했습니다. 나머지 검증 자료는 R로 만든 **가상(시뮬레이션) 자료**입니다. 프로그램 안의 [예시 데이터]도 가상 자료입니다.
 
 ## 알려진 한계 (정직한 고지)
 
 - Box의 M F 근사는 Box(1949)의 공식으로 구현했으며, χ² 근사만 외부 구현(pingouin)과 교차검증했습니다.
 - APA 표 제목은 APA 7판처럼 기울임으로 표시합니다. 투고할 학술지(예: 한국심리학회지)의 세부 지침이 다르면 붙여넣은 뒤 조정하세요. 표 번호는 카드마다 1부터 매겨지고, [결과 저장] 파일에서는 전체 순서로 다시 매겨집니다.
-- 아직 없는 분석: 구조방정식·요인분석(EFA/CFA), 다원(요인설계) MANOVA·MANCOVA, McDonald ω, 반복측정·이원 ANOVA, 다항·순서형 로지스틱.
+- PoliticalDemocracy 모형의 일부 잔차공분산은 목적함수가 매우 평평해 lavaan 기본 수렴기준이 조금 일찍 멈춥니다. PsyStat의 χ²(40.17948949)가 lavaan(40.17948953)보다 작아 PsyStat 쪽이 최소점에 더 가깝고, 이 모형만 허용오차를 2e-4로 두었습니다.
+- 구조방정식의 제약: 결측은 목록별 제거(FIML 없음), 절편·평균구조와 다집단(측정동일성) 없음, 순서형(WLSMV) 추정 없음, 2차 요인은 문법상 가능하지만 별도 검증은 하지 않았습니다.
+- 아직 없는 분석: 탐색적 요인분석(EFA), 측정동일성, 다원(요인설계) MANOVA·MANCOVA, McDonald ω, 반복측정·이원 ANOVA, 다항·순서형 로지스틱.
 - 조건부 과정 모형은 6·7·8·14·15번만 지원합니다(이중 조절 Model 9·16, 조절된 순차 매개 Model 83–92 등은 없음). 다범주 X·W(3개 이상 집단)는 아직 지원하지 않습니다.
 - 다분상관 표에는 유의확률을 제시하지 않습니다(점추정만).
 - 조절·매개의 표준오차는 PROCESS 기본값과 같은 OLS 표준오차입니다(HC3 같은 이분산 일치 SE는 아직 없음).
