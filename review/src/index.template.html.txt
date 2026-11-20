@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; form-action 'none'">
+<title>PsyStat</title>
+<style id="appcss">/*__CSS__*/</style>
+</head>
+<body>
+<div id="jsfail" style="margin:16px;padding:16px 18px;border:2px solid #c8372d;border-radius:8px;background:#fff6f5;color:#1d2433;font-size:14px;line-height:1.6;max-width:900px">
+  <b style="font-size:16px">PsyStat의 스크립트가 실행되지 않았습니다.</b><br>
+  이 상자가 보이면 HTML은 열렸지만 계산 코드(JavaScript)가 동작하지 않은 것입니다. 다음을 순서대로 확인해 주세요.
+  <ol style="margin:8px 0 0 18px;padding:0">
+    <li><b>파일 크기</b>: 파일 속성에서 크기가 약 <b>__BYTES__바이트</b>인지 확인하세요. 훨씬 작다면 자료 전송(망연계) 과정에서 보안 프로그램이 스크립트를 제거한 것입니다. 보안 담당자에게 이 파일의 반입 예외(스크립트 포함 HTML) 승인을 요청하세요. 원본 SHA-256: <code style="font-size:12px;word-break:break-all">__SHA__</code></li>
+    <li><b>브라우저 정책</b>: 기관 정책으로 로컬 파일(file://)의 JavaScript가 차단되었을 수 있습니다. Chrome이 있다면 Chrome으로 열어 보고, 같은 증상이면 전산 담당자에게 문의하세요.</li>
+    <li><b>문서 보안(DRM) 뷰어</b>: 탐색기에서 파일을 더블클릭했을 때 일반 브라우저가 아닌 보안 뷰어로 열리면 스크립트가 꺼져 있을 수 있습니다.</li>
+  </ol>
+  <div id="jserr" style="display:none;margin-top:10px;padding:8px;background:#fff;border:1px solid #e3b4b0;font-family:monospace;font-size:12px;white-space:pre-wrap"></div>
+</div>
+<script>
+// 이 줄이 실행되면 스크립트는 허용된 것: 안내 상자를 숨기고, 이후 오류는 화면에 표시
+(function () {
+  var box = document.getElementById('jsfail'); box.style.display = 'none';
+  window.__psyErrors = [];
+  window.onerror = function (msg, src, line, col) {
+    window.__psyErrors.push(msg);
+    box.style.display = '';
+    box.firstElementChild.textContent = 'PsyStat 실행 중 오류가 발생했습니다. 아래 내용을 캡처해 보내 주세요.';
+    var e = document.getElementById('jserr'); e.style.display = '';
+    e.textContent += msg + ' (줄 ' + line + ':' + col + ')\n브라우저: ' + navigator.userAgent + '\n';
+  };
+})();
+</script>
+<header class="top">
+  <h1>PsyStat <small>오프라인 통계 · v__VERSION__</small></h1>
+  <button class="btn" id="openBtn">파일 열기 (CSV·XLSX)</button>
+  <button class="btn" id="exBtn">예시 데이터</button>
+  <input type="file" id="file" accept=".csv,.txt,.tsv,.xlsx" style="display:none">
+  <span class="datainfo" id="datainfo"></span>
+  <span class="spacer"></span>
+  <button class="btn" id="saveBtn">결과 저장</button>
+  <button class="btn" id="clearBtn">결과 지우기</button>
+  <button class="btn" id="themeBtn" title="밝게/어둡게">◐</button>
+</header>
+<div class="layout">
+  <nav class="side" id="nav"></nav>
+  <section class="opts" id="opts"></section>
+  <main class="results" id="results"></main>
+</div>
+<script>/*__STATS__*/</script>
+<script>/*__SEM__*/</script>
+<script>/*__APP__*/</script>
+</body>
+</html>

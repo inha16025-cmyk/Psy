@@ -1,0 +1,105 @@
+PsyStat 검토 안내문 (내부망 보안·오픈소스 검토용)
+====================================================
+
+작성일: 2026-11-20 / 버전: 0.5.1
+작성: 사용자 요청으로 AI 코딩 도우미(Claude)가 작성. 아래 사실관계는 코드 검색 결과에 근거함.
+
+
+1. 무엇인가
+-----------
+- 심리학 연구용 통계 프로그램. 웹 브라우저(Chrome/Edge)에서 여는 HTML 파일 1개로 동작한다.
+- 설치, 관리자 권한, 인터넷 연결이 필요 없다. 별도 실행 파일(.exe 등)이 없다.
+- 분석: 기술통계, t검정, 분산분석, 상관(다분상관 포함), 교차분석, 선형·로지스틱·위계적 회귀,
+  조절·매개(PROCESS 방식), MANOVA, 판별분석, 신뢰도, 네트워크 분석, 구조방정식(CFA/SEM).
+
+
+2. 파일 구성
+-----------
+  PsyStat.html.txt          실제 사용할 파일. 확장자만 .txt로 바꾼 것으로 내용은 바이트 단위로 동일.
+                            (검토·승인 후 이름을 PsyStat.html로 바꾸면 그대로 실행됨)
+  src/stats.js.txt          통계 계산 엔진 (1,790줄)
+  src/sem.js.txt            구조방정식 엔진 (506줄)
+  src/app.js.txt            화면(UI) 코드 (1,569줄)
+  src/style.css.txt         화면 서식 (102줄)
+  src/index.template.html.txt  HTML 틀 (55줄)
+  src/build.js.txt          위 파일들을 하나의 HTML로 합치는 스크립트 (26줄, Node.js용; 내부망 실행 불필요)
+  SHA256SUMS.txt            각 파일의 SHA-256 해시
+
+  PsyStat.html.txt = index.template.html 안에 style.css, stats.js, sem.js, app.js를 그대로 끼워 넣은 것이다.
+  코드는 압축·난독화하지 않았다.
+
+
+3. 보안 관련 사실 (코드 전체 문자열 검색 결과)
+---------------------------------------------
+  [사용하지 않음: 검색 결과 0건]
+  fetch, XMLHttpRequest, WebSocket, EventSource, navigator.sendBeacon, postMessage,
+  eval, new Function, Worker, importScripts, document.cookie, indexedDB, sessionStorage,
+  window.open, <iframe>, <img>(외부 이미지)
+
+  [외부 통신 원천 차단]
+  HTML 머리에 다음 Content-Security-Policy가 있다. 브라우저가 이 파일의 모든 네트워크 요청을 차단한다.
+    default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline';
+    img-src data: blob:; connect-src 'none'; form-action 'none'
+  ('unsafe-inline'은 스크립트가 파일 내부에 있기 때문에 필요하다. 외부 스크립트는 불러올 수 없다.)
+
+  [파일에 들어 있는 URL 문자열 36개: 모두 요청을 일으키지 않음]
+  - 참고문헌 DOI 등 28개: 화면에 글자로만 표시하고 링크(<a href>)로 만들지 않았다.
+  - http://www.w3.org/2000/svg 7개: SVG 그림의 표준 네임스페이스 식별자(통신 아님).
+  - http://schemas.openxmlformats.org/... 1개: 엑셀(xlsx) 파일 구조를 읽기 위한 네임스페이스 식별자(통신 아님).
+
+  [사용하는 브라우저 기능]
+  - localStorage: 1곳. 구조방정식 화면에 입력한 "모형 문법 텍스트"만 저장해 다음에 다시 보여준다.
+    분석 자료(데이터)는 저장하지 않는다. (src/app.js.txt 1130, 1143행)
+  - document.execCommand('copy'): 사용자가 [복사] 버튼을 눌렀을 때 결과표를 클립보드에 넣는다.
+  - URL.createObjectURL(Blob): 사용자가 [결과 저장]·[그림 저장]을 눌렀을 때 PC에 파일로 내려받게 한다.
+  - FileReader: 사용자가 직접 고른 CSV/XLSX 파일만 읽는다.
+
+  [자료의 흐름]
+  사용자가 고른 파일 또는 붙여넣은 자료 → 브라우저 탭 메모리에서 계산 → 화면 표시.
+  탭을 닫으면 자료는 사라진다. 외부 전송 경로는 없다.
+
+
+4. 오픈소스·저작권 관련 고지 (검토 요청)
+--------------------------------------
+  외부 라이브러리를 포함하지 않으며, 코드는 이 프로젝트를 위해 새로 작성했다.
+  다만 다음 부분은 기존 공개 코드나 알고리즘을 따랐으므로 검토자의 판단이 필요하다.
+
+  (1) R 소스에서 이식한 부분 (R은 GPL-2 이상)
+      - 스튜던트화 범위 분포 ptukey/wprob (Tukey, Games-Howell 사후검정용):
+        R의 src/nmath/ptukey.c를 JavaScript로 거의 그대로 옮김
+        (원 알고리즘: Copenhaver & Holland, 1988; Lund & Lund, 1983 AS 190).
+      - Shapiro-Wilk 검정: R의 src/library/stats/src/swilk.c의 계수와 절차를 따름
+        (원 알고리즘: Royston, 1995, Applied Statistics AS R94).
+      ※ GPL의 의무(소스 공개 등)는 일반적으로 "배포"할 때 생긴다. 기관 내부에서만 사용하면 문제가 되지 않는
+        경우가 많지만, 최종 판단은 기관 정책과 검토자에 따른다. 필요하면 이 두 부분을 논문 원문에 근거한
+        독자 구현으로 바꾸거나, 해당 기능(Tukey·Games-Howell 사후검정, Shapiro-Wilk)을 빼고 쓸 수 있다.
+
+  (2) 저자 공개 코드의 절차를 따른 부분
+      - 이변량 정규분포 누적확률(bvnu): Alan Genz의 공개 알고리즘(Genz, 2004)을 따름.
+        Genz 교수의 공개 코드는 BSD 유사 허가로 배포되는 것으로 알려져 있으나, 원문 고지 필요 여부는 확인 요망.
+
+  (3) 논문이나 교과서의 표준 알고리즘을 참고해 새로 작성한 부분
+      - 불완전 베타·감마 함수(연분수 전개, Lentz 방법), Lanczos 감마 근사, Acklam 정규분위수 근사,
+        Brent 1차원 최적화, 그래피컬 라쏘(Friedman et al., 2008), 최근접 양정치 행렬(Higham, 2002),
+        구조방정식 Fisher scoring 등.
+      - 연분수 함수들은 Numerical Recipes에 소개된 표준 기법과 구조가 비슷하다. 코드를 복사하지는 않았다.
+
+  (4) R 패키지와 결과를 맞춘 부분
+      - qgraph, lavaan, psych 등과 "같은 결과"가 나오도록 계산 규칙을 맞췄다. 이 패키지들의 코드를 포함하지는
+        않았다(동작 확인과 수치 대조에만 사용).
+
+  이 프로젝트 자체에는 아직 라이선스 파일이 없다(개인 연구용).
+
+
+5. 정확성 검증
+-------------
+  외부망 개발 환경에서 R 4.x(stats, car, psych, MASS, qgraph, glasso, lavaan 0.6-17)와
+  Python(scipy, pingouin) 결과와 2,608개 수치를 자동 대조해 모두 일치했다(허용오차 내).
+  검증 스크립트는 저장소 tests/ 폴더에 있다(이 묶음에는 포함하지 않음).
+
+
+6. 반입 후 확인 방법
+------------------
+  - Windows 명령 프롬프트: certutil -hashfile PsyStat.html.txt SHA256
+    → SHA256SUMS.txt의 값과 같아야 한다. 이름을 .html로 바꿔도 해시는 같다.
+  - 브라우저에서 열었을 때 빨간 안내 상자("스크립트가 실행되지 않았습니다")가 보이면 스크립트가 차단된 것이다.
