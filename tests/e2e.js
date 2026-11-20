@@ -14,7 +14,7 @@ const ref = require('./reference.json');
   page.on('pageerror', e => errors.push(String(e)));
   page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   page.on('request', r => { if (!r.url().startsWith('file:') && !r.url().startsWith('data:') && !r.url().startsWith('blob:')) requests.push(r.url()); });
-  await page.goto('file://' + path.join(__dirname, '..', 'dist', 'PsyStat.html'));
+  await page.goto('file://' + (process.env.PSY_HTML || path.join(__dirname, '..', 'dist', 'PsyStat.html')));
   let fails = 0;
   const check = (name, cond, extra) => { console.log((cond ? 'ok  ' : 'FAIL') + ' ' + name + (extra ? ' ' + extra : '')); if (!cond) fails++; };
 

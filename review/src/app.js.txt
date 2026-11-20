@@ -1,6 +1,7 @@
 /* PsyStat 화면(UI) 코드 — 외부 통신 없음 */
 (function () {
   'use strict';
+  if (window.__psyEngineMissing || !window.PsyStats) return; // 계산 엔진이 없으면 화면을 시작하지 않음 (안내 상자 표시)
   var S = window.PsyStats;
   var state = { names: [], cols: [], types: [], nrows: 0, fileName: '' };
   var current = 'data';

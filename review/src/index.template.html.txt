@@ -12,7 +12,7 @@
   <b style="font-size:16px">PsyStat의 스크립트가 실행되지 않았습니다.</b><br>
   이 상자가 보이면 HTML은 열렸지만 계산 코드(JavaScript)가 동작하지 않은 것입니다. 다음을 순서대로 확인해 주세요.
   <ol style="margin:8px 0 0 18px;padding:0">
-    <li><b>파일 크기</b>: 파일 속성에서 크기가 약 <b>__BYTES__바이트</b>인지 확인하세요. 훨씬 작다면 자료 전송(망연계) 과정에서 보안 프로그램이 스크립트를 제거한 것입니다. 보안 담당자에게 이 파일의 반입 예외(스크립트 포함 HTML) 승인을 요청하세요. 원본 SHA-256: <code style="font-size:12px;word-break:break-all">__SHA__</code></li>
+    <li><b>파일 크기</b>: 파일 속성에서 크기가 약 <b>__BYTES__바이트</b>__SIZENOTE__인지 확인하세요. 훨씬 작다면 자료 전송(망연계) 과정에서 보안 프로그램이 스크립트를 제거한 것입니다. 보안 담당자에게 이 파일의 반입 예외(스크립트 포함 HTML) 승인을 요청하세요. 원본 SHA-256: <code style="font-size:12px;word-break:break-all">__SHA__</code></li>
     <li><b>브라우저 정책</b>: 기관 정책으로 로컬 파일(file://)의 JavaScript가 차단되었을 수 있습니다. Chrome이 있다면 Chrome으로 열어 보고, 같은 증상이면 전산 담당자에게 문의하세요.</li>
     <li><b>문서 보안(DRM) 뷰어</b>: 탐색기에서 파일을 더블클릭했을 때 일반 브라우저가 아닌 보안 뷰어로 열리면 스크립트가 꺼져 있을 수 있습니다.</li>
   </ol>
@@ -26,6 +26,7 @@
   window.onerror = function (msg, src, line, col) {
     window.__psyErrors.push(msg);
     box.style.display = '';
+    if (window.__psyEngineMissing) return; // 엔진 누락 안내를 덮어쓰지 않음
     box.firstElementChild.textContent = 'PsyStat 실행 중 오류가 발생했습니다. 아래 내용을 캡처해 보내 주세요.';
     var e = document.getElementById('jserr'); e.style.display = '';
     e.textContent += msg + ' (줄 ' + line + ':' + col + ')\n브라우저: ' + navigator.userAgent + '\n';

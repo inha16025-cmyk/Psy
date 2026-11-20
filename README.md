@@ -3,12 +3,21 @@
 **`dist/PsyStat.html` 파일 하나**를 브라우저(Chrome/Edge)로 열면 바로 동작합니다.
 설치·인터넷·관리자 권한이 필요 없고, 크기는 약 260 KB입니다.
 
+## 두 가지 배포 형태
+
+| 형태 | 파일 | 언제 |
+|---|---|---|
+| 단일 파일판 | `dist/PsyStat.html` (약 289KB) | 파일 하나만 옮기면 될 때 |
+| **분할판** | `dist/split/PsyStat.html` (약 161KB) + `dist/split/PsyStat-engine.js` (약 129KB) | 자료 전송 시스템이 큰 파일을 자를 때. **두 파일을 같은 폴더에** 두고 HTML을 엽니다 |
+
+기능과 코드는 같습니다. 분할판은 같은 폴더의 엔진 파일을 읽도록 CSP에 `'self'`만 추가했고, `connect-src 'none'`은 그대로여서 네트워크 통신은 계속 차단됩니다. 엔진 파일이 없거나 잘리면 화면에 그 사실을 알려 줍니다.
+
 ## 보안 담당자 검토용 요약
 
 - **외부 통신 없음**: HTML 안에 Content-Security-Policy `connect-src 'none'`가 걸려 있어, 브라우저가 모든 네트워크 요청을 차단합니다. 외부 스크립트·폰트·이미지도 불러오지 않습니다.
 - **자료가 밖으로 나가지 않음**: 자료는 열어 둔 브라우저 탭의 메모리에만 있습니다. 탭을 닫으면 사라지고, 저장소(localStorage, 쿠키)도 쓰지 않습니다.
 - **소스 전체 열람 가능**: 난독화하거나 압축(minify)하지 않은 JavaScript입니다(`src/` 폴더에 있는 내용과 같음).
-- **무결성 확인**: `dist/PsyStat.html.sha256`에 해시가 있습니다. 반입 후 Windows에서 `certutil -hashfile PsyStat.html SHA256`로 대조하세요.
+- **무결성 확인**: `dist/SHA256SUMS.txt`에 해시가 있습니다. 반입 후 Windows에서 `certutil -hashfile PsyStat.html SHA256`로 대조하세요.
 
 ## 기능
 
