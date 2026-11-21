@@ -314,13 +314,14 @@ lines = [
     ('p', '범주형 = 집단 비교(실험/통제 등) · 순차형 = 점수 크기, 빈도 · 발산형 = 변화량처럼 0을 중심으로 +/− 가 있는 값'),
     ('s', '2. 차트 하나에 색 넣기 (가장 기본)'),
     ('p', '차트의 막대(계열)를 클릭 → 우클릭 "데이터 계열 서식" → 채우기 → 색 → "다른 색" → "사용자 지정" 탭 → 빨강/녹색/파랑에 R, G, B 값 입력.'),
-    ('p', 'Microsoft 365 / Excel 2021 이상은 같은 창에 "16진수" 칸이 있어 HEX(#빼고 6자리)를 바로 붙여넣을 수 있습니다.'),
+    ('p', 'Excel 2016/2019(설치형)에는 HEX 입력칸이 없으니 R, G, B 숫자를 넣으세요. (Microsoft 365 등 최신판에는 "16진수" 칸이 있습니다.)'),
     ('s', '3. 한 번 만든 차트를 서식으로 저장 (다음부터 한 번에)'),
     ('p', '색을 다 입힌 차트를 우클릭 → "서식 파일로 저장" → 이름 지정(.crtx). 다음에 새 차트를 만들 때 차트 삽입 → "모든 차트" → "서식 파일"에서 고르면 색이 그대로 적용됩니다.'),
     ('s', '4. 회사 파일 전체의 기본 차트 색을 바꾸기 (테마 색) ★ 추천'),
     ('p', '페이지 레이아웃 탭 → 색 → "색 사용자 지정" → "강조 1"~"강조 6"에 팔레트 색 1~6을 입력 → 이름 저장.'),
     ('p', '이후 이 통합문서에서 새로 만드는 모든 차트가 자동으로 이 색 순서로 그려집니다. 저장한 테마 색은 같은 PC의 PowerPoint·Word에서도 고를 수 있습니다.'),
     ('p', '(테마 색은 6개까지라, 7–8색 팔레트는 7번째부터는 2번 방식으로 직접 입력하세요.)'),
+    ('p', '→ 랜덤으로 뽑은 팔레트를 테마 파일로 바로 만들거나, 미리 만든 테마 묶음을 설치하는 방법은 "테마색" 시트에 있습니다.'),
     ('s', '5. 학위논문·투고용 체크'),
     ('p', '· 흑백 인쇄 줄에서 색끼리 회색 농도가 겹치면, 막대에 무늬(패턴 채우기)나 선 모양(실선/점선)을 함께 쓰세요.'),
     ('p', '· 색만으로 정보를 구분하지 않도록 범례 외에 직접 라벨을 붙이는 것도 좋습니다.'),
@@ -339,6 +340,83 @@ for i, (kind, t) in enumerate(lines, 1):
     c = hw.cell(row=i + (0 if i == 1 else 1), column=2, value=t)
     c.alignment = Alignment(wrap_text=True, vertical='top')
     c.font = {'h': f(size=16, bold=True, color=INK), 's': f(size=11, bold=True, color=ACC), 'p': f(size=10, color=INK)}[kind]
+
+
+# == Theme colors: ready-made pack + live XML from the random sheet ==
+import zipfile
+def theme_xml(name, cols6):
+    acc = ''.join(f"<a:accent{i+1}><a:srgbClr val='{h}'/></a:accent{i+1}>" for i, h in enumerate(cols6))
+    return ("<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"
+            f"<a:clrScheme xmlns:a='http://schemas.openxmlformats.org/drawingml/2006/main' name='{name}'>"
+            "<a:dk1><a:sysClr val='windowText' lastClr='000000'/></a:dk1><a:lt1><a:sysClr val='window' lastClr='FFFFFF'/></a:lt1>"
+            "<a:dk2><a:srgbClr val='44546A'/></a:dk2><a:lt2><a:srgbClr val='E7E6E6'/></a:lt2>"
+            f"{acc}<a:hlink><a:srgbClr val='0563C1'/></a:hlink><a:folHlink><a:srgbClr val='954F72'/></a:folHlink></a:clrScheme>")
+
+pack = [('CP 01 Okabe-Ito', ['E69F00', '56B4E9', '009E73', 'F0E442', '0072B2', 'D55E00'], 'Okabe & Ito (2008) 색맹 친화 표준')]
+cat6 = [p_ for p_ in pals if p_[0] == '범주형-6']
+for mood in [m[0] for m in MOODS]:
+    cands = [p_ for p_ in cat6 if p_[4] == mood]
+    best = max(cands, key=lambda p_: min(min_dist(p_[5], 'none'), min_dist(p_[5], 'deutan')))
+    pack.append((f'CP {len(pack)+1:02d} {mood}', best[5], f'범주형 · {mood} (목록 범주형-6 #{best[3]})'))
+for key, desc in (('순차형-6', '순차형 (누적 막대·단계 비교용)'), ('발산형-6', '발산형 (증감·찬반 비교용)')):
+    for p_ in [x for x in pals if x[0] == key][:2]:
+        pack.append((f'CP {len(pack)+1:02d} {key.split("-")[0]}{p_[3]}', p_[5], f'{desc} (목록 {key} #{p_[3]})'))
+
+ASCII = {'Okabe-Ito': 'okabe-ito', '균형': 'balanced', '학술지': 'academic', '선명': 'vivid', '파스텔': 'pastel', '유사색': 'analogous', '보색': 'complementary', '순차형1': 'sequential1', '순차형2': 'sequential2', '발산형1': 'diverging1', '발산형2': 'diverging2'}
+zpath = os.path.join(os.path.dirname(os.path.abspath(__file__)), '테마색_팩.zip')
+with zipfile.ZipFile(zpath, 'w', zipfile.ZIP_DEFLATED) as z:
+    for name, cols, _ in pack:
+        z.writestr(name.split(' ')[0] + name.split(' ')[1] + '_' + ASCII.get(name.split(' ', 2)[2], 'theme') + '.xml', theme_xml(name, cols).encode('utf-8'))
+
+th = wb.create_sheet('테마색', 1)
+th.sheet_view.showGridLines = False
+th.column_dimensions['A'].width = 2; th.column_dimensions['B'].width = 24
+for c in range(3, 9): th.column_dimensions[CL(c)].width = 11
+th.column_dimensions['I'].width = 40
+th['B1'] = '테마 색 (모든 차트의 기본 색 바꾸기)'; th['B1'].font = f(size=16, bold=True, color=INK)
+th['B2'] = '테마 색을 바꿔 두면 막대·꺾은선·원형·분산형 등 새로 만드는 모든 차트가 강조 1→6 순서로 자동 색칠됩니다. Excel 2016/2019에서도 됩니다.'
+th['B2'].font = f(size=9, color=MUTED)
+
+th['B4'] = 'A. 지금 랜덤 시트의 팔레트를 테마로 만들기'; th['B4'].font = f(size=11, bold=True, color=ACC)
+th['B5'] = '테마 이름'; th['B5'].font = f(size=9, bold=True, color=MUTED)
+th['C5'] = '내 팔레트 1'; th['C5'].font = f(size=11, bold=True, color=ACC); th['C5'].fill = fill('EEF1FF'); th['C5'].border = BOX
+th.merge_cells('C5:E5')
+th['B6'] = '사용될 색 (강조 1–6)'; th['B6'].font = f(size=9, bold=True, color=MUTED)
+PAD = ['7F7F7F', 'A5A5A5', '595959', 'BFBFBF', '404040', 'D9D9D9']
+for j in range(6):
+    c = th.cell(row=6, column=3 + j, value=f'=IF(랜덤!{CL(3+j)}10="","{PAD[j]}",MID(랜덤!{CL(3+j)}10,2,6))')
+    c.font = Font(name='Consolas', size=10, color=INK); c.alignment = Alignment(horizontal='center')
+th['I6'] = '색이 6개보다 적으면 남는 자리는 회색으로 채웁니다.'; th['I6'].font = f(size=8, color=MUTED)
+xml_f = ('="<?xml version=\'1.0\' encoding=\'UTF-8\' standalone=\'yes\'?>'
+         '<a:clrScheme xmlns:a=\'http://schemas.openxmlformats.org/drawingml/2006/main\' name=\'"&C5&"\'>'
+         '<a:dk1><a:sysClr val=\'windowText\' lastClr=\'000000\'/></a:dk1><a:lt1><a:sysClr val=\'window\' lastClr=\'FFFFFF\'/></a:lt1>'
+         '<a:dk2><a:srgbClr val=\'44546A\'/></a:dk2><a:lt2><a:srgbClr val=\'E7E6E6\'/></a:lt2>"'
+         + ''.join(f'&"<a:accent{j+1}><a:srgbClr val=\'"&{CL(3+j)}6&"\'/></a:accent{j+1}>"' for j in range(6))
+         + '&"<a:hlink><a:srgbClr val=\'0563C1\'/></a:hlink><a:folHlink><a:srgbClr val=\'954F72\'/></a:folHlink></a:clrScheme>"')
+th['B8'] = '복사할 내용 ↓'; th['B8'].font = f(size=9, bold=True, color=MUTED)
+th['B9'] = xml_f
+th['B9'].font = Font(name='Consolas', size=8, color=MUTED)
+steps = [
+    '① 위 B9 셀을 클릭 → Ctrl+C (주의: 랜덤 시트에 "고정 번호"를 먼저 적어 두세요. 안 그러면 복사 순간 색이 바뀔 수 있습니다.)',
+    '② 메모장을 열고 Ctrl+V → 파일 → 다른 이름으로 저장 → 인코딩 "UTF-8", 파일 이름 예: 내팔레트1.xml',
+    '③ 저장 위치: 주소창에  %APPDATA%\\Microsoft\\Templates\\Document Themes\\Theme Colors  를 붙여넣고 Enter (폴더가 없으면 만드세요)',
+    '④ Excel을 다시 열고 → 페이지 레이아웃 탭 → 색 → 맨 위 "사용자 지정"에 나타난 이름을 클릭',
+    '※ 메모장 대신, 페이지 레이아웃 → 색 → "색 사용자 지정"에서 강조 1–6에 RGB를 직접 입력해도 결과는 같습니다.',
+]
+for i, t in enumerate(steps):
+    th.cell(row=11 + i, column=2, value=t).font = f(size=9, color=INK)
+
+th['B18'] = 'B. 바로 쓰는 테마 색 묶음 (테마색_팩.zip)'; th['B18'].font = f(size=11, bold=True, color=ACC)
+th['B19'] = '압축을 풀어 나온 .xml 파일들을 위 ③의 폴더에 넣으면 아래 조합이 전부 "사용자 지정" 목록에 뜹니다.'
+th['B19'].font = f(size=9, color=MUTED)
+for i, (name, cols, desc) in enumerate(pack):
+    rr = 21 + i
+    th.cell(row=rr, column=2, value=name).font = f(size=10, bold=True, color=INK)
+    for j, h in enumerate(cols):
+        c = th.cell(row=rr, column=3 + j, value='#' + h); c.fill = fill(h)
+        c.font = Font(name='Consolas', size=8, color=txt_on(h)); c.alignment = Alignment(horizontal='center', vertical='center')
+    th.cell(row=rr, column=9, value=desc).font = f(size=8, color=MUTED)
+    th.row_dimensions[rr].height = 24
 
 wb.calculation.fullCalcOnLoad = True
 out = os.path.join(os.path.dirname(os.path.abspath(__file__)), '차트팔레트.xlsx')
