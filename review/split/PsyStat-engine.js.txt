@@ -1,4 +1,4 @@
-/* PsyStat 0.7.1 계산 엔진 — PsyStat.html과 같은 폴더에 두세요 */
+/* PsyStat 0.8.0 계산 엔진 — PsyStat.html과 같은 폴더에 두세요 */
 /*
  * PsyStat 통계 엔진 (stats) — 조각 1/3: 특수함수·분포·행렬·기초통계·검정·회귀·신뢰도
  * 외부 라이브러리·네트워크 통신 없음. 순수 JavaScript.
@@ -2233,7 +2233,183 @@
     return out;
   }
 
+  /* ---------------- 다항 로지스틱 회귀 (기준 범주 대비; 관측 반응 또는 분류오류 고정 ML 3단계) ---------------- */
+  // X: n×p 설계행렬(절편 포함), R: n×K 반응 가중치 (관측 범주면 원-핫, EM 단계에서는 사후확률), ref: 기준 범주
+  function mnProbs(X, beta, K, ref) { // beta: (K−1) × p (기준 제외 순서)
+    return X.map(function (x) {
+      var eta = [], b = 0;
+      for (var k = 0; k < K; k++) { if (k === ref) { eta.push(0); continue; } var e = 0, row = beta[b++]; for (var j = 0; j < x.length; j++) e += row[j] * x[j]; eta.push(e); }
+      var lse = logSumExp(eta); return eta.map(function (v) { return Math.exp(v - lse); });
+    });
+  }
+  // 가중 다항 로지스틱 M 단계: Σ_i Σ_k R_ik log π_ik 최대화 (뉴턴-랩슨, 단계 반감)
+  function mnFitWeighted(X, R, K, ref, beta0, maxit) {
+    var n = X.length, p = X[0].length, q = (K - 1) * p, beta = beta0 ? beta0.map(function (r) { return r.slice(); }) : [];
+    if (!beta0) for (var k = 0; k < K - 1; k++) beta.push(new Array(p).fill(0));
+    var others = []; for (var k1 = 0; k1 < K; k1++) if (k1 !== ref) others.push(k1);
+    var obj = function (bt) { var P = mnProbs(X, bt, K, ref), s = 0; for (var i = 0; i < n; i++) for (var k = 0; k < K; k++) if (R[i][k]) s += R[i][k] * Math.log(Math.max(P[i][k], 1e-300)); return s; };
+    var cur = obj(beta);
+    for (var it = 0; it < (maxit || 100); it++) {
+      var P = mnProbs(X, beta, K, ref), g = new Array(q).fill(0), H = zeros(q, q);
+      for (var i = 0; i < n; i++) {
+        var w = 0; for (var k2 = 0; k2 < K; k2++) w += R[i][k2];
+        for (var a = 0; a < K - 1; a++) {
+          var ka = others[a], ra = R[i][ka] - w * P[i][ka];
+          for (var j = 0; j < p; j++) g[a * p + j] += ra * X[i][j];
+          for (var b2 = 0; b2 < K - 1; b2++) {
+            var kb = others[b2], h = w * P[i][ka] * ((a === b2 ? 1 : 0) - P[i][kb]);
+            for (var j1 = 0; j1 < p; j1++) for (var j2 = 0; j2 < p; j2++) H[a * p + j1][b2 * p + j2] += h * X[i][j1] * X[i][j2];
+          }
+        }
+      }
+      var step; try { var Hi = St.inverse(H); step = Hi.map(function (r) { return r.reduce(function (s, v, j) { return s + v * g[j]; }, 0); }); } catch (e) { return { beta: beta, ll: cur, singular: true }; }
+      var lam = 1, nb, nv;
+      for (var h2 = 0; h2 < 30; h2++) { nb = beta.map(function (r, a) { return r.map(function (v, j) { return v + lam * step[a * p + j]; }); }); nv = obj(nb); if (nv >= cur - 1e-12) break; lam /= 2; }
+      var dl = nv - cur; beta = nb; cur = nv;
+      if (Math.abs(dl) < 1e-12 * (1 + Math.abs(cur)) && Math.max.apply(null, step.map(Math.abs)) * lam < 1e-9) break;
+    }
+    return { beta: beta, ll: cur, H: null };
+  }
+  // ML 3단계 우도: Σ_i log Σ_s π_is(z) D[s][w_i]
+  function ml3LL(X, beta, K, ref, D, w) {
+    var P = mnProbs(X, beta, K, ref), s = 0;
+    for (var i = 0; i < X.length; i++) { var t = 0; for (var k = 0; k < K; k++) t += P[i][k] * D[k][w[i]]; s += Math.log(Math.max(t, 1e-300)); }
+    return s;
+  }
+  // 관측 정보행렬(수치 2차 미분) → 표준오차
+  function numericHessianSE(f, beta) {
+    var p = beta[0].length, q = beta.length * p, flat = [].concat.apply([], beta), H = zeros(q, q);
+    var unflat = function (v) { var r = []; for (var a = 0; a < beta.length; a++) r.push(v.slice(a * p, (a + 1) * p)); return r; };
+    var f0 = f(beta);
+    for (var a2 = 0; a2 < q; a2++) {
+      var ha = 1e-4 * Math.max(1, Math.abs(flat[a2]));
+      for (var b = a2; b < q; b++) {
+        var hb = 1e-4 * Math.max(1, Math.abs(flat[b]));
+        var v = function (da, db) { var t = flat.slice(); t[a2] += da; t[b] += db; return f(unflat(t)); };
+        var val = a2 === b ? (v(ha, 0) - 2 * f0 + v(-ha, 0)) / (ha * ha) : (v(ha, hb) - v(ha, -hb) - v(-ha, hb) + v(-ha, -hb)) / (4 * ha * hb);
+        H[a2][b] = H[b][a2] = -val;
+      }
+    }
+    var V; try { V = St.inverse(H); } catch (e) { V = null; }
+    return { V: V, se: V ? V.map(function (r, i) { return Math.sqrt(Math.max(r[i], 0)); }) : flat.map(function () { return NaN; }) };
+  }
+  // 설계행렬: 절편 + 공변인 열
+  function design(cols, rows) { return rows.map(function (i) { return [1].concat(cols.map(function (c) { return c[i]; })); }); }
+
+  // 일반 다항 로지스틱 회귀 (관측된 범주형 종속변수)
+  function multinomialLogistic(yin, Xcols, names, opts) {
+    opts = opts || {};
+    var rows = [];
+    for (var i = 0; i < yin.length; i++) {
+      var v = yin[i]; if (v === null || v === undefined || v === '' || (typeof v === 'number' && !isFinite(v))) continue;
+      var ok = true; for (var j = 0; j < Xcols.length; j++) if (!St.isNum(Xcols[j][i])) { ok = false; break; }
+      if (ok) rows.push(i);
+    }
+    var levels = []; rows.forEach(function (i2) { var s = String(yin[i2]); if (levels.indexOf(s) < 0) levels.push(s); });
+    levels.sort(function (a, b) { var x = Number(a), y = Number(b); return (!isNaN(x) && !isNaN(y)) ? x - y : (a < b ? -1 : a > b ? 1 : 0); });
+    var K = levels.length; if (K < 2) throw new Error('종속변수의 범주가 2개 이상이어야 합니다.');
+    if (K > 15) throw new Error('범주가 너무 많습니다(15개 초과).');
+    var ref = opts.ref !== undefined && levels.indexOf(String(opts.ref)) >= 0 ? levels.indexOf(String(opts.ref)) : 0;
+    var X = design(Xcols, rows), n = X.length, p = X[0].length;
+    if (n <= (K - 1) * p) throw new Error('사례 수가 모수 수보다 충분히 많아야 합니다.');
+    var R = rows.map(function (i3) { var r = new Array(K).fill(0); r[levels.indexOf(String(yin[i3]))] = 1; return r; });
+    var fit = mnFitWeighted(X, R, K, ref, null, 200);
+    var llf = function (bt) { var P = mnProbs(X, bt, K, ref), s = 0; for (var i4 = 0; i4 < n; i4++) for (var k = 0; k < K; k++) if (R[i4][k]) s += Math.log(Math.max(P[i4][k], 1e-300)); return s; };
+    var inf = numericHessianSE(llf, fit.beta);
+    var counts = levels.map(function (_, k) { return R.reduce(function (s, r) { return s + r[k]; }, 0); });
+    var ll0 = counts.reduce(function (s, c) { return s + (c ? c * Math.log(c / n) : 0); }, 0);
+    var chi = 2 * (fit.ll - ll0), dfM = (K - 1) * (p - 1), z975 = St.qnorm(0.975);
+    var others = []; for (var k1 = 0; k1 < K; k1++) if (k1 !== ref) others.push(k1);
+    var coefs = [];
+    others.forEach(function (k, a) {
+      fit.beta[a].forEach(function (b, j) {
+        var se = inf.se[a * p + j], zz = b / se;
+        coefs.push({ level: levels[k], name: j === 0 ? '(절편)' : names[j - 1], b: b, se: se, z: zz, wald: zz * zz, p: 2 * St.pnorm(-Math.abs(zz)), or: Math.exp(b), orLow: Math.exp(b - z975 * se), orHigh: Math.exp(b + z975 * se) });
+      });
+    });
+    // 예측변수별 우도비 검정 (그 예측변수를 뺀 모형과 비교)
+    var lrTests = names.map(function (nm, j) {
+      if (!Xcols.length) return null;
+      var keep = []; for (var c = 0; c < Xcols.length; c++) if (c !== j) keep.push(Xcols[c]);
+      var X2 = design(keep, rows), f2 = mnFitWeighted(X2, R, K, ref, null, 200), ch = 2 * (fit.ll - f2.ll);
+      return { name: nm, chi2: ch, df: K - 1, p: St.pchisqUpper(ch, K - 1) };
+    }).filter(Boolean);
+    var P = mnProbs(X, fit.beta, K, ref), conf = zeros(K, K);
+    P.forEach(function (pr, i5) { var b = 0; for (var k2 = 1; k2 < K; k2++) if (pr[k2] > pr[b]) b = k2; conf[R[i5].indexOf(1)][b]++; });
+    var cs = 1 - Math.exp(-chi / n), nag = cs / (1 - Math.exp(2 * ll0 / n));
+    var warn = [];
+    if (fit.singular || coefs.some(function (c) { return !isFinite(c.se) || c.se > 1e3 || Math.abs(c.b) > 15; })) warn.push('분리(separation) 또는 작은 범주 때문에 추정이 불안정할 수 있습니다. 계수·표준오차가 비정상적으로 큰지 확인하세요.');
+    return { n: n, K: K, levels: levels, ref: ref, counts: counts, coefs: coefs, ll: fit.ll, ll0: ll0, deviance: -2 * fit.ll, chi2: chi, dfM: dfM, p: St.pchisqUpper(chi, dfM),
+      aic: -2 * fit.ll + 2 * (K - 1) * p, bic: -2 * fit.ll + Math.log(n) * (K - 1) * p, coxSnell: cs, nagelkerke: nag, mcfadden: 1 - fit.ll / ll0,
+      lrTests: lrTests, confusion: conf, accuracy: conf.reduce(function (s, r, k3) { return s + r[k3]; }, 0) / n, warnings: warn, beta: fit.beta, V: inf.V };
+  }
+
+  /*
+   * ML 3단계: 공변인 → 잠재집단 소속 (Vermunt, 2010; Bakk, Tekle, & Vermunt, 2013)
+   * P(W_i = w | z_i) = Σ_s π_s(z_i) D[s][w], D는 단계 1에서 고정. EM(사후확률 → 가중 다항 로지스틱)으로 최대화
+   */
+  function ml3Fit(D, w, X, K, ref, beta0) {
+    var beta = beta0, ll = -Infinity;
+    if (!beta) { beta = []; for (var k = 0; k < K - 1; k++) beta.push(new Array(X[0].length).fill(0)); }
+    for (var it = 0; it < 2000; it++) {
+      var P = mnProbs(X, beta, K, ref), Rr = P.map(function (pr, i) { var t = 0, q = pr.map(function (v, s) { var u = v * D[s][w[i]]; t += u; return u; }); return q.map(function (u) { return u / t; }); });
+      var m = mnFitWeighted(X, Rr, K, ref, beta, 3);
+      beta = m.beta;
+      var nl = ml3LL(X, beta, K, ref, D, w);
+      if (Math.abs(nl - ll) < 1e-11 * (1 + Math.abs(nl))) { ll = nl; break; }
+      ll = nl;
+    }
+    return { beta: beta, ll: ll };
+  }
+  // fit: 단계 1 해, Zcols: 공변인 열 (단계 1 사례 순서), names, ref: 기준 집단(0부터)
+  function ml3Step(fit, Zcols, names, opts) {
+    opts = opts || {};
+    var K = fit.K, ref = opts.ref || 0, rows = [];
+    for (var i = 0; i < fit.classes.length; i++) { var ok = true; for (var j = 0; j < Zcols.length; j++) if (!St.isNum(Zcols[j][i])) { ok = false; break; } if (ok) rows.push(i); }
+    if (rows.length < K * (Zcols.length + 2)) throw new Error('공변인이 있는 사례가 너무 적습니다.');
+    var D = classificationError(fit.Z, fit.classes), X = design(Zcols, rows), w = rows.map(function (i2) { return fit.classes[i2]; });
+    var used = new Array(K).fill(0); w.forEach(function (t) { used[t]++; });
+    if (used.some(function (u) { return u === 0; })) throw new Error('최빈 배정으로 사례가 한 명도 배정되지 않은 집단이 있어 ML 3단계를 계산할 수 없습니다.');
+    var res = ml3Fit(D, w, X, K, ref, null);
+    var inf = numericHessianSE(function (bt) { return ml3LL(X, bt, K, ref, D, w); }, res.beta);
+    // 비교용: 최빈 배정을 관측 범주로 본 다항 로지스틱 (보정 없음)
+    var Rn = w.map(function (t) { var r = new Array(K).fill(0); r[t] = 1; return r; }), naive = mnFitWeighted(X, Rn, K, ref, null, 200);
+    // 공변인 전체 효과의 우도비 검정 (각 공변인을 뺀 모형과 비교)
+    var p = X[0].length, z975 = St.qnorm(0.975), others = []; for (var k = 0; k < K; k++) if (k !== ref) others.push(k);
+    var coefs = [];
+    others.forEach(function (k2, a) { res.beta[a].forEach(function (b, j2) {
+      var se = inf.se[a * p + j2], zz = b / se;
+      coefs.push({ cls: k2, name: j2 === 0 ? '(절편)' : names[j2 - 1], b: b, se: se, z: zz, p: 2 * St.pnorm(-Math.abs(zz)), or: Math.exp(b), orLow: Math.exp(b - z975 * se), orHigh: Math.exp(b + z975 * se), naiveB: naive.beta[a][j2] });
+    }); });
+    var lr = names.map(function (nm, j3) {
+      var keep = []; for (var c = 0; c < Zcols.length; c++) if (c !== j3) keep.push(Zcols[c]);
+      var r2 = ml3Fit(D, w, design(keep, rows), K, ref, null), ch = 2 * (res.ll - r2.ll);
+      return { name: nm, chi2: ch, df: K - 1, p: St.pchisqUpper(ch, K - 1) };
+    });
+    var warn = [];
+    if (coefs.some(function (c2) { return !isFinite(c2.se) || c2.se > 1e3 || Math.abs(c2.b) > 15; })) warn.push('추정이 불안정합니다(분리 또는 작은 집단). 오즈비가 비정상적으로 크면 해석하지 마세요.');
+    return { K: K, n: rows.length, ref: ref, D: D, coefs: coefs, ll: res.ll, beta: res.beta, V: inf.V, lrTests: lr, warnings: warn, rows: rows };
+  }
+  // 3단계 전체 부트스트랩 1회 → 계수 벡터
+  function ml3BootstrapOnce(res, fit, Zcols, names, ref, rand) {
+    var n = res.X.length, idx = [];
+    for (var i = 0; i < n; i++) idx.push(Math.floor(rand() * n));
+    var f2 = refitFrom(res.kind, idx.map(function (q) { return res.X[q]; }), fit, res.C);
+    if (!f2) return null;
+    try { var r = ml3Step(f2, Zcols.map(function (c) { return idx.map(function (q) { return c[q]; }); }), names, { ref: ref }); return [].concat.apply([], r.beta); } catch (e) { return null; }
+  }
+  function ml3ApplyBootstrap(out, draws) {
+    var q = draws[0].length, m = new Array(q).fill(0), B = draws.length, sd = new Array(q).fill(0);
+    draws.forEach(function (d) { for (var a = 0; a < q; a++) m[a] += d[a] / B; });
+    draws.forEach(function (d) { for (var a = 0; a < q; a++) sd[a] += (d[a] - m[a]) * (d[a] - m[a]) / (B - 1); });
+    var z975 = St.qnorm(0.975);
+    out.coefs.forEach(function (c, a) { var se = Math.sqrt(sd[a]), zz = c.b / se; c.bootSE = se; c.bootP = 2 * St.pnorm(-Math.abs(zz)); c.bootOrLow = Math.exp(c.b - z975 * se); c.bootOrHigh = Math.exp(c.b + z975 * se); });
+    out.bootB = B;
+    return out;
+  }
+
   var api = { lpa: lpa, lca: lca, blrtOnce: blrtOnce, classificationError: classificationError, bchWeights: bchWeights, bchDistal: bchDistal,
+    multinomialLogistic: multinomialLogistic, ml3Step: ml3Step, ml3BootstrapOnce: ml3BootstrapOnce, ml3ApplyBootstrap: ml3ApplyBootstrap,
     bchBootstrapOnce: bchBootstrapOnce, bchApplyBootstrap: bchApplyBootstrap, refitFrom: refitFrom, lpaFitK: lpaFitK, lcaFitK: lcaFitK, lpaNpar: lpaNpar, lcaNpar: lcaNpar, LPA_MODELS: LPA_MODELS };
   Object.keys(api).forEach(function (k) { St[k] = api[k]; });
 })(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);

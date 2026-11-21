@@ -3,12 +3,12 @@
 //  2) dist/split/PsyStat.html + PsyStat-engine.js — 분할판 (자료 전송 크기 제한 대응; 두 파일을 같은 폴더에 둠)
 'use strict';
 var fs = require('fs'), path = require('path'), crypto = require('crypto');
-var VERSION = '0.7.1';
+var VERSION = '0.8.0';
 var ENGINE = 'PsyStat-engine.js';
 var src = function (f) { return fs.readFileSync(path.join(__dirname, 'src', f), 'utf8'); };
 // 조각 파일 (각 60KB 이하): 메일 등 전송 시스템이 큰 <script> 블록을 손상시키는 문제 대응
 var STATS_PARTS = ['stats/stats-1.js', 'stats/stats-2.js', 'stats/stats-3.js'];
-var APP_PARTS = ['app/app-1.js', 'app/app-2.js', 'app/app-3.js', 'app/app-4.js', 'app/app-5.js'];
+var APP_PARTS = ['app/app-1.js', 'app/app-2.js', 'app/app-3.js', 'app/app-4.js', 'app/app-5.js', 'app/app-6.js'];
 var MAX_BLOCK = 60 * 1024;
 var tags = function (parts) { return parts.map(function (p) { return '<script>' + src(p) + '</script>'; }).join('\n'); };
 var allSrc = function (parts) { return parts.map(src).join('\n'); };

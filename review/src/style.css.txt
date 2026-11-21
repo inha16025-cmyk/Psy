@@ -31,7 +31,16 @@ header.top .spacer { flex: 1; }
 .datainfo { color: var(--muted); font-size: 13px; }
 .layout { display: grid; grid-template-columns: 200px minmax(300px, 380px) 1fr; gap: 0; min-height: calc(100vh - 54px); }
 nav.side { background: var(--panel); border-right: 1px solid var(--line); padding: 10px 0; }
-nav.side .grp { font-size: 11px; color: var(--muted); padding: 10px 16px 4px; text-transform: none; letter-spacing: 0.02em; }
+nav.side .grp { font-size: 12px; font-weight: 600; color: var(--muted); padding: 10px 12px 4px; letter-spacing: 0.02em; cursor: pointer; user-select: none; border-top: 1px solid var(--line); margin-top: 4px; }
+nav.side .grp:hover { color: var(--ink); }
+nav.side .grp .caret { display: inline-block; width: 14px; transition: transform .15s; }
+nav.side .grp.closed .caret { transform: rotate(-90deg); }
+nav.side .grpitems a { padding-left: 26px; }
+details.guide { margin: 12px 0 4px; border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; background: var(--accent-soft); }
+details.guide summary { color: var(--ink); font-weight: 600; font-size: 13px; }
+table.guide-t { border-collapse: collapse; font-size: 12.5px; margin: 8px 0 4px; width: 100%; }
+table.guide-t th, table.guide-t td { border-bottom: 1px solid var(--line); padding: 4px 8px; text-align: left; vertical-align: top; }
+table.guide-t th { font-weight: 600; }
 nav.side a { display: block; padding: 6px 16px; color: var(--ink); text-decoration: none; cursor: pointer; border-left: 3px solid transparent; }
 nav.side a:hover { background: var(--accent-soft); }
 nav.side a.active { border-left-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
@@ -92,6 +101,7 @@ table.res thead th:first-child { text-align: left; }
   .layout { grid-template-columns: 1fr; }
   nav.side { border-right: 0; border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap; padding: 6px; }
   nav.side .grp { display: none; }
+  nav.side .grpitems { display: contents !important; }
   nav.side a { border-left: 0; padding: 4px 10px; border-radius: 4px; }
   section.opts { position: static; max-height: none; border-right: 0; border-bottom: 1px solid var(--line); }
 }

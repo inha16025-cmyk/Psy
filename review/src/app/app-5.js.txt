@@ -1,4 +1,4 @@
-/* PsyStat 화면(UI) 코드 — 조각 5/5: 잠재프로파일(LPA)·잠재계층(LCA) 분석
+/* PsyStat 화면(UI) 코드 — 조각 5/6: 잠재프로파일(LPA)·잠재계층(LCA) 분석
  * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다. */
 (function (G) {
   'use strict';
@@ -46,7 +46,7 @@
   function detailCard(res, fit, names, varIdx) {
     var K = fit.K, unit = res.kind === 'LPA' ? '프로파일' : '계층';
     var html = table([unit, 'n', '%', '평균 사후확률'], fit.counts.map(function (c, k) { return [unit + ' ' + (k + 1), c, f(100 * c / fit.n, 1), fr(fit.avgPP[k][k])]; }),
-      { title: unit + '별 크기와 분류 정확도', note: 'n은 가장 높은 사후확률로 배정한 사례 수. 평균 사후확률은 그 ' + unit + '에 배정된 사례들의 해당 ' + unit + ' 사후확률 평균으로, .80 이상이면 분류가 양호하다고 본다(Nagin, 2005).' });
+      { title: unit + '별 크기와 분류 정확도', note: 'n은 가장 높은 사후확률로 배정한 사례 수. 평균 사후확률은 그 ' + unit + '에 배정된 사례들의 해당 ' + unit + ' 사후확률 평균으로, 각 ' + unit + ' .70 이상이면 분류가 양호하다고 본다(Nagin, 2005).' });
     if (K > 1) html += table(['배정 \\ 사후확률'].concat(fit.avgPP.map(function (_, k) { return unit + ' ' + (k + 1); })), fit.avgPP.map(function (row, k) {
       return [unit + ' ' + (k + 1)].concat(row.map(function (v, j) { return j === k ? '<b>' + fr(v) + '</b>' : fr(v); }));
     }), { left: [0], title: '평균 사후확률 행렬', note: '대각선이 1에 가까울수록 ' + unit + '이 잘 구분된다.' });
@@ -69,12 +69,14 @@
     html += '<div class="lp-plot">' + profilePlotSVG(res, fit, names) + '</div>' +
       '<div class="inline" style="margin:6px 0"><button class="btn small" data-act="save-class">소속 ' + unit + '을 데이터에 변수로 추가</button><button class="btn small" data-act="save-png">그림 PNG 저장</button></div>' +
       '<p class="note">변수로 추가한 뒤 [일원분산분석]·[교차분석] 등에서 집단변수로 쓰면 ' + unit + ' 간 비교를 할 수 있습니다. 단, 이 방법은 분류 오류를 무시하므로 엔트로피가 낮을수록 차이가 과소추정됩니다. 아래 BCH 분석은 분류 오류를 보정합니다.</p>' +
-      (K > 1 ? bchForm(fit.entropy) : '') +
+      (K > 1 ? bchForm(fit.entropy) + ml3Form(K, unit) : '') +
       rcode(res.kind === 'LPA'
         ? 'library(mclust)\nd <- na.omit(df[, ' + rvec(names) + '])\nfit <- Mclust(d, G = ' + K + ', modelNames = "' + fit.model + '")\nsummary(fit, parameters = TRUE)\n# tidyLPA: estimate_profiles(d, n_profiles = ' + K + ', models = ' + MODEL_INFO[fit.model].tidy + ')'
         : 'library(poLCA)\nd <- na.omit(df[, ' + rvec(names) + '])\nd[] <- lapply(d, function(x) as.integer(factor(x)))\nfit <- poLCA(cbind(' + names.map(rname).join(', ') + ') ~ 1, data = d, nclass = ' + K + ', nrep = 20)');
     var card = addCard((res.kind === 'LPA' ? '잠재프로파일 해: ' : '잠재계층 해: ') + fitLabel(res, fit), html, 'N = ' + fit.n);
     if (K > 1) card.querySelector('[data-act=bch]').onclick = function () { runBCH(card, res, fit, unit); };
+    if (K > 1) card.querySelector('[data-act=ml3]').onclick = function () { runML3(card, res, fit, unit); };
+    if (NS.appendGuide) NS.appendGuide(card, 'lpaDetail');
     NS.wireMulti && NS.wireMulti();
     card.querySelector('[data-act=save-png]').onclick = function () { svgDownload(card.querySelector('.lp-plot svg'), res.kind === 'LPA' ? 'lpa_profiles' : 'lca_classes', true); };
     card.querySelector('[data-act=save-class]').onclick = function () {
@@ -160,7 +162,60 @@
       '<p class="note">BCH 방법(Bolck, Croon, & Hagenaars, 2004; Vermunt, 2010; Bakk, Tekle, & Vermunt, 2013): 단계 1의 사후확률로 분류오류행렬 D를 구하고, 각 사례에 D⁻¹의 행을 가중치로 주어 ' + unit + '별 평균·비율을 추정했다. 결과변수에 결측이 있는 사례는 그 변수에서만 제외했다. ' +
       (B ? '표준오차와 검정은 3단계 전체 부트스트랩(' + B + '회, 시드 ' + seed + ')으로 계산해 단계 1 불확실성을 반영했다.' : '표준오차는 샌드위치 추정량으로, 단계 1 불확실성을 무시하므로 과소추정될 수 있다(Bakk, Oberski, & Vermunt, 2014).') +
       ' 검증: 계산식은 R 독립 구현과 일치(오차 < 1e-13). 몬테카를로 시뮬레이션에서 엔트로피 .75 조건은 편향이 거의 없고 부트스트랩 95% CI 포함률이 .96이었으며, 엔트로피 .55 조건에서는 편향이 남고 포함률이 .85–.90으로 낮았다. 외부 소프트웨어(Mplus·Latent GOLD)와는 대조하지 못했다.</p>';
-    addCard('3단계 BCH: ' + jobs.map(function (j) { return j.name; }).join(', '), html, fitLabel(res, fit) + ', N = ' + jobs[0].out.n);
+    var bc = addCard('3단계 BCH: ' + jobs.map(function (j) { return j.name; }).join(', '), html, fitLabel(res, fit) + ', N = ' + jobs[0].out.n);
+    if (NS.appendGuide) NS.appendGuide(bc, 'bch');
+  }
+
+  var ml3Seq = 0;
+  function ml3Form(K, unit) {
+    var id = ++ml3Seq;
+    return '<div class="ml3box" data-id="' + id + '" style="border-top:1px solid var(--line);margin-top:12px;padding-top:10px">' +
+      '<h4 style="margin-top:0">3단계 ML: 공변인 → ' + unit + ' 소속 예측 (분류 오류 보정)</h4>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' + multiField('mlc' + id, '연속형 공변인', 'num') + multiField('mlk' + id, '범주형 공변인 (자동 더미코딩)', 'any') + '</div>' +
+      '<div class="inline"><label>기준 ' + unit + ' <select class="mlref">' + Array.apply(null, Array(K)).map(function (_, k) { return '<option value="' + k + '">' + unit + ' ' + (k + 1) + '</option>'; }).join('') + '</select></label>' +
+      '<label>부트스트랩 <input type="number" class="mlB" value="200" min="0" step="100" style="width:80px"> 회</label><label>시드 <input type="number" class="mlSeed" value="1234" style="width:70px"></label>' +
+      '<button class="btn small primary" data-act="ml3">ML 3단계 분석</button><span class="note mlprog"></span></div>' +
+      '<div class="hint">단계 1의 분류오류행렬을 고정하고 다항 로지스틱 회귀를 최대우도로 추정합니다(Vermunt, 2010). 결과변수 비교가 아니라 공변인의 예측 효과를 볼 때 쓰세요(결과변수는 BCH). 부트스트랩은 단계 1 불확실성을 표준오차에 반영합니다.</div></div>';
+  }
+
+  function runML3(card, res, fit, unit) {
+    var box = card.querySelector('.ml3box'), id = box.dataset.id, ci = getMulti('mlc' + id), ki = getMulti('mlk' + id);
+    if (!ci.length && !ki.length) { flash('공변인을 하나 이상 고르세요.'); return; }
+    var all = ci.concat(ki.filter(function (i) { return ci.indexOf(i) < 0; })), dc = NS.designColumns(all, ki);
+    var Zc = dc.cols.map(function (c) { return res.rows.map(function (r) { var v = c[r]; return v === undefined ? null : v; }); });
+    var ref = Number(box.querySelector('.mlref').value), B = Math.max(0, Math.floor(Number(box.querySelector('.mlB').value) || 0)), seed = Number(box.querySelector('.mlSeed').value) || 1, out;
+    try { out = S.ml3Step(fit, Zc, dc.names, { ref: ref }); } catch (e) { flash('ML 3단계 오류: ' + e.message); return; }
+    if (!B) { renderML3(res, fit, unit, out, dc, 0, seed); return; }
+    var rand = S.rng(seed + 313), draws = [], done = 0, t0 = Date.now(), prog = box.querySelector('.mlprog'), btn = box.querySelector('[data-act=ml3]');
+    btn.disabled = true;
+    (function step() {
+      var until = Date.now() + 150;
+      while (done < B && Date.now() < until) { var d = S.ml3BootstrapOnce(res, fit, Zc, dc.names, ref, rand); if (d) draws.push(d); done++; }
+      prog.textContent = ' 부트스트랩 ' + done + '/' + B + ' (' + ((Date.now() - t0) / 1000).toFixed(0) + '초)';
+      if (done < B) { setTimeout(step, 0); return; }
+      if (draws.length > 10) S.ml3ApplyBootstrap(out, draws);
+      btn.disabled = false; prog.textContent = '';
+      renderML3(res, fit, unit, out, dc, B, seed);
+    })();
+  }
+
+  function renderML3(res, fit, unit, out, dc, B, seed) {
+    var U = function (k) { return unit + ' ' + (k + 1); }, boot = !!out.bootB, rows = [];
+    out.coefs.forEach(function (c, i) {
+      var first = i === 0 || out.coefs[i - 1].cls !== c.cls, se = boot ? c.bootSE : c.se, p = boot ? c.bootP : c.p;
+      var lo = boot ? c.bootOrLow : c.orLow, hi = boot ? c.bootOrHigh : c.orHigh;
+      rows.push([first ? U(c.cls) : '', esc(c.name), f(c.b, 3), f(se, 3), f(c.b / se, 2), fp(p), f(c.or, 3), '[' + f(lo, 3) + ', ' + f(hi, 3) + ']', f(c.naiveB, 3)]);
+    });
+    var html = (out.warnings.length ? '<div class="warn">' + out.warnings.map(esc).join('<br>') + '</div>' : '') +
+      (B && !boot ? '<div class="warn">성공한 부트스트랩이 너무 적어 관측정보행렬 표준오차를 표시합니다.</div>' : '') +
+      table([unit + ' (기준: ' + U(out.ref) + ')', '공변인', 'B', 'SE', 'z', 'p', 'OR', 'OR 95% CI', 'B (보정 없음)'], rows,
+        { left: [0, 1], title: '공변인에 따른 ' + unit + ' 소속 (ML 3단계, 기준 ' + unit + ' 대비)', note: 'SE = ' + (boot ? '3단계 전체 부트스트랩 표준오차(' + out.bootB + '회)' : '관측정보행렬 표준오차(단계 1 불확실성 미반영)') + '. "보정 없음"은 최빈 배정을 관측 범주로 본 다항 로지스틱 계수로, 0 쪽으로 감쇠되는 경향이 있다.' }) +
+      table(['공변인', 'χ²', 'df', 'p'], out.lrTests.map(function (t) { return [esc(t.name), f(t.chi2, 3), t.df, fp(t.p)]; }), { left: [0], title: '공변인별 우도비 검정', note: '각 공변인을 뺀 ML 3단계 모형과 비교(분류오류 보정 우도 기준).' }) +
+      (dc.notes.length ? '<p class="note">더미코딩 — ' + esc(dc.notes.join('; ')) + '</p>' : '') +
+      '<p class="note">ML 3단계(Vermunt, 2010; Bakk, Tekle, & Vermunt, 2013): 단계 1의 분류오류행렬 D를 고정하고, P(배정 = t | 공변인) = Σ<sub>s</sub> P(' + unit + ' s | 공변인) · D[s][t]를 최대우도로 추정했다. N = ' + out.n + ' (공변인 결측 제외). ' +
+      '검증: 추정치·표준오차는 R 독립 구현(optim)과 일치(오차 < 1e-5), 몬테카를로(엔트로피 .75)에서 기울기 편향 ≤ 0.02, 부트스트랩 95% CI 포함률 .92. 공변인이 지표에 직접 영향을 주면(측정 비동일성) 결과가 편향될 수 있다(Janssen et al., 2019). 외부 소프트웨어(Mplus·Latent GOLD)와는 대조하지 못했다.</p>';
+    var mc = addCard('3단계 ML: ' + dc.names.join(', ') + ' → ' + unit, html, fitLabel(res, fit) + (B ? ', 부트스트랩 ' + B + '회 (시드 ' + seed + ')' : ''));
+    if (NS.appendGuide) NS.appendGuide(mc, 'ml3');
   }
 
   A.lpa = {

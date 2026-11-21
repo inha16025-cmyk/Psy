@@ -1,0 +1,27 @@
+# PsyStat 검증 기준값 8: 다항 로지스틱(nnet::multinom)과 ML 3단계(R 독립 구현)
+# 실행: Rscript tests/make_reference8.R → tests/reference8.json
+suppressPackageStartupMessages({ library(jsonlite); library(nnet); library(mclust) })
+ref <- list()
+## (1) 다항 로지스틱: bfi 학력(5범주) ~ 연령 + 성별 (실제 자료; psychTools)
+data(bfi, package = "psychTools")
+d <- na.omit(bfi[, c("education", "age", "gender")])
+m <- multinom(factor(education) ~ age + gender, data = d, trace = FALSE, maxit = 1000, reltol = 1e-14, Hess = TRUE)
+s <- summary(m)
+m0 <- multinom(factor(education) ~ 1, data = d, trace = FALSE, reltol = 1e-14)
+mA <- multinom(factor(education) ~ gender, data = d, trace = FALSE, maxit = 1000, reltol = 1e-14)
+ref$mn <- list(education = d$education, age = d$age, gender = d$gender, coef = unname(s$coefficients), se = unname(s$standard.errors),
+               ll = as.numeric(logLik(m)), ll0 = as.numeric(logLik(m0)), lrAge = 2 * (as.numeric(logLik(m)) - as.numeric(logLik(mA))))
+## (2) ML 3단계: iris EEI 3집단(Sepal.Length, Sepal.Width) → 가상 공변인, 독립 구현 (optim BFGS)
+X <- as.matrix(iris[, 1:2])
+fit <- Mclust(X, G = 3, modelNames = "EEI", control = emControl(tol = c(1e-12, sqrt(.Machine$double.eps))), verbose = FALSE)
+Z <- fit$z; w <- max.col(Z, ties.method = "first"); K <- 3
+D <- t(sapply(1:K, function(s) sapply(1:K, function(t) sum(Z[w == t, s]) / sum(Z[, s]))))
+# 공변인: 꽃잎 너비는 집단을 완전 분리해(separation) 기준으로 쓸 수 없으므로, 시드 고정 가상 공변인 사용 (집단과 중간 정도 관련)
+set.seed(2026); zc <- rnorm(150) + 0.9 * (w == 2) - 0.6 * (w == 3); Xd <- cbind(1, zc)
+nll <- function(b) { B <- rbind(0, matrix(b, 2, byrow = TRUE)); eta <- Xd %*% t(B); P <- exp(eta - apply(eta, 1, max)); P <- P / rowSums(P); -sum(log(rowSums(P * t(D[, w])))) }
+o <- optim(rep(0, 4), nll, method = "BFGS", control = list(reltol = 1e-16, maxit = 10000))
+o <- optim(o$par, nll, method = "Nelder-Mead", control = list(reltol = 1e-16, maxit = 20000)); o <- optim(o$par, nll, method = "BFGS", control = list(reltol = 1e-16, maxit = 10000))
+H <- optimHess(o$par, nll)
+ref$ml3 <- list(Z = unname(Z), covariate = zc, beta = o$par, se = sqrt(diag(solve(H))), ll = -o$value)
+writeLines(toJSON(ref, digits = NA, auto_unbox = TRUE), "tests/reference8.json")
+cat("reference8.json written\n")

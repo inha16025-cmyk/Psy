@@ -38,7 +38,16 @@ header.top .spacer { flex: 1; }
 .datainfo { color: var(--muted); font-size: 13px; }
 .layout { display: grid; grid-template-columns: 200px minmax(300px, 380px) 1fr; gap: 0; min-height: calc(100vh - 54px); }
 nav.side { background: var(--panel); border-right: 1px solid var(--line); padding: 10px 0; }
-nav.side .grp { font-size: 11px; color: var(--muted); padding: 10px 16px 4px; text-transform: none; letter-spacing: 0.02em; }
+nav.side .grp { font-size: 12px; font-weight: 600; color: var(--muted); padding: 10px 12px 4px; letter-spacing: 0.02em; cursor: pointer; user-select: none; border-top: 1px solid var(--line); margin-top: 4px; }
+nav.side .grp:hover { color: var(--ink); }
+nav.side .grp .caret { display: inline-block; width: 14px; transition: transform .15s; }
+nav.side .grp.closed .caret { transform: rotate(-90deg); }
+nav.side .grpitems a { padding-left: 26px; }
+details.guide { margin: 12px 0 4px; border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; background: var(--accent-soft); }
+details.guide summary { color: var(--ink); font-weight: 600; font-size: 13px; }
+table.guide-t { border-collapse: collapse; font-size: 12.5px; margin: 8px 0 4px; width: 100%; }
+table.guide-t th, table.guide-t td { border-bottom: 1px solid var(--line); padding: 4px 8px; text-align: left; vertical-align: top; }
+table.guide-t th { font-weight: 600; }
 nav.side a { display: block; padding: 6px 16px; color: var(--ink); text-decoration: none; cursor: pointer; border-left: 3px solid transparent; }
 nav.side a:hover { background: var(--accent-soft); }
 nav.side a.active { border-left-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
@@ -99,6 +108,7 @@ table.res thead th:first-child { text-align: left; }
   .layout { grid-template-columns: 1fr; }
   nav.side { border-right: 0; border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap; padding: 6px; }
   nav.side .grp { display: none; }
+  nav.side .grpitems { display: contents !important; }
   nav.side a { border-left: 0; padding: 4px 10px; border-radius: 4px; }
   section.opts { position: static; max-height: none; border-right: 0; border-bottom: 1px solid var(--line); }
 }
@@ -114,7 +124,7 @@ table.res thead th:first-child { text-align: left; }
   <b style="font-size:16px">PsyStat의 스크립트가 실행되지 않았습니다.</b><br>
   이 상자가 보이면 HTML은 열렸지만 계산 코드(JavaScript)가 동작하지 않은 것입니다. 다음을 순서대로 확인해 주세요.
   <ol style="margin:8px 0 0 18px;padding:0">
-    <li><b>파일 크기</b>: 파일 속성에서 크기가 약 <b>   203,469바이트</b> (분할판: PsyStat-engine.js 162,572바이트도 같은 폴더에 있어야 함)인지 확인하세요. 훨씬 작다면 자료 전송(망연계) 과정에서 보안 프로그램이 스크립트를 제거한 것입니다. 보안 담당자에게 이 파일의 반입 예외(스크립트 포함 HTML) 승인을 요청하세요. 원본 SHA-256: <code style="font-size:12px;word-break:break-all">(스크립트 본문) 97e11bed0ba7c60a6bc2d4707918774b0b1b716edc0c97fedd419042ff79c2ab</code></li>
+    <li><b>파일 크기</b>: 파일 속성에서 크기가 약 <b>   237,287바이트</b> (분할판: PsyStat-engine.js 175,683바이트도 같은 폴더에 있어야 함)인지 확인하세요. 훨씬 작다면 자료 전송(망연계) 과정에서 보안 프로그램이 스크립트를 제거한 것입니다. 보안 담당자에게 이 파일의 반입 예외(스크립트 포함 HTML) 승인을 요청하세요. 원본 SHA-256: <code style="font-size:12px;word-break:break-all">(스크립트 본문) df218a8be228b0b3e5469f27530225196b0ee2f31dab0e8303959b0d21b95897</code></li>
     <li><b>브라우저 정책</b>: 기관 정책으로 로컬 파일(file://)의 JavaScript가 차단되었을 수 있습니다. Chrome이 있다면 Chrome으로 열어 보고, 같은 증상이면 전산 담당자에게 문의하세요.</li>
     <li><b>문서 보안(DRM) 뷰어</b>: 탐색기에서 파일을 더블클릭했을 때 일반 브라우저가 아닌 보안 뷰어로 열리면 스크립트가 꺼져 있을 수 있습니다.</li>
   </ol>
@@ -137,7 +147,7 @@ table.res thead th:first-child { text-align: left; }
 </script>
 <script>/* PsyStat 자가 점검: 블록이 원본과 같은지 확인 (외부 통신 없음) */
 (function () {
-  var E = [{"n":"서식(style)","L":7529,"f":"13gve1m","h":":root {\n  --bg: #f6f7f9; --panel: #fffff","t":" 1px solid var(--line); }\n}\n@media print {\n  header.top, nav.side, section.opts, .card .tools { disp","te":100,"A":["cuuthg","dzw62p","jdpyzf"],"Z":["o4pfv9","xif81","121emb9"]},{"n":"보조 스크립트 2","L":611,"f":"1eevuh6","h":"\n// 이 줄이 실행되면 스크립트는 허용된 것: 안내 상자를 숨기고, 이","t":"다. 아래 내용을 캡처해 보내 주세요.';\n    var e = document.getElementById('jserr'); e.style.display = '';\n    e.te","te":100,"A":[],"Z":[]},{"n":"보조 스크립트 3","L":280,"f":"dmon04","h":"if (!window.PsyStats || !window.PsySEM) ","t":"요.'; window.__psyEngineMissing = true; }","te":0,"A":[],"Z":[]},{"n":"화면 코드 1/5","L":41776,"f":"10o5mgf","h":"/* PsyStat 화면(UI) 코드 — 조각 1/5: 공통 도우미·자료","t":" = wireLevelPicker; NS.boxMTable = boxMTable; NS.groupDescTable = groupDescTable;\n  NS.ldaPlotSVG = ","te":100,"A":["2drdwm","1q02828","1n10wjn","mf0yij","awg3jl","1imwr87","1nibjjh","10kx04b","6h5ehu","1qvzxn4","3v26zs","1a0xddp","1tuzmfr","a63mug","dsv0iz","100v64b","14q906f","m25m37","mzjkji","fq9wze"],"Z":["1qcsj3t","1tpiifm","1uksnzs","masw7n","1yriwok","1x6ff7t","4tasko","1lxfo1e","1n2ck9h","d3w1wz","80q2xo","w58n4d","1a1ploe","1jopqv3","ngzru7","qiafii","v8kg88","bk1apc","10eiiw7","9485u"]},{"n":"화면 코드 2/5","L":43755,"f":"1fqyqye","h":"/* PsyStat 화면(UI) 코드 — 조각 2/5: 상관~조건부 과정","t":"= ptTwoSidedSafe; NS.processSVG = processSVG;\n  NS.PROCESS_DESC = PROCESS_DESC; NS.processRcode = pr","te":100,"A":["loyyd7","19s5f6g","1s6egep","1gu3aqu","rbgbtc","ne6lil","10vsa3v","4ziway","ms1nsf","1m96wcq","5escx6","1vqiwo5","1lk5itk","3989j8","vhvknd","ts3rmx","1db915u","11lxmqx","6wbv6v","128tij2","1iz00gk"],"Z":["vn9tsf","1bu1eib","1xpqsle","phw7dx","1q7ukkm","120fahg","qtnpfg","4vgvcl","1irvfdw","11s6i93","1p986q3","1kwyc93","12x015g","1t7ep9f","149uzd7","1l4fmu1","1z0y9px","6axve9","1156xek","1fx4iqt","x7xvcs"]},{"n":"화면 코드 3/5","L":25930,"f":"1jlh6hv","h":"/* PsyStat 화면(UI) 코드 — 조각 3/5: 구조방정식·신뢰도","t":"G = networkSVG; NS.centralityPlotSVG = centralityPlotSVG; NS.svgDownload = svgDownload; NS.download ","te":100,"A":["14v2y7k","qkyta6","1n58cbw","1db4a7","zitkx7","elx9i4","10r6bd6","1yaubbh","wm7kry","bp30co","4mw9ut","1gjsmd4"],"Z":["4abnno","1suaifw","1pegdcn","1uoewsv","1ftjxyh","1e8d5gc","1k2a5wr","8lvs78","trlzw3","1sz8vr7","1yasqoo","12nuo2k"]},{"n":"화면 코드 4/5","L":28236,"f":"1yb7z3f","h":"/* PsyStat 화면(UI) 코드 — 조각 4/5: 네트워크 분석·데","t":"s = savedResults; NS.select = select; NS.buildNav = buildNav;\n  NS.about = about; NS.saveResults = s","te":100,"A":["jg8ir9","z18439","1j8ppn9","11xhowz","13ff605","1xigmb6","1jduwgo","19hhyf6","12xs6sk","u1k9wr","dgy7wr","t165c0","1bx1rt3","1e00vvw"],"Z":["11kd019","c5ty6a","1s8zsj8","o8jhyt","1lwabsb","skllwl","1trxwmr","s7ldxq","btfc9x","rkq652","12t4lhl","hy835o","hutbqx","tmksc8"]},{"n":"화면 코드 5/5","L":26612,"f":"1n4w56y","h":"/* PsyStat 화면(UI) 코드 — 조각 5/5: 잠재프로파일(LP","t":"ior research. Journal of Vocational Behavior, 120, 103445.', 'https://doi.org/10.1016/j.jvb.2020.103","te":100,"A":["ztwkv2","1yi4hnr","mau91j","zdywsh","17jcsgr","xujio","us9jhs","1b2fqi1","1hoq4t8","ov331s","cx4ymp","1lx1556","qmth35"],"Z":["193x1pz","1e2vf6q","1syrby2","pjnye","1lz9abd","1drdi01","1hogs23","fcl04h","1c3nugm","1it8iix","1jf5507","14pshib","ujourv"]}], CH = 2000;
+  var E = [{"n":"서식(style)","L":8393,"f":"19d6xtg","h":":root {\n  --bg: #f6f7f9; --panel: #fffff","t":" 1px solid var(--line); }\n}\n@media print {\n  header.top, nav.side, section.opts, .card .tools { disp","te":100,"A":["cuuthg","ck4m81","4fydbl","1nsw2qg"],"Z":["113oegt","1nxj7r","bw0gvx","1hrirru"]},{"n":"보조 스크립트 2","L":611,"f":"1eevuh6","h":"\n// 이 줄이 실행되면 스크립트는 허용된 것: 안내 상자를 숨기고, 이","t":"다. 아래 내용을 캡처해 보내 주세요.';\n    var e = document.getElementById('jserr'); e.style.display = '';\n    e.te","te":100,"A":[],"Z":[]},{"n":"보조 스크립트 3","L":280,"f":"8p38gb","h":"if (!window.PsyStats || !window.PsySEM) ","t":"요.'; window.__psyEngineMissing = true; }","te":0,"A":[],"Z":[]},{"n":"화면 코드 1/6","L":41776,"f":"14oihec","h":"/* PsyStat 화면(UI) 코드 — 조각 1/6: 공통 도우미·자료","t":" = wireLevelPicker; NS.boxMTable = boxMTable; NS.groupDescTable = groupDescTable;\n  NS.ldaPlotSVG = ","te":100,"A":["sl0gq5","1q02828","1n10wjn","mf0yij","awg3jl","1imwr87","1nibjjh","10kx04b","6h5ehu","1qvzxn4","3v26zs","1a0xddp","1tuzmfr","a63mug","dsv0iz","100v64b","14q906f","m25m37","mzjkji","fq9wze"],"Z":["1qcsj3t","1tpiifm","1uksnzs","masw7n","1yriwok","1x6ff7t","4tasko","1lxfo1e","1n2ck9h","d3w1wz","80q2xo","w58n4d","1a1ploe","1jopqv3","ngzru7","qiafii","v8kg88","bk1apc","10eiiw7","9485u"]},{"n":"화면 코드 2/6","L":43755,"f":"1hfdf1b","h":"/* PsyStat 화면(UI) 코드 — 조각 2/6: 상관~조건부 과정","t":"= ptTwoSidedSafe; NS.processSVG = processSVG;\n  NS.PROCESS_DESC = PROCESS_DESC; NS.processRcode = pr","te":100,"A":["i3xpfs","19s5f6g","1s6egep","1gu3aqu","rbgbtc","ne6lil","10vsa3v","4ziway","ms1nsf","1m96wcq","5escx6","1vqiwo5","1lk5itk","3989j8","vhvknd","ts3rmx","1db915u","11lxmqx","6wbv6v","128tij2","1iz00gk"],"Z":["vn9tsf","1bu1eib","1xpqsle","phw7dx","1q7ukkm","120fahg","qtnpfg","4vgvcl","1irvfdw","11s6i93","1p986q3","1kwyc93","12x015g","1t7ep9f","149uzd7","1l4fmu1","1z0y9px","6axve9","1156xek","1fx4iqt","x7xvcs"]},{"n":"화면 코드 3/6","L":25930,"f":"1bbelmk","h":"/* PsyStat 화면(UI) 코드 — 조각 3/6: 구조방정식·신뢰도","t":"G = networkSVG; NS.centralityPlotSVG = centralityPlotSVG; NS.svgDownload = svgDownload; NS.download ","te":100,"A":["p3m9h7","qkyta6","1n58cbw","1db4a7","zitkx7","elx9i4","10r6bd6","1yaubbh","wm7kry","bp30co","4mw9ut","1gjsmd4"],"Z":["4abnno","1suaifw","1pegdcn","1uoewsv","1ftjxyh","1e8d5gc","1k2a5wr","8lvs78","trlzw3","1sz8vr7","1yasqoo","12nuo2k"]},{"n":"화면 코드 4/6","L":29975,"f":"crwn5v","h":"/* PsyStat 화면(UI) 코드 — 조각 4/6: 네트워크 분석·데","t":"s = savedResults; NS.select = select; NS.buildNav = buildNav;\n  NS.about = about; NS.saveResults = s","te":100,"A":["f3qbgi","z18439","1j8ppn9","11xhowz","13ff605","1xigmb6","1jduwgo","19hhyf6","12xs6sk","g742yo","xwec7h","1oqviwe","40bdf0","s2c40s"],"Z":["11kd019","c5ty6a","1s8zsj8","o8jhyt","17kaqmz","1nvosv7","19j81dl","5eif87","1cjce1j","m591nc","1b984uo","1yvxsnm","1nrw079","10q4ypy"]},{"n":"화면 코드 5/6","L":31728,"f":"gbdvty","h":"/* PsyStat 화면(UI) 코드 — 조각 5/6: 잠재프로파일(LP","t":"ior research. Journal of Vocational Behavior, 120, 103445.', 'https://doi.org/10.1016/j.jvb.2020.103","te":100,"A":["huisxp","1yi4hnr","1omeyvt","n7hnxo","hovku9","10hl6m2","1f6g6d","1oxjeep","9h0kp7","1dw2w9d","1urziks","bp5rsb","3egn60","amt0r9","1rz964a"],"Z":["193x1pz","1e2vf6q","1syrby2","pjnye","1lz9abd","iqtqqm","1mwzu18","1pmg5vb","12ppcum","1vluqz4","1b0s3jg","15yy7x6","10ai31s","117cde1","1wrdm23"]},{"n":"화면 코드 6/6","L":17097,"f":"1y807hy","h":"/* PsyStat 화면(UI) 코드 — 조각 6/6: 메뉴 분류 체계·","t":"nd purpose. The American Statistician, 70(2), 129–133.', 'https://doi.org/10.1080/00031305.2016.1154","te":100,"A":["yry53y","165lqg4","1ckc955","y9fr0a","pgtlay","asnq9s","19j1k4y","1dkahxi"],"Z":["1b3wo0e","1bx7cjg","ba2832","19spkk1","iyw0tu","hyuuiw","zysm96","7gajb7"]}], CH = 2000;
   function fnv(t) { var h = 0x811c9dc5; for (var i = 0; i < t.length; i++) { h ^= t.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return h.toString(36); }
   var me = document.currentScript;
   document.addEventListener('DOMContentLoaded', function () {
@@ -164,12 +174,12 @@ table.res thead th:first-child { text-align: left; }
   if (!box || !out) return;
   box.style.display = ''; out.style.display = '';
   box.firstElementChild.textContent = '파일 점검 결과: 원본과 다른 부분이 있습니다. 아래 내용을 사진으로 보내 주세요.';
-  out.textContent += '[파일 자가 점검 · v0.7.1]\n' + rows.join('\n') + '\n';
+  out.textContent += '[파일 자가 점검 · v0.8.0]\n' + rows.join('\n') + '\n';
   });
 })();
 </script>
 <header class="top">
-  <h1>PsyStat <small>오프라인 통계 · v0.7.1</small></h1>
+  <h1>PsyStat <small>오프라인 통계 · v0.8.0</small></h1>
   <button class="btn" id="openBtn">파일 열기 (CSV·XLSX)</button>
   <button class="btn" id="exBtn">예시 데이터</button>
   <input type="file" id="file" accept=".csv,.txt,.tsv,.xlsx" style="display:none">
@@ -185,8 +195,8 @@ table.res thead th:first-child { text-align: left; }
   <main class="results" id="results"></main>
 </div>
 <script src="PsyStat-engine.js"></script>
-<script>if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById('jsfail'); b.style.display = ''; b.firstElementChild.textContent = '계산 엔진 파일(PsyStat-engine.js)을 찾지 못했습니다. PsyStat.html과 같은 폴더에 두었는지, 파일이 잘리지 않았는지(크기 162,572바이트) 확인하세요.'; window.__psyEngineMissing = true; }</script>
-<script>/* PsyStat 화면(UI) 코드 — 조각 1/5: 공통 도우미·자료 읽기·APA 표·결과 카드·기술통계~판별분석
+<script>if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById('jsfail'); b.style.display = ''; b.firstElementChild.textContent = '계산 엔진 파일(PsyStat-engine.js)을 찾지 못했습니다. PsyStat.html과 같은 폴더에 두었는지, 파일이 잘리지 않았는지(크기 175,683바이트) 확인하세요.'; window.__psyEngineMissing = true; }</script>
+<script>/* PsyStat 화면(UI) 코드 — 조각 1/6: 공통 도우미·자료 읽기·APA 표·결과 카드·기술통계~판별분석
  * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다.
  * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 코드는 분할 전과 동일) */
 (function (G) {
@@ -746,7 +756,7 @@ table.res thead th:first-child { text-align: left; }
   NS.ldaPlotSVG = ldaPlotSVG;
 })(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);
 </script>
-<script>/* PsyStat 화면(UI) 코드 — 조각 2/5: 상관~조건부 과정 모형
+<script>/* PsyStat 화면(UI) 코드 — 조각 2/6: 상관~조건부 과정 모형
  * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다.
  * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 코드는 분할 전과 동일) */
 (function (G) {
@@ -1236,7 +1246,7 @@ table.res thead th:first-child { text-align: left; }
   NS.PROCESS_DESC = PROCESS_DESC; NS.processRcode = processRcode;
 })(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);
 </script>
-<script>/* PsyStat 화면(UI) 코드 — 조각 3/5: 구조방정식·신뢰도·네트워크 그림
+<script>/* PsyStat 화면(UI) 코드 — 조각 3/6: 구조방정식·신뢰도·네트워크 그림
  * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다.
  * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 코드는 분할 전과 동일) */
 (function (G) {
@@ -1523,7 +1533,7 @@ table.res thead th:first-child { text-align: left; }
   NS.semDiagram = semDiagram; NS.SEM_HELP = SEM_HELP; NS.semBootstrap = semBootstrap; NS.networkSVG = networkSVG; NS.centralityPlotSVG = centralityPlotSVG; NS.svgDownload = svgDownload; NS.download = download;
 })(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);
 </script>
-<script>/* PsyStat 화면(UI) 코드 — 조각 4/5: 네트워크 분석·데이터 화면·화면 전환·시작
+<script>/* PsyStat 화면(UI) 코드 — 조각 4/6: 네트워크 분석·데이터 화면·화면 전환·시작
  * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다.
  * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 코드는 분할 전과 동일) */
 (function (G) {
@@ -1726,7 +1736,10 @@ table.res thead th:first-child { text-align: left; }
     $('#runBtn').onclick = function () {
       var btn = $('#runBtn'); btn.disabled = true; btn.textContent = '계산 중…';
       setTimeout(function () {
+        var before = $$('#results .card').length;
         try { an.run(); } catch (e) { errorCard(e); if (window.console) console.warn(e); }
+        // 해석 가이드: 이번 실행에서 새로 생긴 결과 카드에 붙인다
+        if (NS.appendGuide) $$('#results .card').slice(0, Math.max(0, $$('#results .card').length - before)).forEach(function (c) { if (c.querySelector('h3').textContent !== '오류') NS.appendGuide(c, id); });
         btn.disabled = false; btn.textContent = '분석 실행';
         $('#results').scrollTop = 0; window.scrollTo(0, 0);
       }, 20);
@@ -1734,14 +1747,31 @@ table.res thead th:first-child { text-align: left; }
   }
 
   function buildNav() {
-    var nav = $('#nav'), h = '<a data-id="data">데이터</a>', lastG = '';
-    Object.keys(A).forEach(function (k) {
-      if (A[k].group !== lastG) { h += '<div class="grp">' + esc(A[k].group) + '</div>'; lastG = A[k].group; }
-      h += '<a data-id="' + k + '">' + esc(A[k].title) + '</a>';
+    var nav = $('#nav'), h = '<a data-id="data">데이터</a>';
+    // 분류 체계: NS.NAV([분류 이름, [분석 id...]]) 가 있으면 그 순서, 없으면 정의 순서. 남는 분석은 '기타'로
+    var groups = NS.NAV ? NS.NAV.map(function (g) { return [g[0], g[1].filter(function (k) { return A[k]; })]; }) : [];
+    var listed = [].concat.apply([], groups.map(function (g) { return g[1]; }));
+    var rest = Object.keys(A).filter(function (k) { return listed.indexOf(k) < 0; });
+    if (!NS.NAV) { var lastG = null; rest.forEach(function (k) { if (A[k].group !== lastG) { groups.push([A[k].group, []]); lastG = A[k].group; } groups[groups.length - 1][1].push(k); }); rest = []; }
+    if (rest.length) groups.push(['기타', rest]);
+    var closed = {};
+    try { closed = JSON.parse(localStorage.getItem('psystat_nav_closed') || '{}'); } catch (e) { closed = {}; }
+    groups.forEach(function (g) {
+      h += '<div class="grp' + (closed[g[0]] ? ' closed' : '') + '" data-grp="' + esc(g[0]) + '"><span class="caret">▾</span>' + esc(g[0]) + '</div><div class="grpitems"' + (closed[g[0]] ? ' style="display:none"' : '') + '>';
+      g[1].forEach(function (k) { h += '<a data-id="' + k + '">' + esc(A[k].title) + '</a>'; });
+      h += '</div>';
     });
-    h += '<div class="grp">정보</div><a data-id="about">도움말·참고문헌</a>';
+    h += '<div class="grp" data-grp="정보"><span class="caret">▾</span>정보</div><div class="grpitems"><a data-id="about">도움말·참고문헌</a></div>';
     nav.innerHTML = h;
     $$('a', nav).forEach(function (a) { a.onclick = function () { a.dataset.id === 'about' ? about() : select(a.dataset.id); }; });
+    $$('.grp', nav).forEach(function (g) {
+      g.onclick = function () {
+        var items = g.nextElementSibling, hide = items.style.display !== 'none';
+        items.style.display = hide ? 'none' : '';
+        g.classList.toggle('closed', hide);
+        try { var c = JSON.parse(localStorage.getItem('psystat_nav_closed') || '{}'); c[g.dataset.grp] = hide; localStorage.setItem('psystat_nav_closed', JSON.stringify(c)); } catch (e) { /* 저장소 사용 불가 */ }
+      };
+    });
   }
 
   function about() {
@@ -1819,7 +1849,7 @@ table.res thead th:first-child { text-align: left; }
   NS.about = about; NS.saveResults = saveResults;
 })(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);
 </script>
-<script>/* PsyStat 화면(UI) 코드 — 조각 5/5: 잠재프로파일(LPA)·잠재계층(LCA) 분석
+<script>/* PsyStat 화면(UI) 코드 — 조각 5/6: 잠재프로파일(LPA)·잠재계층(LCA) 분석
  * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다. */
 (function (G) {
   'use strict';
@@ -1867,7 +1897,7 @@ table.res thead th:first-child { text-align: left; }
   function detailCard(res, fit, names, varIdx) {
     var K = fit.K, unit = res.kind === 'LPA' ? '프로파일' : '계층';
     var html = table([unit, 'n', '%', '평균 사후확률'], fit.counts.map(function (c, k) { return [unit + ' ' + (k + 1), c, f(100 * c / fit.n, 1), fr(fit.avgPP[k][k])]; }),
-      { title: unit + '별 크기와 분류 정확도', note: 'n은 가장 높은 사후확률로 배정한 사례 수. 평균 사후확률은 그 ' + unit + '에 배정된 사례들의 해당 ' + unit + ' 사후확률 평균으로, .80 이상이면 분류가 양호하다고 본다(Nagin, 2005).' });
+      { title: unit + '별 크기와 분류 정확도', note: 'n은 가장 높은 사후확률로 배정한 사례 수. 평균 사후확률은 그 ' + unit + '에 배정된 사례들의 해당 ' + unit + ' 사후확률 평균으로, 각 ' + unit + ' .70 이상이면 분류가 양호하다고 본다(Nagin, 2005).' });
     if (K > 1) html += table(['배정 \\ 사후확률'].concat(fit.avgPP.map(function (_, k) { return unit + ' ' + (k + 1); })), fit.avgPP.map(function (row, k) {
       return [unit + ' ' + (k + 1)].concat(row.map(function (v, j) { return j === k ? '<b>' + fr(v) + '</b>' : fr(v); }));
     }), { left: [0], title: '평균 사후확률 행렬', note: '대각선이 1에 가까울수록 ' + unit + '이 잘 구분된다.' });
@@ -1890,12 +1920,14 @@ table.res thead th:first-child { text-align: left; }
     html += '<div class="lp-plot">' + profilePlotSVG(res, fit, names) + '</div>' +
       '<div class="inline" style="margin:6px 0"><button class="btn small" data-act="save-class">소속 ' + unit + '을 데이터에 변수로 추가</button><button class="btn small" data-act="save-png">그림 PNG 저장</button></div>' +
       '<p class="note">변수로 추가한 뒤 [일원분산분석]·[교차분석] 등에서 집단변수로 쓰면 ' + unit + ' 간 비교를 할 수 있습니다. 단, 이 방법은 분류 오류를 무시하므로 엔트로피가 낮을수록 차이가 과소추정됩니다. 아래 BCH 분석은 분류 오류를 보정합니다.</p>' +
-      (K > 1 ? bchForm(fit.entropy) : '') +
+      (K > 1 ? bchForm(fit.entropy) + ml3Form(K, unit) : '') +
       rcode(res.kind === 'LPA'
         ? 'library(mclust)\nd <- na.omit(df[, ' + rvec(names) + '])\nfit <- Mclust(d, G = ' + K + ', modelNames = "' + fit.model + '")\nsummary(fit, parameters = TRUE)\n# tidyLPA: estimate_profiles(d, n_profiles = ' + K + ', models = ' + MODEL_INFO[fit.model].tidy + ')'
         : 'library(poLCA)\nd <- na.omit(df[, ' + rvec(names) + '])\nd[] <- lapply(d, function(x) as.integer(factor(x)))\nfit <- poLCA(cbind(' + names.map(rname).join(', ') + ') ~ 1, data = d, nclass = ' + K + ', nrep = 20)');
     var card = addCard((res.kind === 'LPA' ? '잠재프로파일 해: ' : '잠재계층 해: ') + fitLabel(res, fit), html, 'N = ' + fit.n);
     if (K > 1) card.querySelector('[data-act=bch]').onclick = function () { runBCH(card, res, fit, unit); };
+    if (K > 1) card.querySelector('[data-act=ml3]').onclick = function () { runML3(card, res, fit, unit); };
+    if (NS.appendGuide) NS.appendGuide(card, 'lpaDetail');
     NS.wireMulti && NS.wireMulti();
     card.querySelector('[data-act=save-png]').onclick = function () { svgDownload(card.querySelector('.lp-plot svg'), res.kind === 'LPA' ? 'lpa_profiles' : 'lca_classes', true); };
     card.querySelector('[data-act=save-class]').onclick = function () {
@@ -1981,7 +2013,60 @@ table.res thead th:first-child { text-align: left; }
       '<p class="note">BCH 방법(Bolck, Croon, & Hagenaars, 2004; Vermunt, 2010; Bakk, Tekle, & Vermunt, 2013): 단계 1의 사후확률로 분류오류행렬 D를 구하고, 각 사례에 D⁻¹의 행을 가중치로 주어 ' + unit + '별 평균·비율을 추정했다. 결과변수에 결측이 있는 사례는 그 변수에서만 제외했다. ' +
       (B ? '표준오차와 검정은 3단계 전체 부트스트랩(' + B + '회, 시드 ' + seed + ')으로 계산해 단계 1 불확실성을 반영했다.' : '표준오차는 샌드위치 추정량으로, 단계 1 불확실성을 무시하므로 과소추정될 수 있다(Bakk, Oberski, & Vermunt, 2014).') +
       ' 검증: 계산식은 R 독립 구현과 일치(오차 < 1e-13). 몬테카를로 시뮬레이션에서 엔트로피 .75 조건은 편향이 거의 없고 부트스트랩 95% CI 포함률이 .96이었으며, 엔트로피 .55 조건에서는 편향이 남고 포함률이 .85–.90으로 낮았다. 외부 소프트웨어(Mplus·Latent GOLD)와는 대조하지 못했다.</p>';
-    addCard('3단계 BCH: ' + jobs.map(function (j) { return j.name; }).join(', '), html, fitLabel(res, fit) + ', N = ' + jobs[0].out.n);
+    var bc = addCard('3단계 BCH: ' + jobs.map(function (j) { return j.name; }).join(', '), html, fitLabel(res, fit) + ', N = ' + jobs[0].out.n);
+    if (NS.appendGuide) NS.appendGuide(bc, 'bch');
+  }
+
+  var ml3Seq = 0;
+  function ml3Form(K, unit) {
+    var id = ++ml3Seq;
+    return '<div class="ml3box" data-id="' + id + '" style="border-top:1px solid var(--line);margin-top:12px;padding-top:10px">' +
+      '<h4 style="margin-top:0">3단계 ML: 공변인 → ' + unit + ' 소속 예측 (분류 오류 보정)</h4>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' + multiField('mlc' + id, '연속형 공변인', 'num') + multiField('mlk' + id, '범주형 공변인 (자동 더미코딩)', 'any') + '</div>' +
+      '<div class="inline"><label>기준 ' + unit + ' <select class="mlref">' + Array.apply(null, Array(K)).map(function (_, k) { return '<option value="' + k + '">' + unit + ' ' + (k + 1) + '</option>'; }).join('') + '</select></label>' +
+      '<label>부트스트랩 <input type="number" class="mlB" value="200" min="0" step="100" style="width:80px"> 회</label><label>시드 <input type="number" class="mlSeed" value="1234" style="width:70px"></label>' +
+      '<button class="btn small primary" data-act="ml3">ML 3단계 분석</button><span class="note mlprog"></span></div>' +
+      '<div class="hint">단계 1의 분류오류행렬을 고정하고 다항 로지스틱 회귀를 최대우도로 추정합니다(Vermunt, 2010). 결과변수 비교가 아니라 공변인의 예측 효과를 볼 때 쓰세요(결과변수는 BCH). 부트스트랩은 단계 1 불확실성을 표준오차에 반영합니다.</div></div>';
+  }
+
+  function runML3(card, res, fit, unit) {
+    var box = card.querySelector('.ml3box'), id = box.dataset.id, ci = getMulti('mlc' + id), ki = getMulti('mlk' + id);
+    if (!ci.length && !ki.length) { flash('공변인을 하나 이상 고르세요.'); return; }
+    var all = ci.concat(ki.filter(function (i) { return ci.indexOf(i) < 0; })), dc = NS.designColumns(all, ki);
+    var Zc = dc.cols.map(function (c) { return res.rows.map(function (r) { var v = c[r]; return v === undefined ? null : v; }); });
+    var ref = Number(box.querySelector('.mlref').value), B = Math.max(0, Math.floor(Number(box.querySelector('.mlB').value) || 0)), seed = Number(box.querySelector('.mlSeed').value) || 1, out;
+    try { out = S.ml3Step(fit, Zc, dc.names, { ref: ref }); } catch (e) { flash('ML 3단계 오류: ' + e.message); return; }
+    if (!B) { renderML3(res, fit, unit, out, dc, 0, seed); return; }
+    var rand = S.rng(seed + 313), draws = [], done = 0, t0 = Date.now(), prog = box.querySelector('.mlprog'), btn = box.querySelector('[data-act=ml3]');
+    btn.disabled = true;
+    (function step() {
+      var until = Date.now() + 150;
+      while (done < B && Date.now() < until) { var d = S.ml3BootstrapOnce(res, fit, Zc, dc.names, ref, rand); if (d) draws.push(d); done++; }
+      prog.textContent = ' 부트스트랩 ' + done + '/' + B + ' (' + ((Date.now() - t0) / 1000).toFixed(0) + '초)';
+      if (done < B) { setTimeout(step, 0); return; }
+      if (draws.length > 10) S.ml3ApplyBootstrap(out, draws);
+      btn.disabled = false; prog.textContent = '';
+      renderML3(res, fit, unit, out, dc, B, seed);
+    })();
+  }
+
+  function renderML3(res, fit, unit, out, dc, B, seed) {
+    var U = function (k) { return unit + ' ' + (k + 1); }, boot = !!out.bootB, rows = [];
+    out.coefs.forEach(function (c, i) {
+      var first = i === 0 || out.coefs[i - 1].cls !== c.cls, se = boot ? c.bootSE : c.se, p = boot ? c.bootP : c.p;
+      var lo = boot ? c.bootOrLow : c.orLow, hi = boot ? c.bootOrHigh : c.orHigh;
+      rows.push([first ? U(c.cls) : '', esc(c.name), f(c.b, 3), f(se, 3), f(c.b / se, 2), fp(p), f(c.or, 3), '[' + f(lo, 3) + ', ' + f(hi, 3) + ']', f(c.naiveB, 3)]);
+    });
+    var html = (out.warnings.length ? '<div class="warn">' + out.warnings.map(esc).join('<br>') + '</div>' : '') +
+      (B && !boot ? '<div class="warn">성공한 부트스트랩이 너무 적어 관측정보행렬 표준오차를 표시합니다.</div>' : '') +
+      table([unit + ' (기준: ' + U(out.ref) + ')', '공변인', 'B', 'SE', 'z', 'p', 'OR', 'OR 95% CI', 'B (보정 없음)'], rows,
+        { left: [0, 1], title: '공변인에 따른 ' + unit + ' 소속 (ML 3단계, 기준 ' + unit + ' 대비)', note: 'SE = ' + (boot ? '3단계 전체 부트스트랩 표준오차(' + out.bootB + '회)' : '관측정보행렬 표준오차(단계 1 불확실성 미반영)') + '. "보정 없음"은 최빈 배정을 관측 범주로 본 다항 로지스틱 계수로, 0 쪽으로 감쇠되는 경향이 있다.' }) +
+      table(['공변인', 'χ²', 'df', 'p'], out.lrTests.map(function (t) { return [esc(t.name), f(t.chi2, 3), t.df, fp(t.p)]; }), { left: [0], title: '공변인별 우도비 검정', note: '각 공변인을 뺀 ML 3단계 모형과 비교(분류오류 보정 우도 기준).' }) +
+      (dc.notes.length ? '<p class="note">더미코딩 — ' + esc(dc.notes.join('; ')) + '</p>' : '') +
+      '<p class="note">ML 3단계(Vermunt, 2010; Bakk, Tekle, & Vermunt, 2013): 단계 1의 분류오류행렬 D를 고정하고, P(배정 = t | 공변인) = Σ<sub>s</sub> P(' + unit + ' s | 공변인) · D[s][t]를 최대우도로 추정했다. N = ' + out.n + ' (공변인 결측 제외). ' +
+      '검증: 추정치·표준오차는 R 독립 구현(optim)과 일치(오차 < 1e-5), 몬테카를로(엔트로피 .75)에서 기울기 편향 ≤ 0.02, 부트스트랩 95% CI 포함률 .92. 공변인이 지표에 직접 영향을 주면(측정 비동일성) 결과가 편향될 수 있다(Janssen et al., 2019). 외부 소프트웨어(Mplus·Latent GOLD)와는 대조하지 못했다.</p>';
+    var mc = addCard('3단계 ML: ' + dc.names.join(', ') + ' → ' + unit, html, fitLabel(res, fit) + (B ? ', 부트스트랩 ' + B + '회 (시드 ' + seed + ')' : ''));
+    if (NS.appendGuide) NS.appendGuide(mc, 'ml3');
   }
 
   A.lpa = {
@@ -2080,6 +2165,202 @@ table.res thead th:first-child { text-align: left; }
     ['Nylund, K. L., Asparouhov, T., & Muthén, B. O. (2007). Deciding on the number of classes in latent class analysis and growth mixture modeling: A Monte Carlo simulation study. Structural Equation Modeling, 14(4), 535–569.', 'https://doi.org/10.1080/10705510701575396'],
     ['Scrucca, L., Fop, M., Murphy, T. B., & Raftery, A. E. (2016). mclust 5: Clustering, classification and density estimation using Gaussian finite mixture models. The R Journal, 8(1), 289–317.', 'https://doi.org/10.32614/RJ-2016-021'],
     ['Spurk, D., Hirschi, A., Wang, M., Valero, D., & Kauffeld, S. (2020). Latent profile analysis: A review and "how to" guide of its application within vocational behavior research. Journal of Vocational Behavior, 120, 103445.', 'https://doi.org/10.1016/j.jvb.2020.103445']
+  ]);
+})(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);
+</script>
+<script>/* PsyStat 화면(UI) 코드 — 조각 6/6: 메뉴 분류 체계·해석 가이드·다항 로지스틱 회귀
+ * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다. */
+(function (G) {
+  'use strict';
+  if (G.__psyEngineMissing || !G.PsyStats) return; // 계산 엔진이 없으면 화면을 시작하지 않음
+  var NS = G.__PsyAppNS || (G.__PsyAppNS = {});
+  var S = NS.S, state = NS.state, $ = NS.$, esc = NS.esc, f = NS.f, fp = NS.fp, fr = NS.fr, table = NS.table, rcode = NS.rcode, rname = NS.rname;
+  var selectField = NS.selectField, multiField = NS.multiField, getMulti = NS.getMulti, getSel = NS.getSel, need = NS.need, addCard = NS.addCard;
+  var designColumns = NS.designColumns, levelsOf = NS.levelsOf, A = NS.A;
+
+  /* ---------------- 메뉴 분류 ---------------- */
+  NS.NAV = [
+    ['기초 분석', ['desc', 'cor', 'chisq', 'alpha']],
+    ['집단 비교', ['ttest', 'anova', 'manova']],
+    ['회귀', ['lm', 'hier', 'logit', 'mlogit']],
+    ['매개·조절', ['moderation', 'mediation', 'process']],
+    ['분류·잠재집단', ['lda', 'lpa']],
+    ['잠재변수 모형', ['sem']],
+    ['네트워크', ['network']]
+  ];
+  if (A.logit) A.logit.title = '로지스틱 회귀 (이분형)';
+
+  /* ---------------- 해석 가이드 ----------------
+   * 행: [지표, 의미, 흔히 쓰는 기준, 근거]. 기준은 관례이며 연구 맥락에 따라 달라진다.
+   */
+  var COHEN_D = ['Cohen의 d / Hedges의 g', '두 평균 차이를 표준편차 단위로 나타낸 효과크기. g는 작은 표본의 편향을 보정한 값.', '.20 작음, .50 중간, .80 큼', 'Cohen (1988)'];
+  var ETA = ['η² · ω² · 부분 η²', '종속변수 변동 중 집단(요인)이 설명하는 비율. ω²는 η²의 과대추정을 줄인 값.', '.01 작음, .06 중간, .14 큼', 'Cohen (1988)'];
+  var PVAL = ['p값', '귀무가설이 참일 때 이만큼 또는 더 극단적인 결과가 나올 확률. 효과의 크기나 중요성을 뜻하지 않는다.', '관례적으로 .05 미만이면 유의. 효과크기·신뢰구간과 함께 보고', 'Wasserstein & Lazar (2016)'];
+  var CI = ['95% 신뢰구간 (CI)', '모수가 있을 법한 범위. 같은 절차를 반복하면 구간의 95%가 참값을 포함한다.', '차이·계수는 0, 오즈비는 1을 포함하지 않으면 p < .05와 같은 판단', 'Cumming (2014)'];
+  var GUIDES = {
+    desc: [
+      ['왜도 (G1)', '분포의 좌우 비대칭. 0이면 대칭, 양수면 오른쪽 꼬리가 김.', '표본 50–300명: |왜도/SE| < 3.29. 300명 초과: |왜도| < 2', 'Kim (2013); West, Finch, & Curran (1995)'],
+      ['첨도 (G2, 초과첨도)', '꼬리의 두께. 정규분포 = 0, 양수면 꼬리가 두꺼움.', '표본 50–300명: |첨도/SE| < 3.29. 300명 초과: |첨도| < 7', 'Kim (2013); West et al. (1995)'],
+      ['Shapiro-Wilk W, p', '자료가 정규분포에서 왔다는 가설의 검정.', 'p < .05면 정규성 기각. 표본이 크면 사소한 이탈에도 유의하므로 왜도·첨도·그림과 함께 판단', 'Kim (2013)']],
+    ttest: [
+      ['Levene 검정 p', '두 집단 분산이 같은지 검정.', 'p < .05면 등분산 가정 위배 → Welch 결과 보고. 최근에는 항상 Welch를 쓰자는 권고', 'Delacre, Lakens, & Leys (2017)'],
+      PVAL, COHEN_D, CI],
+    anova: [
+      ['F, p', '집단 간 변동 / 집단 내 변동. 평균이 모두 같다는 가설의 검정.', 'p < .05면 적어도 한 쌍의 평균이 다름 → 사후검정으로 어느 쌍인지 확인', ''],
+      ['Levene 검정 · Welch ANOVA', '등분산 가정 점검과 그 가정이 필요 없는 F 검정.', 'Levene p < .05면 Welch ANOVA와 Games-Howell 사후검정을 보고', 'Delacre et al. (2017)'],
+      ETA,
+      ['사후검정 (Tukey · Games-Howell · Bonferroni)', '여러 쌍을 비교할 때 1종 오류를 통제한 p값.', '등분산: Tukey, 이분산: Games-Howell, 계획된 소수 비교: Bonferroni', '']],
+    manova: [
+      ["Box's M", '집단별 공분산 행렬이 같은지 검정. 정규성 위반과 큰 표본에 매우 민감.', 'p < .001일 때 위배로 봄. 위배되거나 집단 크기가 다르면 Pillai의 V 보고', 'Tabachnick & Fidell (2019)'],
+      ["Pillai의 V · Wilks의 Λ", '여러 종속변수를 묶었을 때 집단 차이의 검정. Pillai가 가정 위반에 가장 강건.', 'p < .05면 다변량 집단 차이 있음 → 후속 단변량 분석(Bonferroni)이나 판별분석', 'Tabachnick & Fidell (2019)'],
+      ['다변량 부분 η²', '다변량 효과의 상대적 크기(0–1).', '고정된 기준 없음. 단변량 η²의 기준을 그대로 적용하지 않도록 주의', '']],
+    lda: [
+      ['고유값 · 정준상관', '판별함수가 집단을 얼마나 잘 구분하는지. 정준상관의 제곱은 함수가 설명하는 집단 간 분산 비율.', '클수록 구분이 잘 됨. 첫 함수가 대부분을 설명하는 경우가 많음', ''],
+      ["Wilks의 Λ (함수 검정)", '해당 함수(와 그 뒤 함수들)가 집단을 유의하게 구분하는지.', 'p < .05인 함수만 해석', ''],
+      ['구조행렬 계수', '변수와 판별함수의 상관. 함수의 의미를 해석하는 근거.', '관행적으로 |.30|–|.40| 이상을 의미 있게 봄', '관행'],
+      ['정분류율', '판별함수로 집단을 맞힌 비율. 교차타당화 값이 더 정직한 추정.', '비례 우연 기준(표의 주에 표시)보다 25% 이상 높으면 실용적 의미가 있다고 보는 관행', 'Hair et al. (2019)']],
+    cor: [
+      ['r (상관계수)', '두 변수의 선형 관련 정도(−1–1). Spearman ρ는 순위 기준.', '|r| .10 작음, .30 중간, .50 큼', 'Cohen (1988)'],
+      PVAL, CI,
+      ['다분상관 (cor_auto)', '리커트·이분 문항 뒤에 연속 잠재변수가 있다고 보고 추정한 상관.', 'Pearson보다 크게 나오는 경향. 유의확률 대신 크기로 해석', 'Olsson (1979)']],
+    chisq: [
+      ['χ², p', '두 범주형 변수가 독립이라는 가설의 검정.', 'p < .05면 관련 있음', ''],
+      ['기대빈도', '독립일 때 기대되는 셀 빈도.', '기대빈도 5 미만인 셀이 20%를 넘으면 χ² 근사가 부정확 → Fisher 정확검정(2×2) 또는 범주 병합', 'Cochran (1954)'],
+      ["Cramér의 V · φ", '연관성의 크기(0–1).', '2×2(φ): .10 작음, .30 중간, .50 큼. 표가 클수록(자유도↑) 같은 V라도 더 큰 연관', 'Cohen (1988)']],
+    alpha: [
+      ['Cronbach α', '문항들이 같은 것을 일관되게 재는 정도(내적 일관성).', '.70 이상(탐색적 연구), .80 이상(기초 연구), .90 이상(임상적 개인 판단)', 'Nunnally (1978), Lance, Butts, & Michels (2006)에서 재인용'],
+      ['수정된 문항-총점 r', '해당 문항과 나머지 문항 합의 상관.', '관행적으로 .30 미만이면 문항 검토', '관행'],
+      ['문항 삭제 시 α', '그 문항을 뺐을 때의 α.', '전체 α보다 뚜렷이 크면 그 문항이 척도와 맞지 않을 수 있음(내용 타당도와 함께 판단)', ''],
+      ['α의 가정', 'α는 모든 문항의 요인부하가 같다고(타우 동등) 가정.', '가정이 깨지면 신뢰도를 과소추정할 수 있어 ω 보고가 권장됨', 'McNeish (2018)']],
+    lm: [
+      ['R² · 수정 R²', '예측변수들이 설명하는 종속변수 분산의 비율.', 'f² = R²/(1−R²): .02 작음, .15 중간, .35 큼', 'Cohen (1988)'],
+      ['B · β', 'B는 원점수 단위의 기울기, β는 표준화 기울기(변수 간 상대 비교용).', '다중공선성이 있으면 β 비교가 불안정', ''],
+      ['VIF', '다른 예측변수들로 그 예측변수가 얼마나 설명되는지(다중공선성).', '10 초과면 심각, 5 초과면 주의라는 관행. 기계적 적용은 경계', "O'Brien (2007)"],
+      ['Durbin-Watson', '잔차의 자기상관. 2에 가까우면 자기상관 없음.', '1 미만이나 3 초과면 우려(시간 순서가 있는 자료에서 중요)', 'Field (2018)'],
+      CI],
+    hier: [
+      ['ΔR², ΔF', '새 블록을 넣었을 때 추가로 설명된 분산과 그 검정.', 'ΔF의 p < .05면 그 블록이 유의한 추가 설명력을 가짐. ΔR² 자체(효과크기)를 함께 보고', 'Cohen (1988)'],
+      ['블록 χ² (로지스틱)', '블록 추가로 줄어든 −2LL.', 'p < .05면 유의한 개선', '']],
+    logit: [
+      ['모형 χ²', '예측변수가 없는 모형 대비 −2LL 감소.', 'p < .05면 예측변수들이 유의하게 기여', ''],
+      ['Nagelkerke · Cox-Snell R²', '최소제곱 R²를 흉내 낸 의사 R².', '최소제곱 R²처럼 해석하지 말 것. 모형 간 비교용', 'Hosmer, Lemeshow, & Sturdivant (2013)'],
+      ['Hosmer-Lemeshow', '예측 확률과 관측 비율의 일치(보정).', 'p > .05면 적합 양호. 표본이 크면 과민하므로 AUC 등과 함께', 'Hosmer et al. (2013)'],
+      ['AUC', '무작위로 고른 사건·비사건 한 쌍을 올바르게 순서 짓는 확률(판별력).', '.70–.80 수용, .80–.90 우수, .90 이상 탁월', 'Hosmer et al. (2013)'],
+      ['오즈비 (OR)', '예측변수가 1 증가할 때 사건 오즈의 배수.', '1보다 크면 증가, 작으면 감소. CI가 1을 포함하지 않으면 p < .05', '']],
+    moderation: [
+      ['상호작용 계수 · ΔR²', 'X의 효과가 W에 따라 달라지는 정도.', '상호작용 p < .05면 조절효과 있음. 조절효과의 ΔR²는 대개 매우 작음(중앙값 f² ≈ .002라는 보고)', 'Aguinis et al. (2005)'],
+      ['단순기울기', 'W의 특정 값에서 X의 효과.', '어느 W 수준에서 효과가 유의한지 해석. 탐색 지점(±1SD 등)은 임의적', 'Hayes (2022)'],
+      ['Johnson-Neyman 구간', 'X의 효과가 유의해지는 W의 경계값.', '관측 범위 안의 경계만 해석', 'Hayes (2022)']],
+    mediation: [
+      ['간접효과 (a×b)', 'X가 M을 거쳐 Y에 미치는 효과.', '부트스트랩 95% CI가 0을 포함하지 않으면 유의. Sobel 검정보다 부트스트랩 권장', 'Hayes (2022); Preacher & Hayes (2008)'],
+      ["직접효과 (c′) · 총효과 (c)", 'M을 통제한 X의 효과와 전체 효과.', '총효과가 유의하지 않아도 간접효과는 있을 수 있음', 'Hayes (2022)'],
+      ['완전표준화 간접효과', '표준편차 단위의 간접효과.', '고정된 크기 기준은 권장되지 않음', 'Hayes (2022)']],
+    process: [
+      ['조절된 매개 지수', '간접효과가 W에 따라 선형으로 변하는 정도.', '부트스트랩 CI가 0을 포함하지 않으면 조절된 매개 있음. 조건부 간접효과가 각각 유의한 것만으로는 부족', 'Hayes (2015)'],
+      ['조건부 간접효과', 'W의 특정 값에서의 간접효과.', 'CI가 0을 포함하지 않는 W 수준에서 간접효과 있음', 'Hayes (2022)'],
+      ['순차 매개의 특정 간접효과', '정해진 순서의 매개 경로를 거친 효과.', '각 경로별 부트스트랩 CI로 판단', 'Hayes (2022)']],
+    sem: [
+      ['χ²', '모형이 자료와 완전히 맞는다는 가설의 검정.', '표본이 크면 거의 항상 유의하므로 근사 적합도와 함께 판단', 'Hu & Bentler (1999)'],
+      ['CFI · TLI', '독립모형 대비 개선 정도.', '.95 이상 좋음, .90 이상 수용(관행)', 'Hu & Bentler (1999); Lance et al. (2006)'],
+      ['RMSEA [90% CI]', '자유도당 근사 오차.', '.05 이하 좋음, .08 이하 수용, .10 초과 나쁨', 'MacCallum, Browne, & Sugawara (1996)'],
+      ['SRMR', '표준화 잔차의 평균 크기.', '.08 이하', 'Hu & Bentler (1999)'],
+      ['표준화 요인적재량 (β)', '지표가 요인을 반영하는 정도.', '.50 이상, 이상적으로는 .70 이상', 'Hair et al. (2019)'],
+      ['CR · AVE · √AVE', '개념신뢰도, 평균분산추출, 판별타당도.', 'CR ≥ .70, AVE ≥ .50, √AVE가 다른 요인과의 상관보다 크면 판별타당도', 'Fornell & Larcker (1981)'],
+      ['적합도 기준의 한계', '절단값은 특정 조건의 시뮬레이션에서 나온 값.', '기계적 적용 대신 여러 지수와 이론을 종합', 'Hu & Bentler (1999); Lance et al. (2006)']],
+    network: [
+      ['엣지 (편상관)', '다른 모든 노드를 통제한 두 노드의 관련.', 'EBICglasso에서 0은 정규화로 제거된 엣지', 'Epskamp & Fried (2018)'],
+      ['강도 · 기대영향 중심성', '노드에 연결된 엣지 가중치의 합(절댓값/부호 포함).', 'CS 계수로 안정성을 확인한 뒤 해석', 'Epskamp, Borsboom, & Fried (2018)'],
+      ['CS 계수', '사례를 지워도 중심성 순위가 유지되는 최대 비율.', '.25 이상이어야 하며 .50 이상이 바람직', 'Epskamp et al. (2018)'],
+      ['근접 · 매개 중심성', '최단 경로 기반 중심성.', '심리 네트워크에서는 불안정한 경우가 많아 신중하게', 'Bringmann et al. (2019)']],
+    lpa: [
+      ['BIC · SABIC · AIC', '모형 적합과 복잡성의 균형. 작을수록 좋음.', 'BIC가 가장 일관적인 지표로 보고됨. 지표마다 다른 수를 가리키면 종합 판단', 'Nylund, Asparouhov, & Muthén (2007)'],
+      ['BLRT p', 'K개 모형이 K−1개보다 유의하게 나은지.', 'p < .05면 K개 지지. 처음으로 유의하지 않은 K의 바로 앞이 후보', 'Nylund et al. (2007)'],
+      ['엔트로피', '분류의 명확성(0–1).', '관행적으로 .80 이상이면 분류가 명확. 집단 수 결정 기준으로 쓰지는 않음', '관행; Spurk et al. (2020)'],
+      ['최소 집단 비율', '가장 작은 집단의 크기.', '관행적으로 5% 미만(또는 매우 적은 사례)이면 해석·재현이 어려움', '관행; Spurk et al. (2020)'],
+      ['최고 LL 반복', '여러 시작값에서 최고 우도가 재현된 횟수.', '2회 이상 재현되어야 국소해가 아님을 어느 정도 확신', 'Hipp & Bauer (2006)']],
+    lpaDetail: [
+      ['평균 사후확률', '배정된 집단에 실제로 속할 확률의 평균.', '각 집단 .70 이상', 'Nagin (2005)'],
+      ['프로파일 평균 (z)', '전체 평균 대비 표준편차 단위의 위치.', '|z| .5 이상 차이를 의미 있는 특징으로 해석하는 경우가 많음(관행)', '관행'],
+      ['소속 저장 후 분석', '분류 오류를 무시한 분석.', '엔트로피가 낮을수록 효과 과소추정 → BCH·ML 3단계 권장', 'Bakk, Tekle, & Vermunt (2013)']],
+    bch: [
+      ['분류오류행렬 D 대각선', '실제 집단이 그대로 배정될 확률.', '1에 가까울수록 보정이 안정적. 낮으면 BCH 추정이 불안정', 'Vermunt (2010)'],
+      ['BCH 평균 · 비율', '분류 오류를 보정한 집단별 결과변수 추정치.', '보정 없는 값과 차이가 크면 분류 오류의 영향이 큼', 'Bakk & Vermunt (2016)'],
+      ['Wald χ²', '집단 간 평균(분포)이 같다는 가설의 검정.', 'p < .05면 차이 있음. 쌍별 비교는 다중비교 보정 고려', ''],
+      ['부트스트랩 표준오차', '단계 1 불확실성을 포함한 표준오차.', '샌드위치보다 부트스트랩 권장. 엔트로피 .60 미만이면 BCH도 한계', 'Bakk, Oberski, & Vermunt (2014)']],
+    ml3: [
+      ['오즈비 (기준 집단 대비)', '공변인이 1 증가할 때 기준 집단 대신 해당 집단에 속할 오즈의 배수.', '1보다 크면 해당 집단 소속 증가. CI가 1을 포함하지 않으면 유의', 'Vermunt (2010)'],
+      ['우도비 검정 (공변인별)', '그 공변인을 뺐을 때의 우도 감소.', 'p < .05면 공변인이 집단 소속을 유의하게 예측', ''],
+      ['보정 없는 B와의 비교', '최빈 배정 결과로 추정한 계수.', '보정 없는 계수는 0 쪽으로 줄어드는 경향', 'Bakk et al. (2013)'],
+      ['직접효과 가정', '공변인이 지표에 직접 영향을 주지 않는다는 가정.', '위배되면 3단계 방법 전체가 편향될 수 있음', 'Janssen et al. (2019)']],
+    mlogit: [
+      ['모형 χ² · 우도비 검정', '절편만 있는 모형 대비 개선, 그리고 각 예측변수를 뺀 모형과의 비교.', 'p < .05면 유의. 예측변수 효과는 개별 Wald보다 우도비 검정을 우선', 'Hosmer et al. (2013)'],
+      ['오즈비 (기준 범주 대비)', '예측변수가 1 증가할 때 기준 범주 대신 해당 범주일 오즈의 배수.', '1보다 크면 해당 범주 쪽. 기준 범주를 바꾸면 계수가 달라지므로 해석에 맞는 기준 선택', 'Hosmer et al. (2013)'],
+      ['의사 R²', 'Nagelkerke·McFadden 등.', '최소제곱 R²처럼 해석하지 말 것', 'Hosmer et al. (2013)']]
+  };
+  NS.GUIDES = GUIDES;
+  NS.appendGuide = function (card, id) {
+    var rows = GUIDES[id];
+    if (!rows || card.querySelector('details.guide')) return;
+    var h = '<details class="guide"><summary>해석 가이드: 주요 수치의 의미와 판단 기준</summary><table class="guide-t"><thead><tr><th>지표</th><th>의미</th><th>흔히 쓰는 기준</th><th>근거</th></tr></thead><tbody>' +
+      rows.map(function (r) { return '<tr><td>' + esc(r[0]) + '</td><td>' + esc(r[1]) + '</td><td>' + esc(r[2]) + '</td><td class="note">' + esc(r[3] || '—') + '</td></tr>'; }).join('') +
+      '</tbody></table><p class="note">기준값은 연구 관례이며 절대적이지 않습니다. 연구 분야·표본·목적에 따라 달라질 수 있으니 투고할 학술지와 선행연구의 관행을 함께 확인하세요. 근거 문헌은 [도움말·참고문헌]에 있습니다.</p></details>';
+    var anchor = card.querySelector('details:not(.guide)');
+    if (anchor) anchor.insertAdjacentHTML('beforebegin', h); else card.insertAdjacentHTML('beforeend', h);
+  };
+
+  /* ---------------- 다항 로지스틱 회귀 ---------------- */
+  A.mlogit = {
+    group: '회귀', title: '다항 로지스틱 회귀',
+    desc: '범주가 3개 이상인 종속변수(예: 진단 유형, 프로파일): 기준 범주 대비 B·SE·Wald·오즈비, 모형 χ², 예측변수별 우도비 검정, 의사 R², 분류표. 문자형 예측변수는 자동 더미코딩.',
+    form: function () {
+      return selectField('y', '종속변수 (범주형)', 'any') + '<div class="field" id="mref" style="display:none"><label for="refv">기준 범주</label><select id="refv"></select></div>' +
+        multiField('x', '예측변수', 'any', '문자형 변수는 첫 범주를 기준으로 더미코딩됩니다. 숫자로 코딩된 범주형 예측변수는 [데이터]에서 "문자"로 바꾸세요.');
+    },
+    wire: function () {
+      $('#y').onchange = function () {
+        var i = getSel('y'); if (i < 0) { $('#mref').style.display = 'none'; return; }
+        $('#refv').innerHTML = levelsOf(i).map(function (l) { return '<option>' + esc(l) + '</option>'; }).join('');
+        $('#mref').style.display = '';
+      };
+    },
+    run: function () {
+      var y = getSel('y'), x = getMulti('x').filter(function (i) { return i !== y; }); need(y >= 0 && x.length, '종속변수와 예측변수를 선택하세요.');
+      var lv = levelsOf(y); need(lv.length >= 2, '종속변수의 범주가 2개 이상이어야 합니다.');
+      var dc = designColumns(x), refLv = $('#refv').value;
+      var m = S.multinomialLogistic(state.cols[y], dc.cols, dc.names, { ref: refLv }), yn = state.names[y];
+      var html = (m.warnings.length ? '<div class="warn">' + m.warnings.map(esc).join('<br>') + '</div>' : '') +
+        table(['N', '−2LL', '모형 χ²', 'df', 'p', 'Cox-Snell R²', 'Nagelkerke R²', 'McFadden R²', 'AIC', 'BIC'], [[m.n, f(m.deviance, 3), f(m.chi2, 3), m.dfM, fp(m.p), fr(m.coxSnell), fr(m.nagelkerke), fr(m.mcfadden), f(m.aic, 2), f(m.bic, 2)]],
+          { title: '모형 적합 (종속변수: ' + yn + ')' }) +
+        (m.lrTests.length ? table(['예측변수', 'χ²', 'df', 'p'], m.lrTests.map(function (t) { return [esc(t.name), f(t.chi2, 3), t.df, fp(t.p)]; }), { left: [0], title: '우도비 검정', note: '각 예측변수를 뺀 모형과 비교한 χ² (더미코딩된 범주형 변수는 더미별로 표시).' }) : '') +
+        table([yn + ' (기준: ' + esc(m.levels[m.ref]) + ')', '예측변수', 'B', 'SE', 'Wald χ²', 'p', 'OR', 'OR 95% CI'], m.coefs.map(function (c, i) {
+          var first = i === 0 || m.coefs[i - 1].level !== c.level;
+          return [first ? esc(c.level) : '', esc(c.name), f(c.b, 3), f(c.se, 3), f(c.wald, 3), fp(c.p), f(c.or, 3), '[' + f(c.orLow, 3) + ', ' + f(c.orHigh, 3) + ']'];
+        }), { left: [0, 1], title: '회귀계수 (기준 범주 대비)' }) +
+        table(['관측 \\ 예측'].concat(m.levels.map(esc)).concat(['정확도']), m.levels.map(function (l, a) {
+          var tot = m.confusion[a].reduce(function (s, v) { return s + v; }, 0);
+          return [esc(l)].concat(m.confusion[a]).concat([tot ? f(100 * m.confusion[a][a] / tot, 1) + '%' : '—']);
+        }).concat([['전체'].concat(m.levels.map(function () { return ''; })).concat([f(100 * m.accuracy, 1) + '%'])]), { left: [0], title: '분류표' }) +
+        (dc.notes.length ? '<p class="note">더미코딩 — ' + esc(dc.notes.join('; ')) + '</p>' : '') +
+        '<p class="note">N = ' + m.n + ' (목록별 제거). 계수·표준오차·로그우도는 R의 nnet::multinom과 같습니다(bfi 자료로 대조, 오차 < 3e-5). 표준오차는 관측정보행렬로 계산했습니다.</p>' +
+        rcode('library(nnet)\ndf$y <- relevel(factor(df$' + rname(yn) + '), ref = "' + refLv + '")\nm <- multinom(y ~ ' + x.map(function (i) { return rname(state.names[i]); }).join(' + ') + ', data = df, Hess = TRUE)\nsummary(m); exp(coef(m))');
+      addCard('다항 로지스틱 회귀: ' + yn, html, x.length + '개 예측변수, ' + m.K + '개 범주');
+    }
+  };
+
+  NS.extraRefs = (NS.extraRefs || []).concat([
+    ['Aguinis, H., Beaty, J. C., Boik, R. J., & Pierce, C. A. (2005). Effect size and power in assessing moderating effects of categorical variables using multiple regression: A 30-year review. Journal of Applied Psychology, 90(1), 94–107.', 'https://doi.org/10.1037/0021-9010.90.1.94'],
+    ['Cochran, W. G. (1954). Some methods for strengthening the common χ² tests. Biometrics, 10(4), 417–451.', 'https://doi.org/10.2307/3001616'],
+    ['Cohen, J. (1988). Statistical power analysis for the behavioral sciences (2nd ed.). Lawrence Erlbaum.', 'https://doi.org/10.4324/9780203771587'],
+    ['Cumming, G. (2014). The new statistics: Why and how. Psychological Science, 25(1), 7–29.', 'https://doi.org/10.1177/0956797613504966'],
+    ['Field, A. (2018). Discovering statistics using IBM SPSS Statistics (5th ed.). SAGE.', ''],
+    ['Hair, J. F., Black, W. C., Babin, B. J., & Anderson, R. E. (2019). Multivariate data analysis (8th ed.). Cengage.', ''],
+    ['Janssen, J. H. M., van Laar, S., de Rooij, M. J., Kuha, J., & Bakk, Z. (2019). The detection and modeling of direct effects in latent class analysis. Structural Equation Modeling, 26(2), 280–290.', 'https://doi.org/10.1080/10705511.2018.1541745'],
+    ['Kim, H.-Y. (2013). Statistical notes for clinical researchers: Assessing normal distribution (2) using skewness and kurtosis. Restorative Dentistry & Endodontics, 38(1), 52–54.', 'https://doi.org/10.5395/rde.2013.38.1.52'],
+    ['Lance, C. E., Butts, M. M., & Michels, L. C. (2006). The sources of four commonly reported cutoff criteria: What did they really say? Organizational Research Methods, 9(2), 202–220.', 'https://doi.org/10.1177/1094428105284919'],
+    ['MacCallum, R. C., Browne, M. W., & Sugawara, H. M. (1996). Power analysis and determination of sample size for covariance structure modeling. Psychological Methods, 1(2), 130–149.', 'https://doi.org/10.1037/1082-989X.1.2.130'],
+    ["O'Brien, R. M. (2007). A caution regarding rules of thumb for variance inflation factors. Quality & Quantity, 41(5), 673–690.", 'https://doi.org/10.1007/s11135-006-9018-6'],
+    ['Nylund-Gibson, K., Grimm, R. P., & Masyn, K. E. (2019). Prediction from latent classes: A demonstration of different approaches to include distal outcomes in mixture models. Structural Equation Modeling, 26(6), 967–985.', 'https://doi.org/10.1080/10705511.2019.1590146'],
+    ['Wasserstein, R. L., & Lazar, N. A. (2016). The ASA statement on p-values: Context, process, and purpose. The American Statistician, 70(2), 129–133.', 'https://doi.org/10.1080/00031305.2016.1154108']
   ]);
 })(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);
 </script>

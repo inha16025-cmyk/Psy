@@ -30,6 +30,16 @@ const ref = require('./reference.json');
 
   await nav('desc'); await pick('v', ['우울1', '수면', '스트레스']); await run();
   check('기술통계', (await lastCard()).includes('S-W W'));
+  check('해석 가이드 (기술통계)', await page.locator('#results .card').first().locator('details.guide').count() === 1 && (await lastCard()).includes('해석 가이드'));
+  // 메뉴 분류 접기/펴기
+  await page.click('nav.side .grp[data-grp="회귀"]');
+  const hidden = await page.evaluate(() => getComputedStyle(document.querySelector('nav.side .grp[data-grp="회귀"]').nextElementSibling).display === 'none');
+  await page.click('nav.side .grp[data-grp="회귀"]');
+  check('메뉴 분류 접기·펴기', hidden && await page.locator('nav.side a[data-id="mlogit"]').isVisible());
+  // 다항 로지스틱 (집단 3범주 ~ 우울1 + 성별)
+  await nav('mlogit'); await sel('y', '집단'); await page.selectOption('#refv', '통제'); await pick('x', ['우울1', '성별']); await run();
+  const ml = await lastCard();
+  check('다항 로지스틱', ml.includes('우도비 검정') && ml.includes('기준: 통제') && ml.includes('성별[여]') && ml.includes('해석 가이드'));
 
   await nav('ttest'); await pick('dv', ['수면']); await sel('g', '성별'); await run();
   check('독립 t', (await lastCard()).includes('Welch'));
@@ -199,6 +209,16 @@ const ref = require('./reference.json');
   const bchTxt = await lastCard();
   check('BCH 연속·범주 결과변수', bchTxt.includes('M (BCH)') && bchTxt.includes('분포 차이 검정') && bchTxt.includes('분류오류행렬') && bchTxt.includes('부트스트랩(30회'));
   await page.locator('#results .card').first().screenshot({ path: path.join(outDir, '13_bch.png') });
+  // 3단계 ML (연속 + 범주 공변인)
+  const dcard2 = page.locator('#results .card', { has: page.locator('h3', { hasText: '잠재프로파일 해' }) }).first();
+  await dcard2.locator('.ml3box .varlist').nth(0).locator('label', { hasText: '연령' }).first().locator('input').check();
+  await dcard2.locator('.ml3box .varlist').nth(1).locator('label', { hasText: '성별' }).first().locator('input').check();
+  await dcard2.locator('.mlB').fill('20');
+  await dcard2.locator('[data-act=ml3]').click();
+  await page.waitForSelector('#results .card h3:has-text("3단계 ML")', { timeout: 180000 });
+  const m3 = await lastCard();
+  check('ML 3단계 (연속·범주 공변인)', m3.includes('공변인에 따른') && m3.includes('성별[여]') && m3.includes('우도비 검정') && m3.includes('부트스트랩 표준오차(') && m3.includes('해석 가이드'));
+  await page.locator('#results .card').first().screenshot({ path: path.join(outDir, '14_ml3.png') });
   // 잠재계층 (리커트 문항)
   await nav('lpa'); await page.check('input[name=lk][value=LCA]'); await page.dispatchEvent('input[name=lk][value=LCA]', 'change');
   await pick('vc', ['우울1', '우울2', '우울3', '불안1']); await page.selectOption('#kmax', '3'); await page.fill('#nst', '15'); await run();

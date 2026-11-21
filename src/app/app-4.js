@@ -1,4 +1,4 @@
-/* PsyStat 화면(UI) 코드 — 조각 4/5: 네트워크 분석·데이터 화면·화면 전환·시작
+/* PsyStat 화면(UI) 코드 — 조각 4/6: 네트워크 분석·데이터 화면·화면 전환·시작
  * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다.
  * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 코드는 분할 전과 동일) */
 (function (G) {
@@ -201,7 +201,10 @@
     $('#runBtn').onclick = function () {
       var btn = $('#runBtn'); btn.disabled = true; btn.textContent = '계산 중…';
       setTimeout(function () {
+        var before = $$('#results .card').length;
         try { an.run(); } catch (e) { errorCard(e); if (window.console) console.warn(e); }
+        // 해석 가이드: 이번 실행에서 새로 생긴 결과 카드에 붙인다
+        if (NS.appendGuide) $$('#results .card').slice(0, Math.max(0, $$('#results .card').length - before)).forEach(function (c) { if (c.querySelector('h3').textContent !== '오류') NS.appendGuide(c, id); });
         btn.disabled = false; btn.textContent = '분석 실행';
         $('#results').scrollTop = 0; window.scrollTo(0, 0);
       }, 20);
@@ -209,14 +212,31 @@
   }
 
   function buildNav() {
-    var nav = $('#nav'), h = '<a data-id="data">데이터</a>', lastG = '';
-    Object.keys(A).forEach(function (k) {
-      if (A[k].group !== lastG) { h += '<div class="grp">' + esc(A[k].group) + '</div>'; lastG = A[k].group; }
-      h += '<a data-id="' + k + '">' + esc(A[k].title) + '</a>';
+    var nav = $('#nav'), h = '<a data-id="data">데이터</a>';
+    // 분류 체계: NS.NAV([분류 이름, [분석 id...]]) 가 있으면 그 순서, 없으면 정의 순서. 남는 분석은 '기타'로
+    var groups = NS.NAV ? NS.NAV.map(function (g) { return [g[0], g[1].filter(function (k) { return A[k]; })]; }) : [];
+    var listed = [].concat.apply([], groups.map(function (g) { return g[1]; }));
+    var rest = Object.keys(A).filter(function (k) { return listed.indexOf(k) < 0; });
+    if (!NS.NAV) { var lastG = null; rest.forEach(function (k) { if (A[k].group !== lastG) { groups.push([A[k].group, []]); lastG = A[k].group; } groups[groups.length - 1][1].push(k); }); rest = []; }
+    if (rest.length) groups.push(['기타', rest]);
+    var closed = {};
+    try { closed = JSON.parse(localStorage.getItem('psystat_nav_closed') || '{}'); } catch (e) { closed = {}; }
+    groups.forEach(function (g) {
+      h += '<div class="grp' + (closed[g[0]] ? ' closed' : '') + '" data-grp="' + esc(g[0]) + '"><span class="caret">▾</span>' + esc(g[0]) + '</div><div class="grpitems"' + (closed[g[0]] ? ' style="display:none"' : '') + '>';
+      g[1].forEach(function (k) { h += '<a data-id="' + k + '">' + esc(A[k].title) + '</a>'; });
+      h += '</div>';
     });
-    h += '<div class="grp">정보</div><a data-id="about">도움말·참고문헌</a>';
+    h += '<div class="grp" data-grp="정보"><span class="caret">▾</span>정보</div><div class="grpitems"><a data-id="about">도움말·참고문헌</a></div>';
     nav.innerHTML = h;
     $$('a', nav).forEach(function (a) { a.onclick = function () { a.dataset.id === 'about' ? about() : select(a.dataset.id); }; });
+    $$('.grp', nav).forEach(function (g) {
+      g.onclick = function () {
+        var items = g.nextElementSibling, hide = items.style.display !== 'none';
+        items.style.display = hide ? 'none' : '';
+        g.classList.toggle('closed', hide);
+        try { var c = JSON.parse(localStorage.getItem('psystat_nav_closed') || '{}'); c[g.dataset.grp] = hide; localStorage.setItem('psystat_nav_closed', JSON.stringify(c)); } catch (e) { /* 저장소 사용 불가 */ }
+      };
+    });
   }
 
   function about() {
