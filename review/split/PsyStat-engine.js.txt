@@ -1,4 +1,4 @@
-/* PsyStat 0.7.0 계산 엔진 — PsyStat.html과 같은 폴더에 두세요 */
+/* PsyStat 0.7.1 계산 엔진 — PsyStat.html과 같은 폴더에 두세요 */
 /*
  * PsyStat 통계 엔진 (stats) — 조각 1/3: 특수함수·분포·행렬·기초통계·검정·회귀·신뢰도
  * 외부 라이브러리·네트워크 통신 없음. 순수 JavaScript.
@@ -2094,7 +2094,147 @@
     return Math.max(0, 2 * (f1.LL - f0.LL));
   }
 
-  var api = { lpa: lpa, lca: lca, blrtOnce: blrtOnce, lpaFitK: lpaFitK, lcaFitK: lcaFitK, lpaNpar: lpaNpar, lcaNpar: lcaNpar, LPA_MODELS: LPA_MODELS };
+  /* ---------------- 3단계: BCH 원거리 결과변수 (Bolck, Croon, & Hagenaars, 2004; Vermunt, 2010; Bakk et al., 2013) ---------------- */
+  // 분류오류행렬 D[s][t] = P(배정 = t | 실제 = s) = Σ_i p_is·1(w_i = t) / Σ_i p_is
+  function classificationError(Z, cls) {
+    var K = Z[0].length, D = zeros(K, K), tot = new Array(K).fill(0);
+    Z.forEach(function (r, i) { for (var s = 0; s < K; s++) { D[s][cls[i]] += r[s]; tot[s] += r[s]; } });
+    return D.map(function (row, s) { return row.map(function (v) { return v / tot[s]; }); });
+  }
+  // BCH 가중치: 배정 집단이 t인 사례의 집단 s 가중치 = (D⁻¹)[t][s]
+  function bchWeights(Z, cls) {
+    var K = Z[0].length, used = new Array(K).fill(0); cls.forEach(function (c) { used[c]++; });
+    if (used.some(function (u) { return u === 0; })) throw new Error('최빈 배정으로 사례가 한 명도 배정되지 않은 집단이 있어 BCH를 계산할 수 없습니다. 집단 수를 줄이거나 다른 해를 고르세요.');
+    var D = classificationError(Z, cls), H;
+    try { H = St.inverse(D); } catch (e) { throw new Error('분류오류행렬이 특이해 BCH를 계산할 수 없습니다(집단 구분이 매우 약함).'); }
+    return { D: D, H: H, W: cls.map(function (t) { return H[t].slice(); }) };
+  }
+  function waldTest(est, V, C) { // C: 대비행렬 (행 = 제약)
+    var Ce = C.map(function (c) { return c.reduce(function (s, v, j) { return s + v * est[j]; }, 0); });
+    var CV = C.map(function (c) { return V[0].map(function (_, j) { return c.reduce(function (s, v, a) { return s + v * V[a][j]; }, 0); }); });
+    var CVC = CV.map(function (row) { return C.map(function (c) { return row.reduce(function (s, v, j) { return s + v * c[j]; }, 0); }); });
+    var Inv = St.inverse(CVC), chi = 0;
+    for (var a = 0; a < Ce.length; a++) for (var b = 0; b < Ce.length; b++) chi += Ce[a] * Inv[a][b] * Ce[b];
+    return { chi2: chi, df: C.length, p: St.pchisqUpper(chi, C.length) };
+  }
+  // fit: lpa/lca 결과의 해 (Z, classes), y: 단계 1 사례 순서와 같은 길이 (결측 가능), type: 'continuous' | 'categorical'
+  function bchDistal(fit, y, type) {
+    var K = fit.K, bw = bchWeights(fit.Z, fit.classes), warn = [];
+    var idx = []; y.forEach(function (v, i) { if (v !== null && v !== undefined && v !== '' && !(typeof v === 'number' && !isFinite(v))) idx.push(i); });
+    if (idx.length < K + 2) throw new Error('결과변수의 유효 사례가 너무 적습니다.');
+    var condD = 0; bw.H.forEach(function (r) { r.forEach(function (v) { condD = Math.max(condD, Math.abs(v)); }); });
+    if (condD > 10) warn.push('분류오류행렬이 불안정합니다(D⁻¹ 원소 최대 ' + condD.toFixed(1) + '). 집단 구분이 약해 BCH 추정이 불안정할 수 있습니다.');
+    var negShare = idx.filter(function (i) { return bw.W[i].some(function (w) { return w < 0; }); }).length / idx.length;
+    var Ws = []; for (var s = 0; s < K; s++) Ws.push(idx.reduce(function (a, i) { return a + bw.W[i][s]; }, 0));
+    if (Ws.some(function (w) { return !(w > 1); })) throw new Error('BCH 가중치 합이 너무 작은 집단이 있어 추정할 수 없습니다.');
+    var out = { K: K, n: idx.length, D: bw.D, weightN: Ws, negWeightShare: negShare, warnings: warn, type: type };
+    // 비교용: 최빈 배정(보정 없음)
+    var naiveN = new Array(K).fill(0); idx.forEach(function (i) { naiveN[fit.classes[i]]++; });
+    if (type === 'continuous') {
+      var mu = [], sdv = [];
+      for (var s2 = 0; s2 < K; s2++) {
+        var m = idx.reduce(function (a, i) { return a + bw.W[i][s2] * y[i]; }, 0) / Ws[s2];
+        var v = idx.reduce(function (a, i) { return a + bw.W[i][s2] * (y[i] - m) * (y[i] - m); }, 0) / Ws[s2];
+        mu.push(m); sdv.push(Math.sqrt(Math.max(v, 0))); if (v < 0) warn.push('집단 ' + (s2 + 1) + '의 가중 분산이 음수입니다(음수 가중치의 영향).');
+      }
+      // 샌드위치 공분산: ψ_is = w_is (y_i − μ_s) / W_s
+      var V = zeros(K, K);
+      idx.forEach(function (i) { var ps = mu.map(function (m, s3) { return bw.W[i][s3] * (y[i] - m) / Ws[s3]; }); for (var a = 0; a < K; a++) for (var b = 0; b < K; b++) V[a][b] += ps[a] * ps[b]; });
+      var C = []; for (var k = 1; k < K; k++) { var c = new Array(K).fill(0); c[0] = 1; c[k] = -1; C.push(c); }
+      out.means = mu; out.sds = sdv; out.se = V.map(function (r, s4) { return Math.sqrt(r[s4]); }); out.V = V;
+      out.overall = K > 1 ? waldTest(mu, V, C) : null;
+      out.pairs = [];
+      for (var a2 = 0; a2 < K; a2++) for (var b2 = a2 + 1; b2 < K; b2++) {
+        var c2 = new Array(K).fill(0); c2[a2] = 1; c2[b2] = -1;
+        var wt = waldTest(mu, V, [c2]), se = Math.sqrt(V[a2][a2] + V[b2][b2] - 2 * V[a2][b2]);
+        out.pairs.push({ a: a2, b: b2, diff: mu[a2] - mu[b2], se: se, chi2: wt.chi2, p: wt.p });
+      }
+      out.naiveMeans = []; for (var s5 = 0; s5 < K; s5++) { var g = idx.filter(function (i) { return fit.classes[i] === s5; }).map(function (i) { return y[i]; }); out.naiveMeans.push(g.length ? St.mean(g) : NaN); }
+      out.naiveN = naiveN;
+    } else {
+      var levels = []; idx.forEach(function (i) { var l = String(y[i]); if (levels.indexOf(l) < 0) levels.push(l); });
+      levels.sort(function (p1, p2) { var x = Number(p1), z = Number(p2); return (!isNaN(x) && !isNaN(z)) ? x - z : (p1 < p2 ? -1 : p1 > p2 ? 1 : 0); });
+      var L = levels.length;
+      if (L < 2) throw new Error('범주형 결과변수의 응답이 한 가지뿐입니다.');
+      if (L > 15) throw new Error('범주가 15개를 넘습니다. 연속형으로 분석하세요.');
+      var yl = y.map(function (v) { return levels.indexOf(String(v)); });
+      var P = []; for (var s6 = 0; s6 < K; s6++) P.push(levels.map(function (_, l) { return idx.reduce(function (a, i) { return a + bw.W[i][s6] * (yl[i] === l ? 1 : 0); }, 0) / Ws[s6]; }));
+      if (P.some(function (r) { return r.some(function (p) { return p < 0 || p > 1; }); })) warn.push('일부 추정 비율이 0–1 범위를 벗어났습니다(음수 가중치의 영향). 해당 집단이 작거나 분류가 불확실할 때 생기며, 해석에 주의하세요.');
+      // 모수: 각 집단의 앞 L−1개 범주 비율, ψ = w_is(1(y=l) − p_sl)/W_s
+      var q = K * (L - 1), V2 = zeros(q, q), est = [];
+      for (var s7 = 0; s7 < K; s7++) for (var l2 = 0; l2 < L - 1; l2++) est.push(P[s7][l2]);
+      idx.forEach(function (i) {
+        var ps = []; for (var s8 = 0; s8 < K; s8++) for (var l3 = 0; l3 < L - 1; l3++) ps.push(bw.W[i][s8] * ((yl[i] === l3 ? 1 : 0) - P[s8][l3]) / Ws[s8]);
+        for (var a3 = 0; a3 < q; a3++) { if (ps[a3] === 0) continue; for (var b3 = 0; b3 < q; b3++) V2[a3][b3] += ps[a3] * ps[b3]; }
+      });
+      var cmat = function (sa, sb) { var rows = []; for (var l4 = 0; l4 < L - 1; l4++) { var c3 = new Array(q).fill(0); c3[sa * (L - 1) + l4] = 1; c3[sb * (L - 1) + l4] = -1; rows.push(c3); } return rows; };
+      var Call = []; for (var k2 = 1; k2 < K; k2++) Call = Call.concat(cmat(0, k2));
+      out.levels = levels; out.props = P;
+      out.se = P.map(function (r, s9) { return r.map(function (_, l5) { if (l5 === L - 1) { var c4 = new Array(q).fill(0); for (var m2 = 0; m2 < L - 1; m2++) c4[s9 * (L - 1) + m2] = 1; var vv = 0; for (var a4 = 0; a4 < q; a4++) for (var b4 = 0; b4 < q; b4++) vv += c4[a4] * V2[a4][b4] * c4[b4]; return Math.sqrt(vv); } var j = s9 * (L - 1) + l5; return Math.sqrt(V2[j][j]); }); });
+      out.overall = K > 1 ? waldTest(est, V2, Call) : null;
+      out.pairs = [];
+      for (var a5 = 0; a5 < K; a5++) for (var b5 = a5 + 1; b5 < K; b5++) { var wt2 = waldTest(est, V2, cmat(a5, b5)); out.pairs.push({ a: a5, b: b5, chi2: wt2.chi2, df: wt2.df, p: wt2.p }); }
+      out.naiveProps = []; for (var s10 = 0; s10 < K; s10++) { var g2 = idx.filter(function (i) { return fit.classes[i] === s10; }); out.naiveProps.push(levels.map(function (_, l6) { return g2.length ? g2.filter(function (i) { return yl[i] === l6; }).length / g2.length : NaN; })); }
+      out.naiveN = naiveN;
+    }
+    return out;
+  }
+
+  // 원래 해의 모수에서 시작해 재추정 (부트스트랩용; 집단 번호가 원래 해와 같게 유지됨)
+  function refitFrom(kind, X, fit, C) {
+    var P = fit.params, LL = -Infinity, E = null;
+    for (var it = 0; it < 500; it++) {
+      E = kind === 'LPA' ? lpaE(X, P) : lcaE(X, P);
+      if (!E) return null;
+      if (Math.abs(E.LL - LL) < 1e-8 * (1 + Math.abs(E.LL))) break;
+      LL = E.LL;
+      P = kind === 'LPA' ? lpaM(X, E.Z, fit.K, fit.model) : lcaM(X, E.Z, fit.K, C);
+      if (!P) return null;
+    }
+    var cls = E.Z.map(function (r) { var b = 0; for (var k = 1; k < r.length; k++) if (r[k] > r[b]) b = k; return b; });
+    return { K: fit.K, Z: E.Z, classes: cls };
+  }
+  // 3단계 전체 부트스트랩: 사례 재표집 → 단계 1 재추정 → D·가중치 → 단계 3. 단계 1 불확실성을 표준오차에 반영
+  // outcomes: [{ y, type, levels }] — 재표집·재추정 1번으로 여러 결과변수를 함께 계산. 반환: 결과변수별 추정치 벡터(실패 시 null)
+  function bchBootstrapOnce(res, fit, outcomes, rand) {
+    var n = res.X.length, idx = [];
+    for (var i = 0; i < n; i++) idx.push(Math.floor(rand() * n));
+    var f2 = refitFrom(res.kind, idx.map(function (q) { return res.X[q]; }), fit, res.C);
+    return outcomes.map(function (o) {
+      if (!f2) return null;
+      try {
+        var b = bchDistal(f2, idx.map(function (q) { return o.y[q]; }), o.type);
+        if (o.type === 'continuous') return b.means;
+        if (o.levels && b.levels.join('|') !== o.levels.join('|')) return null; // 재표집에서 범주가 빠지면 생략
+        var est = []; b.props.forEach(function (r) { for (var l = 0; l < r.length - 1; l++) est.push(r[l]); }); return est;
+      } catch (e) { return null; }
+    });
+  }
+  // 부트스트랩 결과로 표준오차와 Wald 검정을 다시 계산
+  function bchApplyBootstrap(out, draws) {
+    var q = draws[0].length, m = new Array(q).fill(0), V = zeros(q, q), B = draws.length;
+    draws.forEach(function (d) { for (var a = 0; a < q; a++) m[a] += d[a] / B; });
+    draws.forEach(function (d) { for (var a = 0; a < q; a++) for (var b = 0; b < q; b++) V[a][b] += (d[a] - m[a]) * (d[b] - m[b]) / (B - 1); });
+    var K = out.K, bo = { B: B, V: V };
+    if (out.type === 'continuous') {
+      var C = []; for (var k = 1; k < K; k++) { var c = new Array(K).fill(0); c[0] = 1; c[k] = -1; C.push(c); }
+      bo.se = V.map(function (r, s) { return Math.sqrt(r[s]); });
+      bo.overall = waldTest(out.means, V, C);
+      bo.pairs = out.pairs.map(function (p) { var c2 = new Array(K).fill(0); c2[p.a] = 1; c2[p.b] = -1; var w = waldTest(out.means, V, [c2]); return { a: p.a, b: p.b, se: Math.sqrt(V[p.a][p.a] + V[p.b][p.b] - 2 * V[p.a][p.b]), chi2: w.chi2, p: w.p }; });
+    } else {
+      var L = out.levels.length, est = []; out.props.forEach(function (r) { for (var l = 0; l < L - 1; l++) est.push(r[l]); });
+      var cm = function (sa, sb) { var rows = []; for (var l2 = 0; l2 < L - 1; l2++) { var c3 = new Array(q).fill(0); c3[sa * (L - 1) + l2] = 1; c3[sb * (L - 1) + l2] = -1; rows.push(c3); } return rows; };
+      var Call = []; for (var k2 = 1; k2 < K; k2++) Call = Call.concat(cm(0, k2));
+      bo.se = out.props.map(function (r, s) { return r.map(function (_, l) { var c4 = new Array(q).fill(0); if (l === L - 1) { for (var m2 = 0; m2 < L - 1; m2++) c4[s * (L - 1) + m2] = 1; } else c4[s * (L - 1) + l] = 1; var vv = 0; for (var a = 0; a < q; a++) for (var b = 0; b < q; b++) vv += c4[a] * V[a][b] * c4[b]; return Math.sqrt(vv); }); });
+      bo.overall = waldTest(est, V, Call);
+      bo.pairs = out.pairs.map(function (p) { var w = waldTest(est, V, cm(p.a, p.b)); return { a: p.a, b: p.b, chi2: w.chi2, df: w.df, p: w.p }; });
+    }
+    out.boot = bo;
+    return out;
+  }
+
+  var api = { lpa: lpa, lca: lca, blrtOnce: blrtOnce, classificationError: classificationError, bchWeights: bchWeights, bchDistal: bchDistal,
+    bchBootstrapOnce: bchBootstrapOnce, bchApplyBootstrap: bchApplyBootstrap, refitFrom: refitFrom, lpaFitK: lpaFitK, lcaFitK: lcaFitK, lpaNpar: lpaNpar, lcaNpar: lcaNpar, LPA_MODELS: LPA_MODELS };
   Object.keys(api).forEach(function (k) { St[k] = api[k]; });
 })(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);
 

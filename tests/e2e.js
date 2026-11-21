@@ -189,6 +189,16 @@ const ref = require('./reference.json');
   const gopt = await page.evaluate(() => [...document.querySelectorAll('#g option')].map(o => o.textContent).filter(t => t.startsWith('LPA_')));
   await sel('g', gopt[0]); await run();
   check('프로파일별 ANOVA', (await lastCard()).includes('분산분석표'), gopt[0]);
+  // 3단계 BCH (연속 + 범주 결과변수, 부트스트랩)
+  const dcard = page.locator('#results .card', { has: page.locator('h3', { hasText: '잠재프로파일 해' }) }).first();
+  await dcard.locator('.bchbox .varlist').nth(0).locator('label', { hasText: '우울1' }).first().locator('input').check();
+  await dcard.locator('.bchbox .varlist').nth(1).locator('label', { hasText: '성별' }).first().locator('input').check();
+  await dcard.locator('.bchB').fill('30');
+  await dcard.locator('[data-act=bch]').click();
+  await page.waitForSelector('#results .card h3:has-text("3단계 BCH")', { timeout: 180000 });
+  const bchTxt = await lastCard();
+  check('BCH 연속·범주 결과변수', bchTxt.includes('M (BCH)') && bchTxt.includes('분포 차이 검정') && bchTxt.includes('분류오류행렬') && bchTxt.includes('부트스트랩(30회'));
+  await page.locator('#results .card').first().screenshot({ path: path.join(outDir, '13_bch.png') });
   // 잠재계층 (리커트 문항)
   await nav('lpa'); await page.check('input[name=lk][value=LCA]'); await page.dispatchEvent('input[name=lk][value=LCA]', 'change');
   await pick('vc', ['우울1', '우울2', '우울3', '불안1']); await page.selectOption('#kmax', '3'); await page.fill('#nst', '15'); await run();
