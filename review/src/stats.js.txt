@@ -7,4 +7,5 @@
 require('./stats/stats-1.js');
 require('./stats/stats-2.js');
 require('./stats/stats-3.js');
+require('./stats/stats-4.js');
 module.exports = (typeof self !== 'undefined' ? self : global).PsyStats;

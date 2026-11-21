@@ -1,4 +1,4 @@
-/* PsyStat 화면(UI) 코드 — 조각 4/6: 네트워크 분석·데이터 화면·화면 전환·시작
+/* PsyStat 화면(UI) 코드 — 조각 4/7: 네트워크 분석·데이터 화면·화면 전환·시작
  * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다.
  * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 코드는 분할 전과 동일) */
 (function (G) {
@@ -21,6 +21,7 @@
         '<div class="field" id="pcopts" style="display:none"><label for="alp">유의하지 않은 엣지 제거 (α)</label><select id="alp"><option value="0">제거 안 함</option><option value="0.05">.05</option><option value="0.01">.01</option></select></div>' +
         '<div class="field"><div class="lab">상관 종류</div><div class="inline"><label><input type="radio" name="cr" value="auto" checked>자동 (cor_auto)</label><label><input type="radio" name="cr" value="pearson">Pearson</label><label><input type="radio" name="cr" value="spearman">Spearman</label></div>' +
         '<div class="hint">자동: 리커트·이분 문항(정수, 수준 7개 이하)은 다분·사분상관, 연속변수는 Pearson, 섞이면 다계열상관 (qgraph::cor_auto와 같은 규칙). 다분상관을 쓰면 부트스트랩이 몇 배 느려집니다.</div></div>' +
+        (NS.netCommField ? NS.netCommField() : '') +
         '<div class="field"><div class="lab">안정성 분석 (부트스트랩, bootnet 방식)</div><div class="inline"><label>엣지 부트스트랩 <input type="number" id="nb" value="0" min="0" step="100" style="width:80px"> 회</label></div>' +
         '<div class="inline" style="margin-top:4px"><label>사례 제거 부트스트랩 <input type="number" id="nc" value="0" min="0" step="100" style="width:80px"> 회</label></div>' +
         '<div class="inline" style="margin-top:4px"><label>난수 시드 <input type="number" id="seed" value="1234" style="width:80px"></label></div>' +
@@ -45,6 +46,7 @@
       var res = S.estimateNetwork(cols, opts), net = res.network, p = v.length;
       opts.onNearPD = null;
       var ce = S.centrality(net), layout = S.layoutFR(net);
+      NS.lastNetwork = { cols: cols, names: names, opts: opts, net: net, ce: ce, layout: layout, varIdx: v }; // app-7(커뮤니티·브리지)이 사용
       var nEdges = 0, possible = p * (p - 1) / 2, edgeRows = [];
       for (var a = 0; a < p; a++) for (var b = a + 1; b < p; b++) if (net[a][b] !== 0) { nEdges++; edgeRows.push([a, b, net[a][b]]); }
       edgeRows.sort(function (x, y) { return Math.abs(y[2]) - Math.abs(x[2]); });
@@ -95,7 +97,7 @@
   function runBootstrap(box, cols, names, opts, net, ce, nb, nc, seed) {
     var rand = S.rng(seed), p = names.length, orig = S.upperVec(net), pairs = [];
     for (var a = 0; a < p; a++) for (var b = a + 1; b < p; b++) pairs.push([a, b]);
-    var edgeSamples = [], props = [0.05, 0.128, 0.206, 0.283, 0.361, 0.439, 0.517, 0.594, 0.672, 0.75];
+    var edgeSamples = [], strSamples = [], eiSamples = [], props = [0.05, 0.128, 0.206, 0.283, 0.361, 0.439, 0.517, 0.594, 0.672, 0.75];
     var corrS = props.map(function () { return []; }), corrE = props.map(function () { return []; }), corrB = props.map(function () { return []; }), corrC = props.map(function () { return []; });
     var total = nb + nc, done = 0, t0 = Date.now();
     box.innerHTML = '<h4>안정성 분석 진행 중…</h4><div class="progress"><div></div></div><div class="note prog">0 / ' + total + '</div>';
@@ -103,7 +105,7 @@
       var until = Date.now() + 120;
       try {
         while (done < total && Date.now() < until) {
-          if (done < nb) edgeSamples.push(S.bootEdgeOnce(cols, opts, rand).edges);
+          if (done < nb) { var bo = S.bootEdgeOnce(cols, opts, rand); edgeSamples.push(bo.edges); strSamples.push(bo.centrality.strength); eiSamples.push(bo.centrality.expectedInfluence); }
           else {
             var k = (done - nb) % props.length, c = S.caseDropOnce(cols, opts, props[k], rand);
             corrS[k].push(S.pearson(ce.strength, c.strength)); corrE[k].push(S.pearson(ce.expectedInfluence, c.expectedInfluence));
@@ -137,6 +139,7 @@
           table(['제거 비율'].concat(props.map(function (x) { return Math.round(x * 100) + '%'; })), [['강도: 평균 r'].concat(corrS.map(function (a) { return a.length ? fr(S.mean(a.filter(S.isNum))) : '—'; }))], { title: '사례 제거 비율별 원 강도와의 평균 상관' });
       }
       box.innerHTML = html;
+      if (NS.networkBootExtras) NS.networkBootExtras(box, { names: names, net: net, ce: ce, orig: orig, pairs: pairs, edgeSamples: edgeSamples, strSamples: strSamples, eiSamples: eiSamples, props: props, corrS: corrS, corrE: corrE, corrB: corrB, corrC: corrC, nb: nb, nc: nc });
     }
     setTimeout(step, 30);
   }

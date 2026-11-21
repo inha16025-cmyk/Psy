@@ -1,4 +1,4 @@
-/* PsyStat 화면(UI) 코드 — 조각 3/6: 구조방정식·신뢰도·네트워크 그림
+/* PsyStat 화면(UI) 코드 — 조각 3/7: 구조방정식·신뢰도·네트워크 그림
  * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다.
  * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 코드는 분할 전과 동일) */
 (function (G) {
@@ -233,13 +233,18 @@
         (e[2] < 0 ? ' stroke-dasharray="6 3"' : '') + '><title>' + esc(labels[e[0]] + ' – ' + labels[e[1]]) + ': ' + e[2].toFixed(3) + '</title></line>';
     });
     for (var n = 0; n < p; n++) {
-      s += '<circle cx="' + X(n).toFixed(1) + '" cy="' + Y(n).toFixed(1) + '" r="' + R + '" fill="#ffffff" stroke="#3a4152" stroke-width="1.5"/>';
+      var GCOL = ['#dbe6fb', '#fbe0dd', '#dcf1df', '#f6ead0', '#ebdff5', '#d7f0ec', '#f9e3d2', '#e5e5e5'];
+      s += '<circle cx="' + X(n).toFixed(1) + '" cy="' + Y(n).toFixed(1) + '" r="' + R + '" fill="' + (opts.groups ? GCOL[opts.groups[n] % GCOL.length] : '#ffffff') + '" stroke="#3a4152" stroke-width="1.5"/>';
       if (opts.pred) { // 예측력 링
         var ang = 2 * Math.PI * Math.max(0, Math.min(1, opts.pred[n])), x1 = X(n), y1 = Y(n) - R, x2 = X(n) + R * Math.sin(ang), y2 = Y(n) - R * Math.cos(ang);
         s += '<path d="M' + x1.toFixed(1) + ' ' + y1.toFixed(1) + ' A' + R + ' ' + R + ' 0 ' + (ang > Math.PI ? 1 : 0) + ' 1 ' + x2.toFixed(1) + ' ' + y2.toFixed(1) + '" fill="none" stroke="#8a94a6" stroke-width="4"/>';
       }
       var lab = labels[n].length > 6 ? labels[n].slice(0, 6) : labels[n];
       s += '<text x="' + X(n).toFixed(1) + '" y="' + (Y(n) + 4).toFixed(1) + '" text-anchor="middle" font-size="' + (lab.length > 4 ? 8.5 : lab.length > 3 ? 10 : 12) + '" style="fill:#1d2433">' + esc(lab) + '<title>' + esc(labels[n]) + '</title></text>';
+    }
+    if (opts.groups && opts.groupNames) {
+      var GC2 = ['#dbe6fb', '#fbe0dd', '#dcf1df', '#f6ead0', '#ebdff5', '#d7f0ec', '#f9e3d2', '#e5e5e5'];
+      opts.groupNames.forEach(function (gn, gi) { s += '<rect x="10" y="' + (10 + gi * 18) + '" width="12" height="12" fill="' + GC2[gi % GC2.length] + '" stroke="#3a4152"/><text x="28" y="' + (20 + gi * 18) + '" font-size="11" style="fill:#1d2433">' + esc(gn) + '</text>'; });
     }
     return s + '</svg>';
   }

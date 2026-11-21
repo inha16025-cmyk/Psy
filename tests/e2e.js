@@ -76,6 +76,18 @@ const ref = require('./reference.json');
   await page.waitForSelector('#results .card .bootbox h4:has-text("결과")', { timeout: 120000 });
   const nt = await lastCard();
   check('네트워크 + 부트스트랩', nt.includes('EBICglasso') && nt.includes('CS 계수'));
+  check('커뮤니티(척도 지정) + 브리지 중심성 + 차이 검정', nt.includes('지정한 커뮤니티') && nt.includes('브리지 중심성') && nt.includes('강도 중심성 차이 검정') && nt.includes('엣지 가중치 정확도'));
+  // 자동 커뮤니티 (walktrap)
+  await nav('network'); await pick('v', ['우울1', '우울2', '우울3', '불안1', '불안2', '불안3', '수면', '스트레스']);
+  await page.check('input[name=cmode][value=auto]'); await page.dispatchEvent('input[name=cmode][value=auto]', 'change'); await run();
+  check('자동 커뮤니티 탐지 (walktrap)', (await lastCard()).includes('자동 탐지된 커뮤니티') && (await lastCard()).includes('모듈성 Q'));
+  // NCT
+  await nav('nct'); await pick('v', ['우울1', '우울2', '우울3', '불안1', '불안2', '불안3']); await sel('g', '집단');
+  await page.selectOption('#g_a', '통제'); await page.selectOption('#g_b', '치료A'); await page.check('input[name=cr][value=pearson]'); await page.fill('#np', '60'); await run();
+  await page.waitForSelector('#results .card .nctbox h4:has-text("통제")', { timeout: 180000 });
+  const nc = await lastCard();
+  check('NCT (구조·전체 강도·엣지·중심성)', nc.includes('네트워크 구조 불변성') && nc.includes('전체 연결 강도 불변성') && nc.includes('중심성 불변성') && nc.includes('해석 가이드'));
+  await page.locator('#results .card').first().screenshot({ path: path.join(outDir, '15_nct.png') });
   await page.locator('#results .card').first().screenshot({ path: path.join(outDir, '02_network.png') });
   await page.screenshot({ path: path.join(outDir, '04_overview.png') });
 
@@ -234,8 +246,8 @@ const ref = require('./reference.json');
   check('붙여넣기 (TSV)', (await page.textContent('#datainfo')).includes(N.n + '행'));
   await nav('network'); await page.click('[data-all="v"]'); await page.check('input[name=cr][value=pearson]'); await run();
   const w = await page.evaluate(() => {
-    const t = [...document.querySelectorAll('#results .card')][0].querySelectorAll('table.res');
-    return t[t.length - 1].innerText;
+    const apa = [...[...document.querySelectorAll('#results .card')][0].querySelectorAll('.apa')].filter(a => (a.querySelector('.apa-title') || {}).textContent === '가중치 행렬')[0];
+    return apa.querySelector('table.res').innerText;
   });
   const sumAbs = N.net.flat().reduce((a, b) => a + Math.abs(b), 0) / 2;
   const nums = w.split('\n').slice(1).map(l => l.split('\t').slice(1)).flat().map(s => Number(s.replace('−', '-').replace(/^(-?)\./, '$10.'))).filter(x => !isNaN(x));

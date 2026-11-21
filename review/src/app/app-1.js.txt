@@ -1,4 +1,4 @@
-/* PsyStat 화면(UI) 코드 — 조각 1/6: 공통 도우미·자료 읽기·APA 표·결과 카드·기술통계~판별분석
+/* PsyStat 화면(UI) 코드 — 조각 1/7: 공통 도우미·자료 읽기·APA 표·결과 카드·기술통계~판별분석
  * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다.
  * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 코드는 분할 전과 동일) */
 (function (G) {
@@ -50,7 +50,12 @@
     ['−2LL', '−2LL = −2 로그우도'], ['AIC', 'AIC = 아카이케 정보기준'], ['BIC', 'BIC = 베이지안 정보기준'], ['EI', 'EI = 기대영향'], ['S-W', 'S-W = Shapiro-Wilk']];
   // 카드 안의 표에 번호·제목·주를 붙인다
   function decorateTables(card, cardTitle) {
-    $$('.apa', card).forEach(function (el, k) {
+    // 이미 번호가 붙은 표는 건너뛰고, 새 표는 기존 개수 다음 번호부터 (나중에 카드에 표를 더해도 중복 캡션이 생기지 않게)
+    var done = $$('.apa .apa-cap', card).length, k0 = 0;
+    cardTitle = cardTitle || (card.querySelector('h3') ? card.querySelector('h3').textContent : '');
+    $$('.apa', card).forEach(function (el) {
+      if (el.querySelector('.apa-cap')) return;
+      var k = done + k0++;
       var title = el.dataset.title, prev = el.previousElementSibling;
       if (!title && prev && prev.tagName === 'H4') { title = prev.textContent; prev.parentNode.removeChild(prev); }
       if (!title) title = cardTitle;

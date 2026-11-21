@@ -1,5 +1,5 @@
 /*
- * PsyStat 통계 엔진 (stats) — 조각 3/3: 잠재프로파일 분석(LPA)·잠재계층분석(LCA)
+ * PsyStat 통계 엔진 (stats) — 조각 3/4: 잠재프로파일 분석(LPA)·잠재계층분석(LCA)
  * 외부 라이브러리·네트워크 통신 없음. 순수 JavaScript.
  * - LPA: 가우시안 혼합모형 (mclust 모형 EEI, VVI, EEE, VVV = tidyLPA 모형 1, 2(변형), 3, 6에 해당)
  * - LCA: 범주형 지표의 잠재계층모형 (poLCA와 같은 모형)

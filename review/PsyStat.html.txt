@@ -124,7 +124,7 @@ table.res thead th:first-child { text-align: left; }
   <b style="font-size:16px">PsyStat의 스크립트가 실행되지 않았습니다.</b><br>
   이 상자가 보이면 HTML은 열렸지만 계산 코드(JavaScript)가 동작하지 않은 것입니다. 다음을 순서대로 확인해 주세요.
   <ol style="margin:8px 0 0 18px;padding:0">
-    <li><b>파일 크기</b>: 파일 속성에서 크기가 약 <b>   414,789바이트</b>인지 확인하세요. 훨씬 작다면 자료 전송(망연계) 과정에서 보안 프로그램이 스크립트를 제거한 것입니다. 보안 담당자에게 이 파일의 반입 예외(스크립트 포함 HTML) 승인을 요청하세요. 원본 SHA-256: <code style="font-size:12px;word-break:break-all">(스크립트 본문) df218a8be228b0b3e5469f27530225196b0ee2f31dab0e8303959b0d21b95897</code></li>
+    <li><b>파일 크기</b>: 파일 속성에서 크기가 약 <b>   457,013바이트</b>인지 확인하세요. 훨씬 작다면 자료 전송(망연계) 과정에서 보안 프로그램이 스크립트를 제거한 것입니다. 보안 담당자에게 이 파일의 반입 예외(스크립트 포함 HTML) 승인을 요청하세요. 원본 SHA-256: <code style="font-size:12px;word-break:break-all">(스크립트 본문) cbbf1a14b632df8c32795985e8fb428ef4ed0bebce64dcacadc0002fd848cd87</code></li>
     <li><b>브라우저 정책</b>: 기관 정책으로 로컬 파일(file://)의 JavaScript가 차단되었을 수 있습니다. Chrome이 있다면 Chrome으로 열어 보고, 같은 증상이면 전산 담당자에게 문의하세요.</li>
     <li><b>문서 보안(DRM) 뷰어</b>: 탐색기에서 파일을 더블클릭했을 때 일반 브라우저가 아닌 보안 뷰어로 열리면 스크립트가 꺼져 있을 수 있습니다.</li>
   </ol>
@@ -147,7 +147,7 @@ table.res thead th:first-child { text-align: left; }
 </script>
 <script>/* PsyStat 자가 점검: 블록이 원본과 같은지 확인 (외부 통신 없음) */
 (function () {
-  var E = [{"n":"서식(style)","L":8393,"f":"19d6xtg","h":":root {\n  --bg: #f6f7f9; --panel: #fffff","t":" 1px solid var(--line); }\n}\n@media print {\n  header.top, nav.side, section.opts, .card .tools { disp","te":100,"A":["cuuthg","ck4m81","4fydbl","1nsw2qg"],"Z":["113oegt","1nxj7r","bw0gvx","1hrirru"]},{"n":"보조 스크립트 2","L":611,"f":"1eevuh6","h":"\n// 이 줄이 실행되면 스크립트는 허용된 것: 안내 상자를 숨기고, 이","t":"다. 아래 내용을 캡처해 보내 주세요.';\n    var e = document.getElementById('jserr'); e.style.display = '';\n    e.te","te":100,"A":[],"Z":[]},{"n":"통계 엔진 1/3","L":42987,"f":"apwcis","h":"/*\n * PsyStat 통계 엔진 (stats) — 조각 1/3: 특수","t":"ion = logisticRegression; NS.hosmerLemeshow = hosmerLemeshow; NS.aucROC = aucROC; NS.reliability = r","te":100,"A":["13qwz39","lov7z0","ifoorj","j1t37s","14c6olz","1s9fud0","y2aril","zlcdha","1dbbzrm","1088282","uybxnt","3zioq5","1v7mglj","1lxyy8o","1pqqtop","uqf5ak","3zuj9q","1v5ri8a","1locjj1","412gvn","14qwzy6"],"Z":["ivoq9q","dx2jxy","xchh0u","duphqq","7i1wz0","d169oh","sgrej3","16g98bo","1p7l31s","1kfgigl","1un8cqi","eoqt00","guhtq1","1b7j2ih","c6ybru","1tt1ta4","t7vrcw","1fh3aql","xguvtq","1e9paex","1i21lm3"]},{"n":"통계 엔진 2/3","L":53944,"f":"3dtmth","h":"/*\n * PsyStat 통계 엔진 (stats) — 조각 2/3: 네트","t":"diation: mediation, processModel: processModel,\n    manova: manova, discriminant: discriminant, boxM","te":100,"A":["125cdbo","1xevmxm","be5l7b","k05j4k","1psqu65","1x9r1cc","xpm671","2x6qoc","1wth8d2","zv7p9b","1qxczdy","gv3bpw","1feun0","16zgy7j","amaf0s","1f5al6o","a93v7n","4rce6a","1s549lh","ivkwo7","1319f61","neufbw","18don9m","kag898","vxdph9","1we594j"],"Z":["6lze4f","di1x7v","12ccpx6","1xsamhx","18wyts3","dz28fv","c9406i","iflgxi","1nuryr3","j7rkxa","1qo5m9g","aprmqv","1pksp46","1sj7w05","4vrsld","xi2e5b","uh9o9u","8w2em8","1r34f4y","1x29gmi","1bxxhtd","1raijer","bfkupk","uy6d","1ymy090","1wok90e"]},{"n":"통계 엔진 3/3","L":40781,"f":"v3hdc8","h":"/*\n * PsyStat 통계 엔진 (stats) — 조각 3/3: 잠재","t":"Npar, lcaNpar: lcaNpar, LPA_MODELS: LPA_MODELS };\n  Object.keys(api).forEach(function (k) { St[k] = ","te":100,"A":["kcwywo","1ppjnam","1e8w0eu","1elre21","10w4imu","1i899p7","9mf0n9","1sndbhi","3a8vxq","1r0pje4","1dpezz7","81frk0","1rjgc1v","1fw34yw","1u8qwft","931qkg","fsyb02","vzogky","icm88w","tmfh7b"],"Z":["qkhyf1","fv8exd","16nhnj8","um31u5","1hyzye5","7rvuza","1l23j90","663016","up13a0","1j286hz","1bhn66n","1h9i5jg","7lwlpa","1ouot4n","1t8dzx9","nyxh3h","fbxpeq","tnm6sx","1ins7z5","vlhd2y"]},{"n":"구조방정식 엔진","L":29529,"f":"e5fzy3","h":"/*\n * PsyStat 구조방정식 엔진 (sem.js)\n * - lav","t":"ta) };\n    } catch (e) { return null; }\n  }\n\n  return { parseModel: parseModel, buildModel: buildMod","te":100,"A":["99sj7v","ss7953","1kq2c80","ayb64r","1ko4na0","b5ubp1","10lwuk2","dyipuw","10smdh2","13gokjl","91ux4x","t191zq","177d3s1","1figgfc"],"Z":["1l3g6bc","v0k1c0","t1gg7l","1d1pzv0","z7yi6i","1gdqw6z","17fauiz","1rnj6cz","13e1za8","1ex72nc","oytlih","1wgpci9","p7763u","tk92bo"]},{"n":"화면 코드 1/6","L":41776,"f":"14oihec","h":"/* PsyStat 화면(UI) 코드 — 조각 1/6: 공통 도우미·자료","t":" = wireLevelPicker; NS.boxMTable = boxMTable; NS.groupDescTable = groupDescTable;\n  NS.ldaPlotSVG = ","te":100,"A":["sl0gq5","1q02828","1n10wjn","mf0yij","awg3jl","1imwr87","1nibjjh","10kx04b","6h5ehu","1qvzxn4","3v26zs","1a0xddp","1tuzmfr","a63mug","dsv0iz","100v64b","14q906f","m25m37","mzjkji","fq9wze"],"Z":["1qcsj3t","1tpiifm","1uksnzs","masw7n","1yriwok","1x6ff7t","4tasko","1lxfo1e","1n2ck9h","d3w1wz","80q2xo","w58n4d","1a1ploe","1jopqv3","ngzru7","qiafii","v8kg88","bk1apc","10eiiw7","9485u"]},{"n":"화면 코드 2/6","L":43755,"f":"1hfdf1b","h":"/* PsyStat 화면(UI) 코드 — 조각 2/6: 상관~조건부 과정","t":"= ptTwoSidedSafe; NS.processSVG = processSVG;\n  NS.PROCESS_DESC = PROCESS_DESC; NS.processRcode = pr","te":100,"A":["i3xpfs","19s5f6g","1s6egep","1gu3aqu","rbgbtc","ne6lil","10vsa3v","4ziway","ms1nsf","1m96wcq","5escx6","1vqiwo5","1lk5itk","3989j8","vhvknd","ts3rmx","1db915u","11lxmqx","6wbv6v","128tij2","1iz00gk"],"Z":["vn9tsf","1bu1eib","1xpqsle","phw7dx","1q7ukkm","120fahg","qtnpfg","4vgvcl","1irvfdw","11s6i93","1p986q3","1kwyc93","12x015g","1t7ep9f","149uzd7","1l4fmu1","1z0y9px","6axve9","1156xek","1fx4iqt","x7xvcs"]},{"n":"화면 코드 3/6","L":25930,"f":"1bbelmk","h":"/* PsyStat 화면(UI) 코드 — 조각 3/6: 구조방정식·신뢰도","t":"G = networkSVG; NS.centralityPlotSVG = centralityPlotSVG; NS.svgDownload = svgDownload; NS.download ","te":100,"A":["p3m9h7","qkyta6","1n58cbw","1db4a7","zitkx7","elx9i4","10r6bd6","1yaubbh","wm7kry","bp30co","4mw9ut","1gjsmd4"],"Z":["4abnno","1suaifw","1pegdcn","1uoewsv","1ftjxyh","1e8d5gc","1k2a5wr","8lvs78","trlzw3","1sz8vr7","1yasqoo","12nuo2k"]},{"n":"화면 코드 4/6","L":29975,"f":"crwn5v","h":"/* PsyStat 화면(UI) 코드 — 조각 4/6: 네트워크 분석·데","t":"s = savedResults; NS.select = select; NS.buildNav = buildNav;\n  NS.about = about; NS.saveResults = s","te":100,"A":["f3qbgi","z18439","1j8ppn9","11xhowz","13ff605","1xigmb6","1jduwgo","19hhyf6","12xs6sk","g742yo","xwec7h","1oqviwe","40bdf0","s2c40s"],"Z":["11kd019","c5ty6a","1s8zsj8","o8jhyt","17kaqmz","1nvosv7","19j81dl","5eif87","1cjce1j","m591nc","1b984uo","1yvxsnm","1nrw079","10q4ypy"]},{"n":"화면 코드 5/6","L":31728,"f":"gbdvty","h":"/* PsyStat 화면(UI) 코드 — 조각 5/6: 잠재프로파일(LP","t":"ior research. Journal of Vocational Behavior, 120, 103445.', 'https://doi.org/10.1016/j.jvb.2020.103","te":100,"A":["huisxp","1yi4hnr","1omeyvt","n7hnxo","hovku9","10hl6m2","1f6g6d","1oxjeep","9h0kp7","1dw2w9d","1urziks","bp5rsb","3egn60","amt0r9","1rz964a"],"Z":["193x1pz","1e2vf6q","1syrby2","pjnye","1lz9abd","iqtqqm","1mwzu18","1pmg5vb","12ppcum","1vluqz4","1b0s3jg","15yy7x6","10ai31s","117cde1","1wrdm23"]},{"n":"화면 코드 6/6","L":17097,"f":"1y807hy","h":"/* PsyStat 화면(UI) 코드 — 조각 6/6: 메뉴 분류 체계·","t":"nd purpose. The American Statistician, 70(2), 129–133.', 'https://doi.org/10.1080/00031305.2016.1154","te":100,"A":["yry53y","165lqg4","1ckc955","y9fr0a","pgtlay","asnq9s","19j1k4y","1dkahxi"],"Z":["1b3wo0e","1bx7cjg","ba2832","19spkk1","iyw0tu","hyuuiw","zysm96","7gajb7"]}], CH = 2000;
+  var E = [{"n":"서식(style)","L":8393,"f":"19d6xtg","h":":root {\n  --bg: #f6f7f9; --panel: #fffff","t":" 1px solid var(--line); }\n}\n@media print {\n  header.top, nav.side, section.opts, .card .tools { disp","te":100,"A":["cuuthg","ck4m81","4fydbl","1nsw2qg"],"Z":["113oegt","1nxj7r","bw0gvx","1hrirru"]},{"n":"보조 스크립트 2","L":611,"f":"1eevuh6","h":"\n// 이 줄이 실행되면 스크립트는 허용된 것: 안내 상자를 숨기고, 이","t":"다. 아래 내용을 캡처해 보내 주세요.';\n    var e = document.getElementById('jserr'); e.style.display = '';\n    e.te","te":100,"A":[],"Z":[]},{"n":"통계 엔진 1/4","L":42987,"f":"inoggn","h":"/*\n * PsyStat 통계 엔진 (stats) — 조각 1/4: 특수","t":"ion = logisticRegression; NS.hosmerLemeshow = hosmerLemeshow; NS.aucROC = aucROC; NS.reliability = r","te":100,"A":["gfqczs","lov7z0","ifoorj","j1t37s","14c6olz","1s9fud0","y2aril","zlcdha","1dbbzrm","1088282","uybxnt","3zioq5","1v7mglj","1lxyy8o","1pqqtop","uqf5ak","3zuj9q","1v5ri8a","1locjj1","412gvn","14qwzy6"],"Z":["ivoq9q","dx2jxy","xchh0u","duphqq","7i1wz0","d169oh","sgrej3","16g98bo","1p7l31s","1kfgigl","1un8cqi","eoqt00","guhtq1","1b7j2ih","c6ybru","1tt1ta4","t7vrcw","1fh3aql","xguvtq","1e9paex","1i21lm3"]},{"n":"통계 엔진 2/4","L":53944,"f":"kekrak","h":"/*\n * PsyStat 통계 엔진 (stats) — 조각 2/4: 네트","t":"diation: mediation, processModel: processModel,\n    manova: manova, discriminant: discriminant, boxM","te":100,"A":["1crfjll","1xevmxm","be5l7b","k05j4k","1psqu65","1x9r1cc","xpm671","2x6qoc","1wth8d2","zv7p9b","1qxczdy","gv3bpw","1feun0","16zgy7j","amaf0s","1f5al6o","a93v7n","4rce6a","1s549lh","ivkwo7","1319f61","neufbw","18don9m","kag898","vxdph9","1we594j"],"Z":["6lze4f","di1x7v","12ccpx6","1xsamhx","18wyts3","dz28fv","c9406i","iflgxi","1nuryr3","j7rkxa","1qo5m9g","aprmqv","1pksp46","1sj7w05","4vrsld","xi2e5b","uh9o9u","8w2em8","1r34f4y","1x29gmi","1bxxhtd","1raijer","bfkupk","uy6d","1ymy090","1wok90e"]},{"n":"통계 엔진 3/4","L":40781,"f":"nfv9hz","h":"/*\n * PsyStat 통계 엔진 (stats) — 조각 3/4: 잠재","t":"Npar, lcaNpar: lcaNpar, LPA_MODELS: LPA_MODELS };\n  Object.keys(api).forEach(function (k) { St[k] = ","te":100,"A":["13w1ti1","1ppjnam","1e8w0eu","1elre21","10w4imu","1i899p7","9mf0n9","1sndbhi","3a8vxq","1r0pje4","1dpezz7","81frk0","1rjgc1v","1fw34yw","1u8qwft","931qkg","fsyb02","vzogky","icm88w","tmfh7b"],"Z":["qkhyf1","fv8exd","16nhnj8","um31u5","1hyzye5","7rvuza","1l23j90","663016","up13a0","1j286hz","1bhn66n","1h9i5jg","7lwlpa","1ouot4n","1t8dzx9","nyxh3h","fbxpeq","tnm6sx","1ins7z5","vlhd2y"]},{"n":"통계 엔진 4/4","L":10825,"f":"5vabwr","h":"/*\n * PsyStat 통계 엔진 (stats) — 조각 4/4: 네트","t":"WithIndex, holm: holm, bh: bh, upperTri: upper };\n  Object.keys(api).forEach(function (k) { St[k] = ","te":100,"A":["1sf68sa","1i6ykzy","6lp4sm","crcvzq","t9ax0n"],"Z":["1e6h8ur","uj86dt","heqmyn","uf3cay","1t6ouwg"]},{"n":"구조방정식 엔진","L":29529,"f":"e5fzy3","h":"/*\n * PsyStat 구조방정식 엔진 (sem.js)\n * - lav","t":"ta) };\n    } catch (e) { return null; }\n  }\n\n  return { parseModel: parseModel, buildModel: buildMod","te":100,"A":["99sj7v","ss7953","1kq2c80","ayb64r","1ko4na0","b5ubp1","10lwuk2","dyipuw","10smdh2","13gokjl","91ux4x","t191zq","177d3s1","1figgfc"],"Z":["1l3g6bc","v0k1c0","t1gg7l","1d1pzv0","z7yi6i","1gdqw6z","17fauiz","1rnj6cz","13e1za8","1ex72nc","oytlih","1wgpci9","p7763u","tk92bo"]},{"n":"화면 코드 1/7","L":42082,"f":"wrdmgv","h":"/* PsyStat 화면(UI) 코드 — 조각 1/7: 공통 도우미·자료","t":" = wireLevelPicker; NS.boxMTable = boxMTable; NS.groupDescTable = groupDescTable;\n  NS.ldaPlotSVG = ","te":100,"A":["plza8s","p7ga2e","kgz05s","k056sn","94rab4","1evusw9","sxum9k","1jqja19","1yf67of","e4xsh7","jazwx2","1m7eowu","kcffit","1s4bydz","1pgflyo","v5wtxn","125dbol","miflqh","1wwyamr","1cf76aw","1ku95xv"],"Z":["1qcsj3t","1tpiifm","1uksnzs","masw7n","1yriwok","1x6ff7t","4tasko","1lxfo1e","1n2ck9h","d3w1wz","80q2xo","w58n4d","1a1ploe","1jopqv3","ngzru7","qiafii","v8kg88","bk1apc","10eiiw7","mxcf87","zske4c"]},{"n":"화면 코드 2/7","L":43755,"f":"u3tfx8","h":"/* PsyStat 화면(UI) 코드 — 조각 2/7: 상관~조건부 과정","t":"= ptTwoSidedSafe; NS.processSVG = processSVG;\n  NS.PROCESS_DESC = PROCESS_DESC; NS.processRcode = pr","te":100,"A":["8959ct","19s5f6g","1s6egep","1gu3aqu","rbgbtc","ne6lil","10vsa3v","4ziway","ms1nsf","1m96wcq","5escx6","1vqiwo5","1lk5itk","3989j8","vhvknd","ts3rmx","1db915u","11lxmqx","6wbv6v","128tij2","1iz00gk"],"Z":["vn9tsf","1bu1eib","1xpqsle","phw7dx","1q7ukkm","120fahg","qtnpfg","4vgvcl","1irvfdw","11s6i93","1p986q3","1kwyc93","12x015g","1t7ep9f","149uzd7","1l4fmu1","1z0y9px","6axve9","1156xek","1fx4iqt","x7xvcs"]},{"n":"화면 코드 3/7","L":26532,"f":"vxg2ej","h":"/* PsyStat 화면(UI) 코드 — 조각 3/7: 구조방정식·신뢰도","t":"G = networkSVG; NS.centralityPlotSVG = centralityPlotSVG; NS.svgDownload = svgDownload; NS.download ","te":100,"A":["1s0sm2e","qkyta6","1n58cbw","1db4a7","zitkx7","elx9i4","10r6bd6","1yaubbh","wm7kry","bp30co","1bgag9t","hzjsq4","60v19o"],"Z":["4abnno","1hu66kf","1gbts5g","2a7xki","1nd0dq8","wm35rh","1mz34ah","1d8w0e","iungjs","ppvfog","kfs9r3","k0v7ju","16myari"]},{"n":"화면 코드 4/7","L":30580,"f":"1e8h04r","h":"/* PsyStat 화면(UI) 코드 — 조각 4/7: 네트워크 분석·데","t":"s = savedResults; NS.select = select; NS.buildNav = buildNav;\n  NS.about = about; NS.saveResults = s","te":100,"A":["1nnydvf","1fnpabg","1o961qh","1j2uwf5","1lbihdp","wfsc1m","ssqa3w","u7iv19","12f07gk","1ildlls","1sz8qn0","1kmrbr1","642qai","1ryn66a","6eswlf"],"Z":["11kd019","c5ty6a","1s8zsj8","o8jhyt","17kaqmz","1nvosv7","19j81dl","5eif87","1umla5q","1ghyujz","1odhc5f","1qno0na","ft21ii","40jtu","j2gg8g"]},{"n":"화면 코드 5/7","L":31728,"f":"1ofy89f","h":"/* PsyStat 화면(UI) 코드 — 조각 5/7: 잠재프로파일(LP","t":"ior research. Journal of Vocational Behavior, 120, 103445.', 'https://doi.org/10.1016/j.jvb.2020.103","te":100,"A":["je2cu4","1yi4hnr","1omeyvt","n7hnxo","hovku9","10hl6m2","1f6g6d","1oxjeep","9h0kp7","1dw2w9d","1urziks","bp5rsb","3egn60","amt0r9","1rz964a"],"Z":["193x1pz","1e2vf6q","1syrby2","pjnye","1lz9abd","iqtqqm","1mwzu18","1pmg5vb","12ppcum","1vluqz4","1b0s3jg","15yy7x6","10ai31s","117cde1","1wrdm23"]},{"n":"화면 코드 6/7","L":17097,"f":"3xyklh","h":"/* PsyStat 화면(UI) 코드 — 조각 6/7: 메뉴 분류 체계·","t":"nd purpose. The American Statistician, 70(2), 129–133.', 'https://doi.org/10.1080/00031305.2016.1154","te":100,"A":["py68dr","165lqg4","1ckc955","y9fr0a","pgtlay","asnq9s","19j1k4y","1dkahxi"],"Z":["1b3wo0e","1bx7cjg","ba2832","19spkk1","iyw0tu","hyuuiw","zysm96","7gajb7"]},{"n":"화면 코드 7/7","L":24511,"f":"194hgxr","h":"/* PsyStat 화면(UI) 코드 — 조각 7/7: 네트워크 확장 (","t":"cts: A permutation test. Psychological Methods, 28(6), 1273–1285.', 'https://doi.org/10.1037/met0000","te":100,"A":["6xds3","hp7inu","13fgt4e","fppv8x","ocibn4","7dwzr5","1tife6g","blemhh","1kp3twu","5qufa2","cooa0y","r7j4d8"],"Z":["1bsweu6","19epulg","1qnga7w","1qj386n","1rreuu1","19pxoe3","1edko1t","6l2vxl","2ndn9h","h5qur2","17l172u","xz1qrh"]}], CH = 2000;
   function fnv(t) { var h = 0x811c9dc5; for (var i = 0; i < t.length; i++) { h ^= t.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return h.toString(36); }
   var me = document.currentScript;
   document.addEventListener('DOMContentLoaded', function () {
@@ -174,12 +174,12 @@ table.res thead th:first-child { text-align: left; }
   if (!box || !out) return;
   box.style.display = ''; out.style.display = '';
   box.firstElementChild.textContent = '파일 점검 결과: 원본과 다른 부분이 있습니다. 아래 내용을 사진으로 보내 주세요.';
-  out.textContent += '[파일 자가 점검 · v0.8.0]\n' + rows.join('\n') + '\n';
+  out.textContent += '[파일 자가 점검 · v0.9.0]\n' + rows.join('\n') + '\n';
   });
 })();
 </script>
 <header class="top">
-  <h1>PsyStat <small>오프라인 통계 · v0.8.0</small></h1>
+  <h1>PsyStat <small>오프라인 통계 · v0.9.0</small></h1>
   <button class="btn" id="openBtn">파일 열기 (CSV·XLSX)</button>
   <button class="btn" id="exBtn">예시 데이터</button>
   <input type="file" id="file" accept=".csv,.txt,.tsv,.xlsx" style="display:none">
@@ -195,7 +195,7 @@ table.res thead th:first-child { text-align: left; }
   <main class="results" id="results"></main>
 </div>
 <script>/*
- * PsyStat 통계 엔진 (stats) — 조각 1/3: 특수함수·분포·행렬·기초통계·검정·회귀·신뢰도
+ * PsyStat 통계 엔진 (stats) — 조각 1/4: 특수함수·분포·행렬·기초통계·검정·회귀·신뢰도
  * 외부 라이브러리·네트워크 통신 없음. 순수 JavaScript.
  * 조각들은 G.__PsyStatsNS 로 함수를 공유하며, 마지막 조각이 G.PsyStats 를 만든다.
  * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 계산 코드는 분할 전과 동일)
@@ -1059,7 +1059,7 @@ table.res thead th:first-child { text-align: left; }
 })(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);
 </script>
 <script>/*
- * PsyStat 통계 엔진 (stats) — 조각 2/3: 네트워크·다분상관·조절·매개·다변량·안정성
+ * PsyStat 통계 엔진 (stats) — 조각 2/4: 네트워크·다분상관·조절·매개·다변량·안정성
  * 외부 라이브러리·네트워크 통신 없음. 순수 JavaScript.
  * 조각들은 G.__PsyStatsNS 로 함수를 공유하며, 마지막 조각이 G.PsyStats 를 만든다.
  * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 계산 코드는 분할 전과 동일)
@@ -2011,7 +2011,7 @@ table.res thead th:first-child { text-align: left; }
 })(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);
 </script>
 <script>/*
- * PsyStat 통계 엔진 (stats) — 조각 3/3: 잠재프로파일 분석(LPA)·잠재계층분석(LCA)
+ * PsyStat 통계 엔진 (stats) — 조각 3/4: 잠재프로파일 분석(LPA)·잠재계층분석(LCA)
  * 외부 라이브러리·네트워크 통신 없음. 순수 JavaScript.
  * - LPA: 가우시안 혼합모형 (mclust 모형 EEI, VVI, EEE, VVV = tidyLPA 모형 1, 2(변형), 3, 6에 해당)
  * - LCA: 범주형 지표의 잠재계층모형 (poLCA와 같은 모형)
@@ -2610,6 +2610,166 @@ table.res thead th:first-child { text-align: left; }
 })(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);
 </script>
 <script>/*
+ * PsyStat 통계 엔진 (stats) — 조각 4/4: 네트워크 확장 (커뮤니티·브리지 중심성·NCT·부트스트랩 차이 검정)
+ * 외부 라이브러리·네트워크 통신 없음. 순수 JavaScript.
+ * - 커뮤니티: walktrap (Pons & Latapy, 2006; igraph::cluster_walktrap과 같은 절차: 자기 고리 = 연결 가중치 평균,
+ *   걸음 수 4, 모듈성 최대 분할). EGA(Golino & Epskamp, 2017)는 EBICglasso 네트워크 |가중치|에 walktrap을 적용
+ * - 브리지 중심성 (Jones, Ma, & McNally, 2021): 강도, 기대영향(1단계), 매개, 근접 (거리 = 1/|w|)
+ * - NCT (van Borkulo et al., 2023): 순열 검정으로 두 집단 네트워크의 구조·전체 강도·엣지·중심성 비교
+ */
+(function (G) {
+  'use strict';
+  var St = G.PsyStats;
+  if (!St) return;
+  function zeros(r, c) { var m = []; for (var i = 0; i < r; i++) m.push(new Array(c).fill(0)); return m; }
+
+  /* ---------------- 모듈성 (igraph::modularity와 같은 정의, 자기 고리 없음) ---------------- */
+  function modularity(W, memb) {
+    var n = W.length, m = 0, k = new Array(n).fill(0);
+    for (var i = 0; i < n; i++) for (var j = 0; j < n; j++) if (i !== j) { k[i] += W[i][j]; if (j > i) m += W[i][j]; }
+    if (m === 0) return 0;
+    var Q = 0, groups = {};
+    memb.forEach(function (c, i2) { (groups[c] = groups[c] || []).push(i2); });
+    Object.keys(groups).forEach(function (c) {
+      var g = groups[c], e = 0, a = 0;
+      g.forEach(function (u) { a += k[u]; g.forEach(function (v) { if (u < v) e += W[u][v]; }); });
+      Q += e / m - (a / (2 * m)) * (a / (2 * m));
+    });
+    return Q;
+  }
+
+  /* ---------------- walktrap ---------------- */
+  function walktrap(Win, steps) {
+    steps = steps || 4;
+    var n = Win.length, W = Win.map(function (r) { return r.map(function (v) { return Math.abs(v); }); }), A = W.map(function (r) { return r.slice(); });
+    for (var i = 0; i < n; i++) {
+      var s = 0, c = 0; for (var j = 0; j < n; j++) if (j !== i && W[i][j] > 0) { s += W[i][j]; c++; }
+      A[i][i] = c ? s / c : 1; // 자기 고리: 연결 가중치 평균 (igraph/Pons 구현과 같음)
+    }
+    var d = A.map(function (r) { return r.reduce(function (a, b) { return a + b; }, 0); });
+    var P = A.map(function (r, i2) { return r.map(function (v) { return v / d[i2]; }); }), Pt = P.map(function (r) { return r.slice(); });
+    for (var t = 1; t < steps; t++) Pt = Pt.map(function (r) { return P[0].map(function (_, j2) { var acc = 0; for (var k = 0; k < n; k++) acc += r[k] * P[k][j2]; return acc; }); });
+    var comms = []; for (var i3 = 0; i3 < n; i3++) comms.push({ id: i3, members: [i3], P: Pt[i3], size: 1 });
+    var memb = []; for (var i4 = 0; i4 < n; i4++) memb.push(i4);
+    var best = { Q: modularity(W, memb), memb: memb.slice() }, Qs = [best.Q], merges = [], next = n;
+    var adj = function (c1, c2) { return c1.members.some(function (a) { return c2.members.some(function (b) { return W[a][b] > 0; }); }); };
+    while (true) {
+      var pick = null;
+      for (var a = 0; a < comms.length; a++) for (var b = a + 1; b < comms.length; b++) {
+        if (!adj(comms[a], comms[b])) continue;
+        var r2 = 0; for (var k2 = 0; k2 < n; k2++) { var df = comms[a].P[k2] - comms[b].P[k2]; r2 += df * df / d[k2]; }
+        var ds = comms[a].size * comms[b].size / (comms[a].size + comms[b].size) * r2 / n;
+        if (!pick || ds < pick.ds) pick = { a: a, b: b, ds: ds };
+      }
+      if (!pick) break;
+      var c1 = comms[pick.a], c2 = comms[pick.b], sz = c1.size + c2.size;
+      merges.push([c1.id, c2.id]);
+      var nc = { id: next++, members: c1.members.concat(c2.members), size: sz, P: c1.P.map(function (v, k3) { return (c1.size * v + c2.size * c2.P[k3]) / sz; }) };
+      comms = comms.filter(function (_, q) { return q !== pick.a && q !== pick.b; }).concat([nc]);
+      // 현재 분할의 모듈성
+      comms.forEach(function (cm, ci) { cm.members.forEach(function (u) { memb[u] = ci; }); });
+      var Q = modularity(W, memb); Qs.push(Q);
+      if (Q > best.Q + 1e-12) best = { Q: Q, memb: memb.slice() };
+    }
+    // 번호 정리: 처음 나오는 순서대로 1, 2, …
+    var map = {}, lab = 0, out = best.memb.map(function (c3) { if (!(c3 in map)) map[c3] = ++lab; return map[c3]; });
+    return { membership: out, modularity: best.Q, nComm: lab, merges: merges, Qs: Qs };
+  }
+
+  /* ---------------- 브리지 중심성 ---------------- */
+  function bridgeCentrality(net, comm) {
+    var n = net.length, str = new Array(n).fill(0), ei = new Array(n).fill(0), INF = Infinity;
+    for (var i = 0; i < n; i++) for (var j = 0; j < n; j++) if (i !== j && comm[i] !== comm[j]) { str[i] += Math.abs(net[i][j]); ei[i] += net[i][j]; }
+    // 최단 경로 (거리 1/|w|): 브리지 근접 = 다른 커뮤니티 노드까지 평균 거리의 역수, 브리지 매개 = 서로 다른 커뮤니티 쌍의 최단 경로 위에 놓인 횟수(경로가 여러 개면 비율)
+    var dist = [], sigma = [], preds = [];
+    for (var s = 0; s < n; s++) {
+      var D = new Array(n).fill(INF), sg = new Array(n).fill(0), pr = [], done = new Array(n).fill(false);
+      for (var q = 0; q < n; q++) pr.push([]);
+      D[s] = 0; sg[s] = 1;
+      for (var step = 0; step < n; step++) {
+        var u = -1, bd = INF; for (var c = 0; c < n; c++) if (!done[c] && D[c] < bd) { bd = D[c]; u = c; }
+        if (u < 0) break; done[u] = true;
+        for (var v = 0; v < n; v++) {
+          if (v === u || net[u][v] === 0 || done[v]) continue;
+          var nd = D[u] + 1 / Math.abs(net[u][v]), tol = 1e-12 * Math.max(1, nd);
+          if (nd < D[v] - tol) { D[v] = nd; sg[v] = sg[u]; pr[v] = [u]; } else if (Math.abs(nd - D[v]) <= tol) { sg[v] += sg[u]; pr[v].push(u); }
+        }
+      }
+      dist.push(D); sigma.push(sg); preds.push(pr);
+    }
+    var clo = [], btw = new Array(n).fill(0);
+    for (var i2 = 0; i2 < n; i2++) {
+      var ds = []; for (var j2 = 0; j2 < n; j2++) if (comm[j2] !== comm[i2] && isFinite(dist[i2][j2])) ds.push(dist[i2][j2]);
+      clo.push(ds.length ? 1 / (ds.reduce(function (a, b) { return a + b; }, 0) / ds.length) : NaN);
+    }
+    // 쌍 (s, t), s < t, 서로 다른 커뮤니티: 경로 수 σ_st 중 v를 지나는 비율 = σ_sv σ_vt / σ_st (d_sv + d_vt = d_st)
+    for (var s2 = 0; s2 < n; s2++) for (var t2 = s2 + 1; t2 < n; t2++) {
+      if (comm[s2] === comm[t2] || !isFinite(dist[s2][t2])) continue;
+      for (var v2 = 0; v2 < n; v2++) {
+        if (v2 === s2 || v2 === t2) continue;
+        var through = dist[s2][v2] + dist[v2][t2];
+        if (Math.abs(through - dist[s2][t2]) <= 1e-9 * Math.max(1, dist[s2][t2])) btw[v2] += sigma[s2][v2] * sigma[v2][t2] / sigma[s2][t2];
+      }
+    }
+    return { strength: str, expectedInfluence: ei, closeness: clo, betweenness: btw };
+  }
+
+  /* ---------------- 공통: 행 부분집합으로 네트워크 추정 ---------------- */
+  function sub(cols, idx) { return cols.map(function (c) { return idx.map(function (i) { return c[i]; }); }); }
+  function upper(m) { var v = []; for (var i = 0; i < m.length; i++) for (var j = i + 1; j < m.length; j++) v.push(m[i][j]); return v; }
+  function netStats(n1, n2) {
+    var p = n1.length, e1 = upper(n1), e2 = upper(n2), M = 0, gs1 = 0, gs2 = 0, ed = [];
+    for (var k = 0; k < e1.length; k++) { var dd = Math.abs(e1[k] - e2[k]); ed.push(dd); if (dd > M) M = dd; gs1 += Math.abs(e1[k]); gs2 += Math.abs(e2[k]); }
+    var c1 = St.centrality(n1), c2 = St.centrality(n2);
+    return { M: M, gs1: gs1, gs2: gs2, S: Math.abs(gs1 - gs2), edgeDiff: ed,
+      strDiff: c1.strength.map(function (v, i) { return Math.abs(v - c2.strength[i]); }), eiDiff: c1.expectedInfluence.map(function (v, i) { return Math.abs(v - c2.expectedInfluence[i]); }) };
+  }
+
+  /* ---------------- NCT ---------------- */
+  // cols: 합친 자료(행 = 사례), g: 0/1 집단, opts: estimateNetwork 옵션
+  function nctObserved(cols, g, opts) {
+    var i1 = [], i2 = []; g.forEach(function (v, i) { (v === 0 ? i1 : i2).push(i); });
+    var n1 = St.estimateNetwork(sub(cols, i1), opts).network, n2 = St.estimateNetwork(sub(cols, i2), opts).network;
+    return { net1: n1, net2: n2, stats: netStats(n1, n2), n1: i1.length, n2: i2.length };
+  }
+  // 순열 1회: 집단 표지를 섞는다(perm을 주면 그 배정 사용 — 검증용)
+  function nctPermOnce(cols, g, opts, rand, perm) {
+    var n = g.length, lab = perm;
+    if (!lab) { lab = g.slice(); for (var k = n - 1; k > 0; k--) { var r = Math.floor(rand() * (k + 1)), t = lab[k]; lab[k] = lab[r]; lab[r] = t; } }
+    var i1 = [], i2 = []; lab.forEach(function (v, i) { (v === 0 ? i1 : i2).push(i); });
+    try { return netStats(St.estimateNetwork(sub(cols, i1), opts).network, St.estimateNetwork(sub(cols, i2), opts).network); } catch (e) { return null; }
+  }
+  // 순열 결과로 p값 (Phipson & Smyth, 2010: (1 + #{T* ≥ T}) / (B + 1))
+  function nctSummarize(obs, perms, adjust) {
+    var B = perms.length, pv = function (o, arr) { var ge = 0; arr.forEach(function (v) { if (v >= o - 1e-12) ge++; }); return (1 + ge) / (B + 1); };
+    var out = { B: B, structure: { M: obs.M, p: pv(obs.M, perms.map(function (x) { return x.M; })) },
+      strength: { gs1: obs.gs1, gs2: obs.gs2, S: obs.S, p: pv(obs.S, perms.map(function (x) { return x.S; })) } };
+    out.edgeP = obs.edgeDiff.map(function (o, k) { return pv(o, perms.map(function (x) { return x.edgeDiff[k]; })); });
+    out.strP = obs.strDiff.map(function (o, k) { return pv(o, perms.map(function (x) { return x.strDiff[k]; })); });
+    out.eiP = obs.eiDiff.map(function (o, k) { return pv(o, perms.map(function (x) { return x.eiDiff[k]; })); });
+    var adj = function (ps) { return adjust === 'holm' ? holm(ps) : adjust === 'BH' ? bh(ps) : ps.slice(); };
+    out.edgePadj = adj(out.edgeP); out.strPadj = adj(out.strP); out.eiPadj = adj(out.eiP); out.adjust = adjust || 'none';
+    return out;
+  }
+  function holm(ps) { var m = ps.length, o = ps.map(function (p, i) { return [p, i]; }).sort(function (a, b) { return a[0] - b[0]; }), r = new Array(m), run = 0; o.forEach(function (x, k) { run = Math.max(run, Math.min(1, (m - k) * x[0])); r[x[1]] = run; }); return r; }
+  function bh(ps) { var m = ps.length, o = ps.map(function (p, i) { return [p, i]; }).sort(function (a, b) { return b[0] - a[0]; }), r = new Array(m), run = 1; o.forEach(function (x, k) { run = Math.min(run, Math.min(1, x[0] * m / (m - k))); r[x[1]] = run; }); return r; }
+
+  /* ---------------- 부트스트랩 차이 검정 (bootnet differenceTest와 같은 방식: 차이의 백분위 구간이 0을 포함하는지) ---------------- */
+  function diffTest(samples, i, j, alpha) {
+    alpha = alpha || 0.05;
+    var d = samples.map(function (s) { return s[i] - s[j]; }).sort(function (a, b) { return a - b; });
+    var lo = St.quantile(d, alpha / 2), hi = St.quantile(d, 1 - alpha / 2);
+    return { lo: lo, hi: hi, sig: lo > 0 || hi < 0 };
+  }
+  // 지정한 사례 번호로 재표집해 네트워크 추정 (검증용; 일반 부트스트랩은 PsyStats.bootEdgeOnce)
+  function bootWithIndex(cols, opts, idx) { var net = St.estimateNetwork(sub(cols, idx), opts).network; return { edges: upper(net), centrality: St.centrality(net), net: net }; }
+
+  var api = { walktrap: walktrap, modularity: modularity, bridgeCentrality: bridgeCentrality, nctObserved: nctObserved, nctPermOnce: nctPermOnce, nctSummarize: nctSummarize,
+    diffTest: diffTest, bootWithIndex: bootWithIndex, holm: holm, bh: bh, upperTri: upper };
+  Object.keys(api).forEach(function (k) { St[k] = api[k]; });
+})(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);
+</script>
+<script>/*
  * PsyStat 구조방정식 엔진 (sem.js)
  * - lavaan 문법의 부분집합: =~, ~, ~~, :=, 라벨(a*x), 고정값(1*x), 해제(NA*x)
  * - lavaan::sem()/cfa() 기본값을 따름: 첫 지표 적재량 1 고정, fixed.x = TRUE,
@@ -3116,7 +3276,7 @@ table.res thead th:first-child { text-align: left; }
   return { parseModel: parseModel, buildModel: buildModel, fitSEM: fitSEM, bootstrapOnce: bootstrapOnce, pnchisq: pnchisq, compileExpr: compileExpr };
 });
 </script>
-<script>/* PsyStat 화면(UI) 코드 — 조각 1/6: 공통 도우미·자료 읽기·APA 표·결과 카드·기술통계~판별분석
+<script>/* PsyStat 화면(UI) 코드 — 조각 1/7: 공통 도우미·자료 읽기·APA 표·결과 카드·기술통계~판별분석
  * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다.
  * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 코드는 분할 전과 동일) */
 (function (G) {
@@ -3168,7 +3328,12 @@ table.res thead th:first-child { text-align: left; }
     ['−2LL', '−2LL = −2 로그우도'], ['AIC', 'AIC = 아카이케 정보기준'], ['BIC', 'BIC = 베이지안 정보기준'], ['EI', 'EI = 기대영향'], ['S-W', 'S-W = Shapiro-Wilk']];
   // 카드 안의 표에 번호·제목·주를 붙인다
   function decorateTables(card, cardTitle) {
-    $$('.apa', card).forEach(function (el, k) {
+    // 이미 번호가 붙은 표는 건너뛰고, 새 표는 기존 개수 다음 번호부터 (나중에 카드에 표를 더해도 중복 캡션이 생기지 않게)
+    var done = $$('.apa .apa-cap', card).length, k0 = 0;
+    cardTitle = cardTitle || (card.querySelector('h3') ? card.querySelector('h3').textContent : '');
+    $$('.apa', card).forEach(function (el) {
+      if (el.querySelector('.apa-cap')) return;
+      var k = done + k0++;
       var title = el.dataset.title, prev = el.previousElementSibling;
       if (!title && prev && prev.tagName === 'H4') { title = prev.textContent; prev.parentNode.removeChild(prev); }
       if (!title) title = cardTitle;
@@ -3676,7 +3841,7 @@ table.res thead th:first-child { text-align: left; }
   NS.ldaPlotSVG = ldaPlotSVG;
 })(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);
 </script>
-<script>/* PsyStat 화면(UI) 코드 — 조각 2/6: 상관~조건부 과정 모형
+<script>/* PsyStat 화면(UI) 코드 — 조각 2/7: 상관~조건부 과정 모형
  * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다.
  * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 코드는 분할 전과 동일) */
 (function (G) {
@@ -4166,7 +4331,7 @@ table.res thead th:first-child { text-align: left; }
   NS.PROCESS_DESC = PROCESS_DESC; NS.processRcode = processRcode;
 })(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);
 </script>
-<script>/* PsyStat 화면(UI) 코드 — 조각 3/6: 구조방정식·신뢰도·네트워크 그림
+<script>/* PsyStat 화면(UI) 코드 — 조각 3/7: 구조방정식·신뢰도·네트워크 그림
  * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다.
  * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 코드는 분할 전과 동일) */
 (function (G) {
@@ -4401,13 +4566,18 @@ table.res thead th:first-child { text-align: left; }
         (e[2] < 0 ? ' stroke-dasharray="6 3"' : '') + '><title>' + esc(labels[e[0]] + ' – ' + labels[e[1]]) + ': ' + e[2].toFixed(3) + '</title></line>';
     });
     for (var n = 0; n < p; n++) {
-      s += '<circle cx="' + X(n).toFixed(1) + '" cy="' + Y(n).toFixed(1) + '" r="' + R + '" fill="#ffffff" stroke="#3a4152" stroke-width="1.5"/>';
+      var GCOL = ['#dbe6fb', '#fbe0dd', '#dcf1df', '#f6ead0', '#ebdff5', '#d7f0ec', '#f9e3d2', '#e5e5e5'];
+      s += '<circle cx="' + X(n).toFixed(1) + '" cy="' + Y(n).toFixed(1) + '" r="' + R + '" fill="' + (opts.groups ? GCOL[opts.groups[n] % GCOL.length] : '#ffffff') + '" stroke="#3a4152" stroke-width="1.5"/>';
       if (opts.pred) { // 예측력 링
         var ang = 2 * Math.PI * Math.max(0, Math.min(1, opts.pred[n])), x1 = X(n), y1 = Y(n) - R, x2 = X(n) + R * Math.sin(ang), y2 = Y(n) - R * Math.cos(ang);
         s += '<path d="M' + x1.toFixed(1) + ' ' + y1.toFixed(1) + ' A' + R + ' ' + R + ' 0 ' + (ang > Math.PI ? 1 : 0) + ' 1 ' + x2.toFixed(1) + ' ' + y2.toFixed(1) + '" fill="none" stroke="#8a94a6" stroke-width="4"/>';
       }
       var lab = labels[n].length > 6 ? labels[n].slice(0, 6) : labels[n];
       s += '<text x="' + X(n).toFixed(1) + '" y="' + (Y(n) + 4).toFixed(1) + '" text-anchor="middle" font-size="' + (lab.length > 4 ? 8.5 : lab.length > 3 ? 10 : 12) + '" style="fill:#1d2433">' + esc(lab) + '<title>' + esc(labels[n]) + '</title></text>';
+    }
+    if (opts.groups && opts.groupNames) {
+      var GC2 = ['#dbe6fb', '#fbe0dd', '#dcf1df', '#f6ead0', '#ebdff5', '#d7f0ec', '#f9e3d2', '#e5e5e5'];
+      opts.groupNames.forEach(function (gn, gi) { s += '<rect x="10" y="' + (10 + gi * 18) + '" width="12" height="12" fill="' + GC2[gi % GC2.length] + '" stroke="#3a4152"/><text x="28" y="' + (20 + gi * 18) + '" font-size="11" style="fill:#1d2433">' + esc(gn) + '</text>'; });
     }
     return s + '</svg>';
   }
@@ -4453,7 +4623,7 @@ table.res thead th:first-child { text-align: left; }
   NS.semDiagram = semDiagram; NS.SEM_HELP = SEM_HELP; NS.semBootstrap = semBootstrap; NS.networkSVG = networkSVG; NS.centralityPlotSVG = centralityPlotSVG; NS.svgDownload = svgDownload; NS.download = download;
 })(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);
 </script>
-<script>/* PsyStat 화면(UI) 코드 — 조각 4/6: 네트워크 분석·데이터 화면·화면 전환·시작
+<script>/* PsyStat 화면(UI) 코드 — 조각 4/7: 네트워크 분석·데이터 화면·화면 전환·시작
  * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다.
  * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 코드는 분할 전과 동일) */
 (function (G) {
@@ -4476,6 +4646,7 @@ table.res thead th:first-child { text-align: left; }
         '<div class="field" id="pcopts" style="display:none"><label for="alp">유의하지 않은 엣지 제거 (α)</label><select id="alp"><option value="0">제거 안 함</option><option value="0.05">.05</option><option value="0.01">.01</option></select></div>' +
         '<div class="field"><div class="lab">상관 종류</div><div class="inline"><label><input type="radio" name="cr" value="auto" checked>자동 (cor_auto)</label><label><input type="radio" name="cr" value="pearson">Pearson</label><label><input type="radio" name="cr" value="spearman">Spearman</label></div>' +
         '<div class="hint">자동: 리커트·이분 문항(정수, 수준 7개 이하)은 다분·사분상관, 연속변수는 Pearson, 섞이면 다계열상관 (qgraph::cor_auto와 같은 규칙). 다분상관을 쓰면 부트스트랩이 몇 배 느려집니다.</div></div>' +
+        (NS.netCommField ? NS.netCommField() : '') +
         '<div class="field"><div class="lab">안정성 분석 (부트스트랩, bootnet 방식)</div><div class="inline"><label>엣지 부트스트랩 <input type="number" id="nb" value="0" min="0" step="100" style="width:80px"> 회</label></div>' +
         '<div class="inline" style="margin-top:4px"><label>사례 제거 부트스트랩 <input type="number" id="nc" value="0" min="0" step="100" style="width:80px"> 회</label></div>' +
         '<div class="inline" style="margin-top:4px"><label>난수 시드 <input type="number" id="seed" value="1234" style="width:80px"></label></div>' +
@@ -4500,6 +4671,7 @@ table.res thead th:first-child { text-align: left; }
       var res = S.estimateNetwork(cols, opts), net = res.network, p = v.length;
       opts.onNearPD = null;
       var ce = S.centrality(net), layout = S.layoutFR(net);
+      NS.lastNetwork = { cols: cols, names: names, opts: opts, net: net, ce: ce, layout: layout, varIdx: v }; // app-7(커뮤니티·브리지)이 사용
       var nEdges = 0, possible = p * (p - 1) / 2, edgeRows = [];
       for (var a = 0; a < p; a++) for (var b = a + 1; b < p; b++) if (net[a][b] !== 0) { nEdges++; edgeRows.push([a, b, net[a][b]]); }
       edgeRows.sort(function (x, y) { return Math.abs(y[2]) - Math.abs(x[2]); });
@@ -4550,7 +4722,7 @@ table.res thead th:first-child { text-align: left; }
   function runBootstrap(box, cols, names, opts, net, ce, nb, nc, seed) {
     var rand = S.rng(seed), p = names.length, orig = S.upperVec(net), pairs = [];
     for (var a = 0; a < p; a++) for (var b = a + 1; b < p; b++) pairs.push([a, b]);
-    var edgeSamples = [], props = [0.05, 0.128, 0.206, 0.283, 0.361, 0.439, 0.517, 0.594, 0.672, 0.75];
+    var edgeSamples = [], strSamples = [], eiSamples = [], props = [0.05, 0.128, 0.206, 0.283, 0.361, 0.439, 0.517, 0.594, 0.672, 0.75];
     var corrS = props.map(function () { return []; }), corrE = props.map(function () { return []; }), corrB = props.map(function () { return []; }), corrC = props.map(function () { return []; });
     var total = nb + nc, done = 0, t0 = Date.now();
     box.innerHTML = '<h4>안정성 분석 진행 중…</h4><div class="progress"><div></div></div><div class="note prog">0 / ' + total + '</div>';
@@ -4558,7 +4730,7 @@ table.res thead th:first-child { text-align: left; }
       var until = Date.now() + 120;
       try {
         while (done < total && Date.now() < until) {
-          if (done < nb) edgeSamples.push(S.bootEdgeOnce(cols, opts, rand).edges);
+          if (done < nb) { var bo = S.bootEdgeOnce(cols, opts, rand); edgeSamples.push(bo.edges); strSamples.push(bo.centrality.strength); eiSamples.push(bo.centrality.expectedInfluence); }
           else {
             var k = (done - nb) % props.length, c = S.caseDropOnce(cols, opts, props[k], rand);
             corrS[k].push(S.pearson(ce.strength, c.strength)); corrE[k].push(S.pearson(ce.expectedInfluence, c.expectedInfluence));
@@ -4592,6 +4764,7 @@ table.res thead th:first-child { text-align: left; }
           table(['제거 비율'].concat(props.map(function (x) { return Math.round(x * 100) + '%'; })), [['강도: 평균 r'].concat(corrS.map(function (a) { return a.length ? fr(S.mean(a.filter(S.isNum))) : '—'; }))], { title: '사례 제거 비율별 원 강도와의 평균 상관' });
       }
       box.innerHTML = html;
+      if (NS.networkBootExtras) NS.networkBootExtras(box, { names: names, net: net, ce: ce, orig: orig, pairs: pairs, edgeSamples: edgeSamples, strSamples: strSamples, eiSamples: eiSamples, props: props, corrS: corrS, corrE: corrE, corrB: corrB, corrC: corrC, nb: nb, nc: nc });
     }
     setTimeout(step, 30);
   }
@@ -4769,7 +4942,7 @@ table.res thead th:first-child { text-align: left; }
   NS.about = about; NS.saveResults = saveResults;
 })(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);
 </script>
-<script>/* PsyStat 화면(UI) 코드 — 조각 5/6: 잠재프로파일(LPA)·잠재계층(LCA) 분석
+<script>/* PsyStat 화면(UI) 코드 — 조각 5/7: 잠재프로파일(LPA)·잠재계층(LCA) 분석
  * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다. */
 (function (G) {
   'use strict';
@@ -5088,7 +5261,7 @@ table.res thead th:first-child { text-align: left; }
   ]);
 })(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);
 </script>
-<script>/* PsyStat 화면(UI) 코드 — 조각 6/6: 메뉴 분류 체계·해석 가이드·다항 로지스틱 회귀
+<script>/* PsyStat 화면(UI) 코드 — 조각 6/7: 메뉴 분류 체계·해석 가이드·다항 로지스틱 회귀
  * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다. */
 (function (G) {
   'use strict';
@@ -5281,6 +5454,241 @@ table.res thead th:first-child { text-align: left; }
     ["O'Brien, R. M. (2007). A caution regarding rules of thumb for variance inflation factors. Quality & Quantity, 41(5), 673–690.", 'https://doi.org/10.1007/s11135-006-9018-6'],
     ['Nylund-Gibson, K., Grimm, R. P., & Masyn, K. E. (2019). Prediction from latent classes: A demonstration of different approaches to include distal outcomes in mixture models. Structural Equation Modeling, 26(6), 967–985.', 'https://doi.org/10.1080/10705511.2019.1590146'],
     ['Wasserstein, R. L., & Lazar, N. A. (2016). The ASA statement on p-values: Context, process, and purpose. The American Statistician, 70(2), 129–133.', 'https://doi.org/10.1080/00031305.2016.1154108']
+  ]);
+})(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);
+</script>
+<script>/* PsyStat 화면(UI) 코드 — 조각 7/7: 네트워크 확장 (커뮤니티·브리지 중심성·부트스트랩 차이 검정·NCT)
+ * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다. */
+(function (G) {
+  'use strict';
+  if (G.__psyEngineMissing || !G.PsyStats) return; // 계산 엔진이 없으면 화면을 시작하지 않음
+  var NS = G.__PsyAppNS || (G.__PsyAppNS = {});
+  var S = NS.S, state = NS.state, $ = NS.$, $$ = NS.$$, esc = NS.esc, f = NS.f, fp = NS.fp, fr = NS.fr, table = NS.table, rcode = NS.rcode, rvec = NS.rvec;
+  var selectField = NS.selectField, multiField = NS.multiField, getMulti = NS.getMulti, getSel = NS.getSel, need = NS.need, addCard = NS.addCard, flash = NS.flash;
+  var levelsOf = NS.levelsOf, A = NS.A, networkSVG = NS.networkSVG, centralityPlotSVG = NS.centralityPlotSVG;
+
+  // 문항 이름에서 척도 이름 추정: 끝의 숫자·구분자를 떼어냄 (우울1 → 우울, PHQ_3 → PHQ)
+  function prefixOf(name) { var p = String(name).replace(/[\s_.\-]*\d+$/, ''); return p || String(name); }
+
+  /* ---------------- 네트워크 분석 화면: 커뮤니티 입력 ---------------- */
+  NS.netCommField = function () {
+    return '<div class="field"><div class="lab">커뮤니티 (척도) · 브리지 중심성</div><div class="inline">' +
+      '<label><input type="radio" name="cmode" value="none">사용 안 함</label><label><input type="radio" name="cmode" value="manual" checked>척도별 직접 지정</label><label><input type="radio" name="cmode" value="auto">자동 탐지 (walktrap, EGA 방식)</label></div>' +
+      '<div id="cmman" class="varlist" style="max-height:200px;margin-top:6px"></div>' +
+      '<div class="hint">직접 지정: 문항 이름 끝의 숫자를 뗀 이름(예: 우울1 → 우울)으로 자동 채워지며 고칠 수 있습니다. 커뮤니티가 2개 이상이면 브리지 중심성을 계산합니다(Jones, Ma, & McNally, 2021). 자동 탐지는 네트워크 |가중치|에 walktrap(걸음 4)을 적용하며 igraph와 같은 결과를 냅니다(Golino & Epskamp, 2017).</div></div>';
+  };
+  function refreshCommList() {
+    var box = $('#cmman'); if (!box) return;
+    var mode = ($('input[name=cmode]:checked') || {}).value;
+    box.style.display = mode === 'manual' ? '' : 'none';
+    var old = {}; $$('#cmman input[data-i]').forEach(function (inp) { old[inp.dataset.i] = inp.value; });
+    var v = getMulti('v');
+    box.innerHTML = v.length ? v.map(function (i) { var val = old[i] !== undefined ? old[i] : prefixOf(state.names[i]); return '<label style="justify-content:space-between">' + esc(state.names[i]) + '<input type="text" data-i="' + i + '" value="' + esc(val) + '" style="width:120px;padding:2px 6px;border:1px solid var(--line);border-radius:4px;background:var(--panel)"></label>'; }).join('')
+      : '<div class="hint" style="padding:4px 8px">노드 변수를 먼저 선택하세요.</div>';
+  }
+  if (A.network) {
+    var baseWire = A.network.wire, baseRun = A.network.run;
+    A.network.wire = function () {
+      if (baseWire) baseWire();
+      $$('input[name=cmode]').forEach(function (r) { r.onchange = refreshCommList; });
+      $$('#v input').forEach(function (c) { c.addEventListener('change', refreshCommList); });
+      $$('[data-all="v"], [data-none="v"]').forEach(function (b) { b.addEventListener('click', function () { setTimeout(refreshCommList, 0); }); });
+      refreshCommList();
+    };
+    A.network.run = function () {
+      var mode = ($('input[name=cmode]:checked') || {}).value || 'none', manual = {};
+      $$('#cmman input[data-i]').forEach(function (inp) { manual[inp.dataset.i] = inp.value.trim() || '(미지정)'; });
+      NS.lastNetwork = null;
+      baseRun();
+      var L = NS.lastNetwork, card = $('#results .card');
+      if (!L || !card || mode === 'none') return;
+      addCommunities(card, L, mode, manual);
+    };
+  }
+
+  function addCommunities(card, L, mode, manual) {
+    var names = L.names, net = L.net, p = names.length, comm, commNames, wtRes = null;
+    if (mode === 'auto') {
+      wtRes = S.walktrap(net, 4);
+      comm = wtRes.membership.map(function (c) { return c - 1; });
+      commNames = []; for (var c = 0; c < wtRes.nComm; c++) commNames.push('커뮤니티 ' + (c + 1));
+    } else {
+      var labs = L.varIdx.map(function (i) { return manual[i] || prefixOf(state.names[i]); });
+      commNames = []; labs.forEach(function (l) { if (commNames.indexOf(l) < 0) commNames.push(l); });
+      comm = labs.map(function (l) { return commNames.indexOf(l); });
+    }
+    var useNum = names.some(function (nm) { return nm.length > 6; }), plotLabels = useNum ? names.map(function (_, i) { return String(i + 1); }) : names;
+    var plot = card.querySelector('.net-plot');
+    if (plot) plot.innerHTML = networkSVG(net, plotLabels, { layout: L.layout, groups: comm, groupNames: commNames });
+    var members = commNames.map(function (_, k) { return names.filter(function (_, i) { return comm[i] === k; }); });
+    var html = '<h4>커뮤니티</h4>' + table(['커뮤니티', '노드 수', '노드'], commNames.map(function (cn, k) { return [esc(cn), members[k].length, esc(members[k].join(', '))]; }),
+      { left: [0, 2], title: mode === 'auto' ? '자동 탐지된 커뮤니티 (walktrap)' : '지정한 커뮤니티 (척도)', note: mode === 'auto' ? '모듈성 Q = ' + f(wtRes.modularity, 3) + '. 네트워크 |가중치|에 walktrap(걸음 4)을 적용하고 모듈성이 최대인 분할을 골랐다(igraph::cluster_walktrap과 같은 결과). 고립 노드는 각자 하나의 커뮤니티가 된다.' : '모듈성 Q = ' + f(S.modularity(net.map(function (r) { return r.map(Math.abs); }), comm), 3) + ' (지정한 분할 기준).' });
+    if (commNames.length >= 2) {
+      var bc = S.bridgeCentrality(net, comm), cut = S.quantile(bc.strength, 0.8);
+      html += table(['노드', '커뮤니티', '브리지 강도', '브리지 기대영향', '브리지 매개', '브리지 근접'], names.map(function (nm, i) {
+        return [esc(nm) + (bc.strength[i] >= cut && bc.strength[i] > 0 ? ' †' : ''), esc(commNames[comm[i]]), f(bc.strength[i], 3), f(bc.expectedInfluence[i], 3), f(bc.betweenness[i], 1), isFinite(bc.closeness[i]) ? f(bc.closeness[i], 4) : '—'];
+      }), { left: [0, 1], title: '브리지 중심성', note: '브리지 강도 = 다른 커뮤니티 노드와의 엣지 |가중치| 합, 브리지 기대영향(1단계) = 부호를 살린 합, 브리지 매개 = 서로 다른 커뮤니티 노드 쌍의 최단 경로 위에 놓인 횟수(경로가 여러 개면 비율), 브리지 근접 = 다른 커뮤니티 노드까지 평균 최단거리의 역수(거리 = 1/|w|). † = 브리지 강도 상위 20%(80번째 백분위수 이상)로, 선행연구에서 브리지 노드를 고를 때 흔히 쓰는 기준(Jones et al., 2021). 2단계 기대영향은 제공하지 않는다.' });
+      html += '<div class="cent-plot">' + centralityPlotSVG(names, { '브리지 강도': S.zscore(bc.strength), '브리지 기대영향': S.zscore(bc.expectedInfluence), '브리지 매개': S.zscore(bc.betweenness), '브리지 근접': S.zscore(bc.closeness) }) + '</div>';
+    } else html += '<p class="note">커뮤니티가 하나뿐이라 브리지 중심성을 계산하지 않았습니다.</p>';
+    var boot = card.querySelector('.bootbox'), div = document.createElement('div');
+    div.className = 'commbox'; div.innerHTML = html;
+    if (boot) boot.parentNode.insertBefore(div, boot); else card.appendChild(div);
+    NS.decorateTables(card);
+  }
+
+  /* ---------------- 부트스트랩 확장: 차이 검정·정확도·안정성 그림 ---------------- */
+  function edgeAccuracySVG(names, orig, pairs, samples) {
+    var rows = pairs.map(function (pr, e) {
+      var s = samples.map(function (x) { return x[e]; }).sort(function (a, b) { return a - b; });
+      return { lab: names[pr[0]] + '–' + names[pr[1]], w: orig[e], lo: S.quantile(s, 0.025), hi: S.quantile(s, 0.975), m: S.mean(s) };
+    }).filter(function (r) { return r.w !== 0 || r.lo !== 0 || r.hi !== 0; }).sort(function (a, b) { return b.w - a.w; }).slice(0, 120);
+    if (!rows.length) return '';
+    var lo = Math.min.apply(null, rows.map(function (r) { return r.lo; }).concat([0])), hi = Math.max.apply(null, rows.map(function (r) { return r.hi; }).concat([0]));
+    var W = 560, L = 150, R = 20, T = 20, rh = 9, H = T + rows.length * rh + 30, X = function (v) { return L + (v - lo) / ((hi - lo) || 1) * (W - L - R); };
+    var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + H + '" width="100%" style="max-width:' + W + 'px" font-family="sans-serif" font-size="8.5">';
+    s += '<line x1="' + X(0) + '" y1="' + T + '" x2="' + X(0) + '" y2="' + (T + rows.length * rh) + '" stroke="#8a94a6" stroke-dasharray="2 2"/>';
+    rows.forEach(function (r, i) {
+      var y = T + i * rh + rh / 2;
+      s += '<text x="' + (L - 4) + '" y="' + (y + 3) + '" text-anchor="end" style="fill:#1d2433">' + esc(r.lab.length > 26 ? r.lab.slice(0, 26) + '…' : r.lab) + '</text>' +
+        '<line x1="' + X(r.lo).toFixed(1) + '" y1="' + y + '" x2="' + X(r.hi).toFixed(1) + '" y2="' + y + '" stroke="#9db4e6" stroke-width="5"/>' +
+        '<circle cx="' + X(r.m).toFixed(1) + '" cy="' + y + '" r="1.8" fill="#3a4152"/><circle cx="' + X(r.w).toFixed(1) + '" cy="' + y + '" r="2.4" fill="#c8372d"/>';
+    });
+    [lo, 0, hi].forEach(function (t) { s += '<text x="' + X(t) + '" y="' + (H - 12) + '" text-anchor="middle" fill="#8a94a6">' + f(t, 2) + '</text>'; });
+    return s + '<text x="' + L + '" y="12" fill="#5b6475">● 원 추정치(빨강) · 부트스트랩 평균(검정) · 막대 = 95% 부트스트랩 구간</text></svg>';
+  }
+  function diffMatrixSVG(labels, samples, values, title) {
+    var p = labels.length, cell = Math.max(10, Math.min(22, 360 / p)), L = 110, T = 110, W = L + p * cell + 10, H = T + p * cell + 10;
+    var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + H + '" width="100%" style="max-width:' + W + 'px" font-family="sans-serif" font-size="9">';
+    labels.forEach(function (l, i) {
+      var lab = esc(l.length > 16 ? l.slice(0, 16) + '…' : l);
+      s += '<text x="' + (L - 4) + '" y="' + (T + i * cell + cell / 2 + 3) + '" text-anchor="end" style="fill:#1d2433">' + lab + '</text>' +
+        '<text x="' + (L + i * cell + cell / 2) + '" y="' + (T - 4) + '" transform="rotate(-60 ' + (L + i * cell + cell / 2) + ' ' + (T - 4) + ')" style="fill:#1d2433">' + lab + '</text>';
+    });
+    for (var i = 0; i < p; i++) for (var j = 0; j < p; j++) {
+      var x = L + j * cell, y = T + i * cell;
+      if (i === j) { s += '<rect x="' + x + '" y="' + y + '" width="' + cell + '" height="' + cell + '" fill="#ffffff" stroke="#c6ccd6"/><text x="' + (x + cell / 2) + '" y="' + (y + cell / 2 + 3) + '" text-anchor="middle" font-size="' + Math.max(6, cell / 2.8) + '" style="fill:#1d2433">' + f(values[i], 2).replace(/^(−?)0\./, '$1.') + '</text>'; continue; }
+      var d = S.diffTest(samples, i, j);
+      s += '<rect x="' + x + '" y="' + y + '" width="' + cell + '" height="' + cell + '" fill="' + (d.sig ? '#1d2433' : '#d7dbe2') + '" stroke="#ffffff"><title>' + esc(labels[i] + ' − ' + labels[j]) + ': 95% 구간 [' + f(d.lo, 3) + ', ' + f(d.hi, 3) + ']</title></rect>';
+    }
+    return s + '</svg>';
+  }
+  function csPlotSVG(props, series) {
+    var W = 460, H = 260, L = 46, R = 120, T = 16, B = 36, X = function (v) { return L + (v - 0.05) / 0.70 * (W - L - R); }, Y = function (v) { return T + (1 - (v + 0.2) / 1.2) * (H - T - B); };
+    var cols = ['#2b5fc7', '#c8372d', '#2f9e44', '#b8860b'], s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + H + '" width="100%" style="max-width:' + W + 'px" font-family="sans-serif" font-size="10">';
+    s += '<rect x="' + L + '" y="' + T + '" width="' + (W - L - R) + '" height="' + (H - T - B) + '" fill="none" stroke="#8a94a6" stroke-width="0.6"/>';
+    s += '<line x1="' + L + '" y1="' + Y(0.7) + '" x2="' + (W - R) + '" y2="' + Y(0.7) + '" stroke="#8a94a6" stroke-dasharray="4 3"/><text x="' + (W - R - 4) + '" y="' + (Y(0.7) - 3) + '" text-anchor="end" fill="#8a94a6">r = .70</text>';
+    [0, 0.5, 1].forEach(function (t) { s += '<text x="' + (L - 4) + '" y="' + (Y(t) + 3) + '" text-anchor="end">' + t + '</text>'; });
+    props.forEach(function (pv) { s += '<text x="' + X(pv) + '" y="' + (H - B + 13) + '" text-anchor="middle" font-size="8.5">' + Math.round(pv * 100) + '%</text>'; });
+    s += '<text x="' + ((L + W - R) / 2) + '" y="' + (H - 6) + '" text-anchor="middle">제거한 사례 비율</text>';
+    Object.keys(series).forEach(function (k, ki) {
+      var pts = []; series[k].forEach(function (arr, i) { var v = arr.filter(S.isNum); if (v.length) pts.push(X(props[i]).toFixed(1) + ',' + Y(S.mean(v)).toFixed(1)); });
+      s += '<polyline points="' + pts.join(' ') + '" fill="none" stroke="' + cols[ki] + '" stroke-width="2"/>' +
+        '<line x1="' + (W - R + 8) + '" y1="' + (T + 10 + ki * 16) + '" x2="' + (W - R + 26) + '" y2="' + (T + 10 + ki * 16) + '" stroke="' + cols[ki] + '" stroke-width="2"/><text x="' + (W - R + 30) + '" y="' + (T + 14 + ki * 16) + '">' + esc(k) + '</text>';
+    });
+    return s + '<text x="14" y="' + ((T + H - B) / 2) + '" text-anchor="middle" transform="rotate(-90 14 ' + ((T + H - B) / 2) + ')">원 중심성과의 평균 상관</text></svg>';
+  }
+  NS.networkBootExtras = function (box, D) {
+    var html = '';
+    if (D.nb && D.edgeSamples.length > 10) {
+      var nz = D.pairs.map(function (pr, e) { return { pr: pr, e: e, w: D.orig[e] }; }).filter(function (x) { return x.w !== 0; }).sort(function (a, b) { return Math.abs(b.w) - Math.abs(a.w); }).slice(0, 25);
+      html += '<h4>엣지 가중치 정확도 (부트스트랩 구간)</h4><div>' + edgeAccuracySVG(D.names, D.orig, D.pairs, D.edgeSamples) + '</div>' +
+        '<h4>강도 중심성 차이 검정</h4><div>' + diffMatrixSVG(D.names, D.strSamples, D.ce.strength) + '</div>' +
+        '<p class="note">검은 칸 = 두 노드의 강도 차이에 대한 95% 부트스트랩 구간이 0을 포함하지 않음(유의한 차이), 회색 = 차이 없음. 대각선 숫자 = 원 강도. bootnet의 differenceTest와 같은 방식이며 다중비교 보정은 하지 않는다(Epskamp et al., 2018).</p>';
+      if (nz.length > 1) html += '<h4>엣지 가중치 차이 검정 (|가중치| 상위 ' + nz.length + '개)</h4><div>' + diffMatrixSVG(nz.map(function (x) { return D.names[x.pr[0]] + '–' + D.names[x.pr[1]]; }), D.edgeSamples.map(function (smp) { return nz.map(function (x) { return smp[x.e]; }); }), nz.map(function (x) { return x.w; })) + '</div>' +
+        '<p class="note">검은 칸 = 두 엣지 가중치 차이의 95% 부트스트랩 구간이 0을 포함하지 않음. 대각선 = 원 가중치.</p>';
+    }
+    if (D.nc) html += '<h4>중심성 안정성 (사례 제거 부트스트랩)</h4><div>' + csPlotSVG(D.props, { '강도': D.corrS, '기대영향': D.corrE, '매개': D.corrB, '근접': D.corrC }) + '</div><p class="note">선이 r = .70 위에 오래 머물수록 중심성 순위가 안정적이다. CS 계수는 위 표 참고.</p>';
+    if (html) box.insertAdjacentHTML('beforeend', html);
+    var card = box.closest('.card'); if (card) NS.decorateTables(card);
+  };
+
+  /* ---------------- NCT: 두 집단 네트워크 비교 ---------------- */
+  A.nct = {
+    group: '네트워크', title: '네트워크 비교 (NCT)',
+    desc: '두 독립 집단의 네트워크를 순열 검정으로 비교(van Borkulo et al., 2023): 전체 연결 강도, 네트워크 구조(최대 엣지 차이), 엣지별 차이, 노드 강도·기대영향 차이.',
+    form: function () {
+      return multiField('v', '노드 변수 (3개 이상)', 'num') + selectField('g', '집단변수', 'any') + NS.twoLevelPicker('g') +
+        '<div class="field"><label for="est">추정 방법</label><select id="est"><option value="ebicglasso">EBICglasso</option><option value="pcor">편상관 (비정규화)</option></select></div>' +
+        '<div class="field"><div class="lab">상관 종류</div><div class="inline"><label><input type="radio" name="cr" value="auto" checked>자동 (cor_auto)</label><label><input type="radio" name="cr" value="pearson">Pearson</label><label><input type="radio" name="cr" value="spearman">Spearman</label></div><div class="hint">다분상관(자동)은 정확하지만 순열마다 다시 계산해 시간이 몇 배 걸립니다.</div></div>' +
+        '<div class="field"><div class="inline"><label>EBIC γ <select id="gam"><option value="0.5" selected>0.5</option><option value="0.25">0.25</option><option value="0">0</option></select></label><label>순열 <input type="number" id="np" value="1000" min="50" step="100" style="width:80px"> 회</label></div>' +
+        '<div class="inline" style="margin-top:4px"><label>엣지·중심성 p값 보정 <select id="padj"><option value="holm" selected>Holm</option><option value="BH">Benjamini-Hochberg</option><option value="none">보정 안 함</option></select></label><label>시드 <input type="number" id="seed" value="1234" style="width:70px"></label></div>' +
+        '<div class="hint">독립된 두 집단을 가정합니다(같은 사람의 반복측정은 지원하지 않음). 순열 1,000회 권장, 문항 15개·Pearson 기준 수 분이 걸릴 수 있습니다.</div></div>';
+    },
+    wire: function () { NS.wireLevelPicker('g'); },
+    run: function () {
+      var v = getMulti('v'), g = getSel('g'); need(v.length >= 3 && g >= 0, '노드 변수 3개 이상과 집단변수를 선택하세요.');
+      var la = $('#g_a').value, lb = $('#g_b').value; need(la !== lb, '서로 다른 두 집단을 선택하세요.');
+      var names = v.map(function (i) { return state.names[i]; }), rows = [];
+      for (var r = 0; r < state.nrows; r++) { var gv = state.cols[g][r]; if (gv === null || (String(gv) !== la && String(gv) !== lb)) continue; if (v.every(function (i) { return S.isNum(state.cols[i][r]); })) rows.push(r); }
+      var cols = v.map(function (i) { return rows.map(function (r2) { return state.cols[i][r2]; }); }), lab = rows.map(function (r3) { return String(state.cols[g][r3]) === la ? 0 : 1; });
+      var n1 = lab.filter(function (x) { return x === 0; }).length, n2 = lab.length - n1;
+      need(n1 > v.length + 2 && n2 > v.length + 2, '각 집단의 완전 사례가 노드 수보다 충분히 많아야 합니다 (' + la + ': ' + n1 + ', ' + lb + ': ' + n2 + ').');
+      var opts = { method: $('#est').value, cor: $('input[name=cr]:checked').value, gamma: Number($('#gam').value), alpha: 0 };
+      if (opts.cor === 'auto') opts.ordinal = cols.map(function (c) { return S.isOrdinalAuto(c); });
+      var B = Math.max(20, Math.floor(Number($('#np').value) || 1000)), seed = Number($('#seed').value) || 1, adj = $('#padj').value;
+      var obs = S.nctObserved(cols, lab, opts), gname = state.names[g];
+      var card = addCard('네트워크 비교 (NCT): ' + gname + ' = ' + la + ' vs ' + lb, '<div class="nctbox"><h4>순열 검정 진행 중…</h4><div class="progress"><div></div></div><div class="note prog">0 / ' + B + '</div></div>', names.length + '개 노드, n = ' + n1 + ' / ' + n2);
+      var box = card.querySelector('.nctbox'), rand = S.rng(seed), perms = [], done = 0, t0 = Date.now();
+      (function step() {
+        var until = Date.now() + 150;
+        while (done < B && Date.now() < until) { var ps = S.nctPermOnce(cols, lab, opts, rand); if (ps) perms.push(ps); done++; }
+        box.querySelector('.progress > div').style.width = (100 * done / B) + '%';
+        var el = (Date.now() - t0) / 1000;
+        box.querySelector('.prog').textContent = done + ' / ' + B + ' · 경과 ' + el.toFixed(0) + '초 · 남은 시간 약 ' + (done ? (el / done * (B - done)).toFixed(0) : '?') + '초';
+        if (done < B) { setTimeout(step, 0); return; }
+        renderNCT(card, box, { names: names, obs: obs, sum: S.nctSummarize(obs.stats, perms, adj), la: la, lb: lb, n1: n1, n2: n2, opts: opts, B: B, seed: seed, gname: gname, cols: cols, secs: el });
+      })();
+    }
+  };
+
+  function renderNCT(card, box, R) {
+    var names = R.names, p = names.length, o = R.obs, sm = R.sum, st = o.stats, adjName = { holm: 'Holm', BH: 'Benjamini-Hochberg', none: '보정 없음' }[sm.adjust];
+    var pooled = S.estimateNetwork(R.cols, R.opts).network, layout = S.layoutFR(pooled), maxw = 0;
+    [o.net1, o.net2].forEach(function (m) { m.forEach(function (r) { r.forEach(function (x) { maxw = Math.max(maxw, Math.abs(x)); }); }); });
+    var useNum = names.some(function (nm) { return nm.length > 6; }), lab = useNum ? names.map(function (_, i) { return String(i + 1); }) : names;
+    var edges = [], k = 0;
+    for (var a = 0; a < p; a++) for (var b = a + 1; b < p; b++) { edges.push({ a: a, b: b, w1: o.net1[a][b], w2: o.net2[a][b], d: st.edgeDiff[k], p: sm.edgeP[k], padj: sm.edgePadj[k] }); k++; }
+    var sig = edges.filter(function (e) { return e.padj < 0.05; }).sort(function (x, y) { return y.d - x.d; });
+    var show = sig.length ? sig : edges.slice().sort(function (x, y) { return y.d - x.d; }).slice(0, 10);
+    var c1 = S.centrality(o.net1), c2 = S.centrality(o.net2);
+    var html = '<div style="display:flex;flex-wrap:wrap;gap:12px"><div style="flex:1;min-width:280px"><h4 style="text-align:center">' + esc(R.gname + ' = ' + R.la) + ' (n = ' + R.n1 + ')</h4>' + networkSVG(o.net1, lab, { layout: layout, maxw: maxw }) + '</div>' +
+      '<div style="flex:1;min-width:280px"><h4 style="text-align:center">' + esc(R.gname + ' = ' + R.lb) + ' (n = ' + R.n2 + ')</h4>' + networkSVG(o.net2, lab, { layout: layout, maxw: maxw }) + '</div></div>' +
+      '<p class="note">두 그림은 같은 배치(합친 자료의 네트워크 기준)와 같은 굵기 척도를 써서 직접 비교할 수 있다.' + (useNum ? ' 노드 번호: ' + names.map(function (nm, i) { return (i + 1) + ' = ' + esc(nm); }).join(', ') : '') + '</p>' +
+      table(['검정', esc(R.la), esc(R.lb), '검정통계량', 'p'], [
+        ['전체 연결 강도 불변성 (Σ|w|)', f(st.gs1, 3), f(st.gs2, 3), 'S = ' + f(st.S, 3), fp(sm.strength.p)],
+        ['네트워크 구조 불변성 (최대 |엣지 차이|)', '', '', 'M = ' + f(st.M, 3), fp(sm.structure.p)]], { left: [0], title: '네트워크 비교 검정 (NCT)', note: '순열 ' + sm.B + '회, p = (1 + #{T* ≥ T}) / (B + 1) (Phipson & Smyth, 2010). 전체 강도는 엣지 |가중치|의 합.' }) +
+      table(['노드 1', '노드 2', esc(R.la), esc(R.lb), '|차이|', 'p', 'p (' + adjName + ')'], show.map(function (e) { return [esc(names[e.a]), esc(names[e.b]), fr(e.w1), fr(e.w2), fr(e.d), fp(e.p), fp(e.padj)]; }),
+        { left: [0, 1], title: sig.length ? '유의하게 다른 엣지 (보정 p < .05)' : '엣지 차이 (|차이| 상위 10개; 보정 후 유의한 엣지 없음)', note: '엣지 ' + edges.length + '개를 모두 검정하고 ' + adjName + ' 방법으로 보정했다.' }) +
+      table(['노드', '강도 ' + esc(R.la), '강도 ' + esc(R.lb), 'p (' + adjName + ')', '기대영향 ' + esc(R.la), '기대영향 ' + esc(R.lb), 'p (' + adjName + ')'], names.map(function (nm, i) {
+        return [esc(nm), f(c1.strength[i], 3), f(c2.strength[i], 3), fp(sm.strPadj[i]), f(c1.expectedInfluence[i], 3), f(c2.expectedInfluence[i], 3), fp(sm.eiPadj[i])];
+      }), { left: [0], title: '중심성 불변성' }) +
+      '<p class="note">추정: ' + (R.opts.method === 'ebicglasso' ? 'EBICglasso (γ = ' + R.opts.gamma + ')' : '편상관') + ', 상관 = ' + (R.opts.cor === 'auto' ? 'cor_auto' : R.opts.cor) + '. 각 순열에서 집단 표지를 섞어 두 네트워크를 다시 추정했다(시드 ' + R.seed + ', ' + R.secs.toFixed(0) + '초). ' +
+      '검증: 같은 순열 배정으로 R(qgraph::EBICglasso)에서 계산한 통계량·p값과 일치했다(NetworkComparisonTest 패키지는 이 환경에 설치할 수 없어 같은 정의를 재현해 대조). 정규화 추정에서는 집단 크기가 다르면 작은 집단의 네트워크가 더 희소해져 차이가 생길 수 있으므로 집단 크기를 함께 보고하라(van Borkulo et al., 2023).</p>' +
+      rcode('library(NetworkComparisonTest)\nd <- na.omit(df[, ' + rvec(names.concat([R.gname])) + '])\ng1 <- d[d$' + R.gname + ' == "' + R.la + '", ' + rvec(names) + ']; g2 <- d[d$' + R.gname + ' == "' + R.lb + '", ' + rvec(names) + ']\nres <- NCT(g1, g2, it = ' + R.B + ', test.edges = TRUE, edges = "all", test.centrality = TRUE,\n           centrality = c("strength", "expectedInfluence"), p.adjust.methods = "' + (R.opts && sm.adjust === 'BH' ? 'BH' : sm.adjust) + '")\nsummary(res)');
+    box.innerHTML = html;
+    NS.decorateTables(card);
+  }
+
+  /* ---------------- 메뉴·해석 가이드 ---------------- */
+  if (NS.NAV) NS.NAV.forEach(function (gr) { if (gr[0] === '네트워크' && gr[1].indexOf('nct') < 0) gr[1].push('nct'); });
+  if (NS.GUIDES) {
+    NS.GUIDES.network = (NS.GUIDES.network || []).concat([
+      ['모듈성 Q', '커뮤니티 안 연결이 무작위 기대보다 얼마나 촘촘한지.', '높을수록 커뮤니티 구분이 뚜렷(대략 .3 이상이면 뚜렷한 구조로 보는 관행)', 'Newman (2006); 관행'],
+      ['브리지 강도·기대영향', '다른 커뮤니티(척도)와 이어주는 정도. 공병 연구에서 두 증상군을 잇는 증상 탐색.', '상위 20%(80번째 백분위수)를 브리지 노드로 보는 경우가 많음', 'Jones, Ma, & McNally (2021)'],
+      ['부트스트랩 차이 검정', '두 엣지(또는 두 노드의 중심성)가 유의하게 다른지.', '차이의 95% 구간이 0을 포함하지 않으면 다름. 다중비교 미보정이므로 탐색적으로 해석', 'Epskamp et al. (2018)']]);
+    NS.GUIDES.nct = [
+      ['전체 연결 강도 불변성 (S)', '두 네트워크의 엣지 |가중치| 합의 차이.', 'p < .05면 전체 연결성이 다름', 'van Borkulo et al. (2023)'],
+      ['네트워크 구조 불변성 (M)', '모든 엣지 중 가장 큰 |차이|.', 'p < .05면 적어도 한 엣지가 다름 → 엣지별 검정으로 확인', 'van Borkulo et al. (2023)'],
+      ['엣지·중심성별 p (보정)', '개별 엣지·노드의 차이.', '여러 번 검정하므로 Holm 등으로 보정한 p값 사용', 'van Borkulo et al. (2023)'],
+      ['집단 크기', '정규화 추정은 표본이 작을수록 희소한 네트워크를 만든다.', '집단 크기 차이가 크면 결과 해석에 주의, 크기를 함께 보고', 'van Borkulo et al. (2023)']];
+  }
+  NS.extraRefs = (NS.extraRefs || []).concat([
+    ['Jones, P. J., Ma, R., & McNally, R. J. (2021). Bridge centrality: A network approach to understanding comorbidity. Multivariate Behavioral Research, 56(2), 353–367.', 'https://doi.org/10.1080/00273171.2019.1614898'],
+    ['Golino, H. F., & Epskamp, S. (2017). Exploratory graph analysis: A new approach for estimating the number of dimensions in psychological research. PLoS ONE, 12(6), e0174035.', 'https://doi.org/10.1371/journal.pone.0174035'],
+    ['Newman, M. E. J. (2006). Modularity and community structure in networks. Proceedings of the National Academy of Sciences, 103(23), 8577–8582.', 'https://doi.org/10.1073/pnas.0601602103'],
+    ['Phipson, B., & Smyth, G. K. (2010). Permutation p-values should never be zero: Calculating exact p-values when permutations are randomly drawn. Statistical Applications in Genetics and Molecular Biology, 9(1), Article 39.', 'https://doi.org/10.2202/1544-6115.1585'],
+    ['Pons, P., & Latapy, M. (2006). Computing communities in large networks using random walks. Journal of Graph Algorithms and Applications, 10(2), 191–218.', 'https://doi.org/10.7155/jgaa.00124'],
+    ['van Borkulo, C. D., van Bork, R., Boschloo, L., Kossakowski, J. J., Tio, P., Schoevers, R. A., Borsboom, D., & Waldorp, L. J. (2023). Comparing network structures on three aspects: A permutation test. Psychological Methods, 28(6), 1273–1285.', 'https://doi.org/10.1037/met0000476']
   ]);
 })(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);
 </script>
