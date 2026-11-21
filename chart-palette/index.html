@@ -1,0 +1,592 @@
+<title>랜덤 차트 팔레트</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: control bar → swatch strip → 2×2 chart preview → color table + export code. A lab bench for colors. */
+:root {
+  --bg: #f5f6f8;
+  --surface: #ffffff;
+  --fg: #1b1f2a;
+  --muted: #5d6475;
+  --line: #dde1e8;
+  --accent: #2f4fd6;
+  --accent-soft: #e7ecff;
+  --good: #1f7a4a;
+  --warn: #9a6200;
+  --bad: #b3261e;
+  --font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12151c; --surface: #1a1e27; --fg: #e8eaf0; --muted: #9aa1b2; --line: #2c3240;
+    --accent: #8ea4ff; --accent-soft: #232b48; --good: #5cc98d; --warn: #e6b04d; --bad: #ff8a80;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12151c; --surface: #1a1e27; --fg: #e8eaf0; --muted: #9aa1b2; --line: #2c3240;
+  --accent: #8ea4ff; --accent-soft: #232b48; --good: #5cc98d; --warn: #e6b04d; --bad: #ff8a80;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 48px;
+}
+.wrap { max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+header.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; }
+h1 { font-size: 1.6rem; font-weight: 700; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+.sub { color: var(--muted); margin: 2px 0 0; font-size: 0.92rem; }
+h2 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0 0 10px; font-weight: 600; }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; min-width: 0; }
+
+.controls { display: flex; flex-wrap: wrap; gap: 14px 20px; align-items: end; }
+.field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.field label, .field .lab { font-size: 0.78rem; color: var(--muted); font-weight: 500; }
+select, input[type="range"] { font: inherit; }
+select {
+  background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; min-width: 9rem;
+}
+.range-row { display: flex; align-items: center; gap: 8px; }
+.range-row output { font-family: var(--font-mono); min-width: 2ch; text-align: right; font-variant-numeric: tabular-nums; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; flex-wrap: wrap; }
+.seg button { border: 0; background: transparent; color: var(--fg); font: inherit; font-size: 0.86rem; padding: 6px 10px; cursor: pointer; border-right: 1px solid var(--line); }
+.seg button:last-child { border-right: 0; }
+.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.btn {
+  font: inherit; font-weight: 600; border-radius: 6px; padding: 8px 14px; cursor: pointer; border: 1px solid var(--line);
+  background: var(--surface); color: var(--fg);
+}
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.kbd { font-family: var(--font-mono); font-size: 0.75rem; border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; color: var(--muted); }
+
+/* Swatch strip */
+.strip { display: flex; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); min-height: 132px; }
+.sw { flex: 1 1 0; min-width: 0; position: relative; display: flex; flex-direction: column; justify-content: flex-end; padding: 10px 8px; gap: 4px; cursor: pointer; border: 0; font: inherit; text-align: left; }
+.sw .hex { font-family: var(--font-mono); font-size: 0.82rem; font-weight: 500; letter-spacing: 0.02em; overflow-wrap: anywhere; }
+.sw .idx { font-size: 0.72rem; opacity: 0.75; }
+.sw .lock { position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; border-radius: 50%; border: 0; cursor: pointer; display: grid; place-items: center; background: rgba(255,255,255,0.22); }
+.sw .lock svg { width: 14px; height: 14px; }
+.sw .lock[aria-pressed="true"] { background: rgba(0,0,0,0.35); }
+.strip-note { font-size: 0.8rem; color: var(--muted); margin-top: 6px; }
+
+/* Charts */
+.charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 760px) { .charts { grid-template-columns: minmax(0, 1fr); } }
+.chart-card h3 { font-size: 0.95rem; margin: 0 0 2px; font-weight: 600; }
+.chart-card p.cap { font-size: 0.78rem; color: var(--muted); margin: 0 0 8px; }
+.chart-card svg { width: 100%; height: auto; display: block; }
+.ax { fill: var(--muted); font-family: var(--font-body); font-size: 11px; }
+.grid { stroke: var(--line); stroke-width: 1; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 0.78rem; color: var(--muted); margin-top: 6px; }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+/* Check + table */
+.two { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 16px; }
+@media (max-width: 900px) { .two { grid-template-columns: minmax(0, 1fr); } }
+.table-scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { font-size: 0.74rem; color: var(--muted); font-weight: 600; }
+td.mono { font-family: var(--font-mono); }
+.dot { width: 18px; height: 18px; border-radius: 4px; display: inline-block; vertical-align: middle; border: 1px solid var(--line); }
+.chip { display: inline-block; font-size: 0.72rem; font-weight: 600; padding: 1px 7px; border-radius: 99px; border: 1px solid currentColor; }
+.chip.good { color: var(--good); } .chip.warn { color: var(--warn); } .chip.bad { color: var(--bad); }
+.checks { display: flex; flex-direction: column; gap: 8px; }
+.check-row { display: grid; grid-template-columns: 7.5rem 1fr auto; gap: 10px; align-items: center; font-size: 0.86rem; }
+.check-row .mini { display: flex; height: 14px; border-radius: 3px; overflow: hidden; }
+.check-row .mini i { flex: 1; }
+.check-row .val { font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); }
+.note { font-size: 0.78rem; color: var(--muted); margin: 10px 0 0; line-height: 1.6; }
+
+.export-tabs { margin-bottom: 8px; }
+pre.code { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 12px; font-family: var(--font-mono); font-size: 0.8rem; overflow-x: auto; margin: 0; white-space: pre; min-height: 6rem; }
+.export-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; gap: 8px; flex-wrap: wrap; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 8px 14px; border-radius: 8px; font-size: 0.85rem; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.toast.show { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+footer { font-size: 0.75rem; color: var(--muted); line-height: 1.7; }
+footer a { color: var(--accent); }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>랜덤 차트 팔레트</h1>
+      <p class="sub">버튼 한 번으로 차트용 색상 조합을 만들고, 색맹·흑백 인쇄에서도 구분되는지 바로 확인합니다.</p>
+    </div>
+  </header>
+
+  <section class="panel controls" aria-label="생성 설정">
+    <div class="field">
+      <span class="lab">팔레트 유형</span>
+      <div class="seg" id="typeSeg" role="group" aria-label="팔레트 유형">
+        <button type="button" data-v="cat" aria-pressed="true">범주형</button>
+        <button type="button" data-v="seq" aria-pressed="false">순차형</button>
+        <button type="button" data-v="div" aria-pressed="false">발산형</button>
+      </div>
+    </div>
+    <div class="field" id="moodField">
+      <label for="mood">분위기</label>
+      <select id="mood">
+        <option value="balanced">균형 (기본)</option>
+        <option value="academic">차분한 학술지 톤</option>
+        <option value="vivid">선명한 발표용</option>
+        <option value="pastel">파스텔</option>
+        <option value="analog">유사색 (한 계열)</option>
+        <option value="contrast">보색 대비</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="count">색 개수</label>
+      <div class="range-row"><input type="range" id="count" min="2" max="10" value="5"><output id="countOut" for="count">5</output></div>
+    </div>
+    <div class="field">
+      <label for="preset">검증된 프리셋</label>
+      <select id="preset">
+        <option value="">— 선택 —</option>
+        <option value="okabe">Okabe–Ito (색맹 친화, 8색)</option>
+        <option value="viridis">viridis (순차형, 5색)</option>
+        <option value="gray">흑백 회색조 (5색)</option>
+      </select>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn" id="undo" disabled>이전</button>
+      <button type="button" class="btn primary" id="gen">새로 생성 <span class="kbd" style="color:inherit;border-color:currentColor">Space</span></button>
+    </div>
+  </section>
+
+  <section aria-label="색상표">
+    <div class="field" style="margin-bottom:10px;align-items:flex-start">
+      <span class="lab">보기 시뮬레이션</span>
+      <div class="seg" id="simSeg" role="group" aria-label="색각 시뮬레이션">
+        <button type="button" data-v="none" aria-pressed="true">일반</button>
+        <button type="button" data-v="protan" aria-pressed="false">적색맹</button>
+        <button type="button" data-v="deutan" aria-pressed="false">녹색맹</button>
+        <button type="button" data-v="tritan" aria-pressed="false">청색맹</button>
+        <button type="button" data-v="gray" aria-pressed="false">흑백 인쇄</button>
+      </div>
+    </div>
+    <div class="strip" id="strip"></div>
+    <p class="strip-note" id="stripNote">색을 누르면 HEX가 복사됩니다. 자물쇠로 고정한 색은 다시 생성해도 유지됩니다.</p>
+  </section>
+
+  <section class="charts" id="charts" aria-label="차트 미리보기"></section>
+
+  <section class="two">
+    <div class="panel">
+      <h2>색상표</h2>
+      <div class="table-scroll"><table id="table"></table></div>
+      <p class="note">대비율은 WCAG 2.1 공식으로 계산했습니다. 막대·선 같은 그래픽 요소는 배경과 3:1 이상이 권장됩니다(성공 기준 1.4.11).</p>
+    </div>
+    <div class="panel">
+      <h2>구분도 점검</h2>
+      <div class="checks" id="checks"></div>
+      <p class="note">값은 가장 비슷한 두 색 사이의 OKLab 거리(×100)입니다. ≥10 양호, 5–10 주의, &lt;5 구분 어려움은 이 도구가 정한 경험적 기준이며 공식 표준이 아닙니다. 색맹 시뮬레이션은 Machado 외(2009) 모델(심도 100%)을 사용합니다.</p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>내보내기</h2>
+    <div class="seg export-tabs" id="expSeg" role="group" aria-label="내보내기 형식">
+      <button type="button" data-v="hex" aria-pressed="true">HEX</button>
+      <button type="button" data-v="excel" aria-pressed="false">Excel·SPSS (RGB)</button>
+      <button type="button" data-v="py" aria-pressed="false">Python</button>
+      <button type="button" data-v="r" aria-pressed="false">R</button>
+      <button type="button" data-v="css" aria-pressed="false">CSS</button>
+    </div>
+    <pre class="code" id="code"></pre>
+    <div class="export-actions">
+      <span class="note" style="margin:0" id="expHint"></span>
+      <button type="button" class="btn" id="copyCode">코드 복사</button>
+    </div>
+  </section>
+
+  <footer>
+    차트 데이터는 미리보기용 가상 데이터입니다. 참고: Machado, G. M., Oliveira, M. M., &amp; Fernandes, L. A. F. (2009). A physiologically-based model for simulation of color vision deficiency. <i>IEEE TVCG, 15</i>(6), 1291–1298.
+    <a href="https://doi.org/10.1109/TVCG.2009.113" target="_blank" rel="noopener">doi.org/10.1109/TVCG.2009.113</a> ·
+    Okabe, M., &amp; Ito, K. (2008). Color Universal Design. <a href="https://jfly.uni-koeln.de/color/" target="_blank" rel="noopener">jfly.uni-koeln.de/color</a> ·
+    W3C (2018). WCAG 2.1. <a href="https://www.w3.org/TR/WCAG21/" target="_blank" rel="noopener">w3.org/TR/WCAG21</a> ·
+    Ottosson, B. (2020). OKLab. <a href="https://bottosson.github.io/posts/oklab/" target="_blank" rel="noopener">bottosson.github.io/posts/oklab</a>
+  </footer>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  // ---------- color math ----------
+  const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+  const toLin = c => c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  const toGam = c => c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055;
+
+  function oklabToLin(L, a, b) {
+    const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
+    const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
+    const s_ = L - 0.0894841775 * a - 1.2914855480 * b;
+    const l = l_ ** 3, m = m_ ** 3, s = s_ ** 3;
+    return [
+      4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+      -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+      -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s
+    ];
+  }
+  function linToOklab([r, g, b]) {
+    const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+    const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+    const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+    return [
+      0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s,
+      1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s,
+      0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s
+    ];
+  }
+  const inGamut = rgb => rgb.every(c => c >= -1e-4 && c <= 1 + 1e-4);
+  // OKLCH -> sRGB [0..255], reducing chroma until in gamut
+  function oklch(L, C, H) {
+    const h = H * Math.PI / 180;
+    let lo = 0, hi = C, rgb = oklabToLin(L, C * Math.cos(h), C * Math.sin(h));
+    if (!inGamut(rgb)) {
+      for (let i = 0; i < 20; i++) {
+        const mid = (lo + hi) / 2;
+        const t = oklabToLin(L, mid * Math.cos(h), mid * Math.sin(h));
+        if (inGamut(t)) lo = mid; else hi = mid;
+      }
+      rgb = oklabToLin(L, lo * Math.cos(h), lo * Math.sin(h));
+    }
+    return rgb.map(c => Math.round(clamp(toGam(clamp(c))) * 255));
+  }
+  const hexOf = rgb => '#' + rgb.map(v => v.toString(16).padStart(2, '0')).join('').toUpperCase();
+  const rgbOf = hex => { const h = hex.replace('#', ''); return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)); };
+  const linOf = rgb => rgb.map(v => toLin(v / 255));
+  const lumOf = rgb => { const [r, g, b] = linOf(rgb); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+  const contrast = (a, b) => { const x = lumOf(a), y = lumOf(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+  function hslOf([r, g, b]) {
+    r /= 255; g /= 255; b /= 255;
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn; let h = 0;
+    const l = (mx + mn) / 2, s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1));
+    if (d) { if (mx === r) h = ((g - b) / d) % 6; else if (mx === g) h = (b - r) / d + 2; else h = (r - g) / d + 4; h *= 60; if (h < 0) h += 360; }
+    return [Math.round(h), Math.round(s * 100), Math.round(l * 100)];
+  }
+
+  // Machado et al. (2009), severity 1.0, applied in linear RGB
+  const CVD = {
+    protan: [[0.152286, 1.052583, -0.204868], [0.114503, 0.786281, 0.099216], [-0.003882, -0.048116, 1.051998]],
+    deutan: [[0.367322, 0.860646, -0.227968], [0.280085, 0.672501, 0.047413], [-0.011820, 0.042940, 0.968881]],
+    tritan: [[1.255528, -0.076749, -0.178779], [-0.078411, 0.930809, 0.147602], [0.004733, 0.691367, 0.303900]]
+  };
+  function simulate(hex, mode) {
+    if (mode === 'none') return hex;
+    const rgb = rgbOf(hex);
+    if (mode === 'gray') { const y = Math.round(clamp(toGam(lumOf(rgb))) * 255); return hexOf([y, y, y]); }
+    const lin = linOf(rgb), M = CVD[mode];
+    const out = M.map(row => row[0] * lin[0] + row[1] * lin[1] + row[2] * lin[2]);
+    return hexOf(out.map(c => Math.round(clamp(toGam(clamp(c))) * 255)));
+  }
+  function minDist(hexes, mode) {
+    const labs = hexes.map(h => linToOklab(linOf(rgbOf(simulate(h, mode)))));
+    let best = Infinity;
+    for (let i = 0; i < labs.length; i++) for (let j = i + 1; j < labs.length; j++) {
+      const d = Math.hypot(labs[i][0] - labs[j][0], labs[i][1] - labs[j][1], labs[i][2] - labs[j][2]);
+      if (d < best) best = d;
+    }
+    return best * 100;
+  }
+
+  // ---------- generators ----------
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const MOODS = {
+    balanced: { L: [0.55, 0.82], C: [0.11, 0.17], spread: 360 },
+    academic: { L: [0.42, 0.78], C: [0.05, 0.10], spread: 360 },
+    vivid:    { L: [0.58, 0.76], C: [0.17, 0.24], spread: 360 },
+    pastel:   { L: [0.80, 0.92], C: [0.05, 0.10], spread: 360 },
+    analog:   { L: [0.38, 0.88], C: [0.08, 0.16], spread: 110 },
+    contrast: { L: [0.45, 0.85], C: [0.10, 0.18], spread: 0 }
+  };
+  function catCandidate(n, mood, locked) {
+    const m = MOODS[mood], h0 = rnd(0, 360), out = [];
+    // lightness levels spread across the range, shuffled, so grayscale print still separates
+    const Ls = Array.from({ length: n }, (_, i) => m.L[0] + (m.L[1] - m.L[0]) * (n === 1 ? 0.5 : i / (n - 1)));
+    for (let i = Ls.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [Ls[i], Ls[j]] = [Ls[j], Ls[i]]; }
+    for (let i = 0; i < n; i++) {
+      if (locked[i]) { out.push(locked[i]); continue; }
+      let h;
+      if (mood === 'contrast') h = h0 + (i % 2 ? 180 : 0) + rnd(-25, 25);
+      else if (m.spread < 360) h = h0 + (n === 1 ? 0 : (i / (n - 1)) * m.spread) + rnd(-8, 8);
+      else h = h0 + (360 / n) * i + rnd(-12, 12);
+      out.push(hexOf(oklch(Ls[i], rnd(m.C[0], m.C[1]), ((h % 360) + 360) % 360)));
+    }
+    return out;
+  }
+  function genCategorical(n, mood, locked) {
+    // "smart random": try many candidates, keep the one most distinguishable for normal + deutan vision
+    let best = null, bestScore = -1;
+    for (let k = 0; k < 60; k++) {
+      const c = catCandidate(n, mood, locked);
+      const s = Math.min(minDist(c, 'none'), minDist(c, 'deutan') * 1.3, minDist(c, 'gray') * 2.2);
+      if (s > bestScore) { bestScore = s; best = c; }
+    }
+    return best;
+  }
+  function genSequential(n, mood) {
+    const h0 = rnd(0, 360), drift = rnd(-70, 70), cMax = mood === 'academic' ? 0.11 : mood === 'pastel' ? 0.09 : mood === 'vivid' ? 0.2 : 0.16;
+    const Lhi = mood === 'pastel' ? 0.96 : 0.95, Llo = mood === 'pastel' ? 0.55 : 0.28;
+    return Array.from({ length: n }, (_, i) => {
+      const t = n === 1 ? 0.5 : i / (n - 1);
+      const L = Lhi - (Lhi - Llo) * t;
+      const C = 0.02 + (cMax - 0.02) * Math.sin(Math.PI * Math.min(1, t * 0.85 + 0.1));
+      return hexOf(oklch(L, C, ((h0 + drift * t) % 360 + 360) % 360));
+    });
+  }
+  function genDiverging(n, mood) {
+    const h0 = rnd(0, 360), h1 = h0 + rnd(150, 210), cMax = mood === 'academic' ? 0.11 : mood === 'pastel' ? 0.09 : mood === 'vivid' ? 0.19 : 0.15;
+    const Lend = mood === 'pastel' ? 0.62 : 0.42, Lmid = 0.96;
+    return Array.from({ length: n }, (_, i) => {
+      const t = n === 1 ? 0.5 : i / (n - 1), d = Math.abs(t - 0.5) * 2;
+      const L = Lmid - (Lmid - Lend) * d;
+      const C = 0.012 + (cMax - 0.012) * Math.pow(d, 0.8);
+      return hexOf(oklch(L, C, (((t < 0.5 ? h0 : h1)) % 360 + 360) % 360));
+    });
+  }
+
+  // ---------- state ----------
+  const S = { type: 'cat', mood: 'balanced', n: 5, sim: 'none', exp: 'hex', colors: [], locks: [], history: [] };
+  const $ = id => document.getElementById(id);
+
+  function generate(push = true) {
+    if (push && S.colors.length) S.history.push({ type: S.type, colors: S.colors.slice(), locks: S.locks.slice() });
+    if (S.history.length > 40) S.history.shift();
+    const locked = S.type === 'cat' ? Array.from({ length: S.n }, (_, i) => S.locks[i] ? S.colors[i] : null) : [];
+    if (S.type === 'cat') S.colors = genCategorical(S.n, S.mood, locked);
+    else if (S.type === 'seq') S.colors = genSequential(S.n, S.mood);
+    else S.colors = genDiverging(S.n, S.mood);
+    S.locks = Array.from({ length: S.n }, (_, i) => S.type === 'cat' && !!S.locks[i]);
+    $('preset').value = '';
+    render();
+  }
+
+  const PRESETS = {
+    okabe: { type: 'cat', colors: ['#E69F00', '#56B4E9', '#009E73', '#F0E442', '#0072B2', '#D55E00', '#CC79A7', '#000000'] },
+    viridis: { type: 'seq', colors: ['#440154', '#3B528B', '#21918C', '#5EC962', '#FDE725'] },
+    gray: { type: 'seq', colors: ['#F0F0F0', '#BDBDBD', '#969696', '#636363', '#252525'] }
+  };
+
+  // ---------- fixed sample data (가상) ----------
+  function mulberry(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  const R = mulberry(20261121);
+  const DATA = {
+    bars: Array.from({ length: 10 }, () => [0, 1, 2].map(() => 8 + R() * 20)),
+    lines: Array.from({ length: 10 }, (_, s) => { let v = 22 + R() * 10; return Array.from({ length: 6 }, () => (v = Math.max(3, v - R() * 4.5 + 0.8 - s * 0.05))); }),
+    pie: Array.from({ length: 10 }, () => 1 + R() * 3),
+    pts: Array.from({ length: 10 }, (_, s) => { const cx = 0.12 + R() * 0.76, cy = 0.15 + R() * 0.7; return Array.from({ length: 14 }, () => [cx + (R() - 0.5) * 0.22, cy + (R() - 0.5) * 0.22]); }),
+    heat: Array.from({ length: 6 }, (_, r) => Array.from({ length: 10 }, (_, c) => (Math.sin(r * 0.9 + c * 0.55) + Math.cos(c * 0.4 - r * 0.3) + 2) / 4))
+  };
+  const GROUPS = ['사전', '사후', '추적'];
+  const label = i => S.type === 'cat' ? `집단 ${String.fromCharCode(65 + i)}` : `${i + 1}단계`;
+
+  // ---------- render ----------
+  const shown = () => S.colors.map(c => simulate(c, S.sim));
+  const textOn = hex => lumOf(rgbOf(hex)) > 0.38 ? '#111' : '#fff';
+  const lockIcon = on => on
+    ? '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>'
+    : '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 4.9-.7"/></svg>';
+
+  function renderStrip(cols) {
+    const strip = $('strip'); strip.innerHTML = '';
+    cols.forEach((c, i) => {
+      const fg = textOn(c);
+      const el = document.createElement('div');
+      el.className = 'sw'; el.style.background = c; el.style.color = fg;
+      el.setAttribute('role', 'button'); el.tabIndex = 0;
+      el.setAttribute('aria-label', `${i + 1}번 색 ${S.colors[i]} 복사`);
+      el.innerHTML = `<span class="idx">${i + 1}</span><span class="hex">${S.colors[i]}</span>` +
+        (S.sim !== 'none' ? `<span class="idx">보임: ${c}</span>` : '');
+      if (S.type === 'cat') {
+        const lk = document.createElement('button');
+        lk.type = 'button'; lk.className = 'lock'; lk.style.color = fg;
+        lk.setAttribute('aria-pressed', String(!!S.locks[i]));
+        lk.setAttribute('aria-label', S.locks[i] ? `${i + 1}번 색 고정 해제` : `${i + 1}번 색 고정`);
+        lk.innerHTML = lockIcon(S.locks[i]);
+        lk.addEventListener('click', e => { e.stopPropagation(); S.locks[i] = !S.locks[i]; render(); });
+        el.appendChild(lk);
+      }
+      const copyIt = () => copy(S.colors[i], `${S.colors[i]} 복사됨`);
+      el.addEventListener('click', copyIt);
+      el.addEventListener('keydown', e => { if (e.key === 'Enter') copyIt(); });
+      strip.appendChild(el);
+    });
+    $('stripNote').textContent = S.type === 'cat'
+      ? '색을 누르면 HEX가 복사됩니다. 자물쇠로 고정한 색은 다시 생성해도 유지됩니다.'
+      : '색을 누르면 HEX가 복사됩니다. 순차형·발산형은 단계가 이어져야 하므로 고정 기능이 없습니다.';
+  }
+
+  const legendHtml = cols => `<div class="legend">${cols.map((c, i) => `<span><i style="background:${c}"></i>${label(i)}</span>`).join('')}</div>`;
+
+  function barChart(cols) {
+    const W = 520, H = 260, P = { l: 34, r: 10, t: 10, b: 26 }, n = cols.length, max = 30;
+    const gw = (W - P.l - P.r) / GROUPS.length, bw = Math.min(26, (gw * 0.8) / n);
+    let s = '';
+    for (let v = 0; v <= max; v += 10) { const y = H - P.b - (v / max) * (H - P.t - P.b); s += `<line class="grid" x1="${P.l}" x2="${W - P.r}" y1="${y}" y2="${y}"/><text class="ax" x="${P.l - 6}" y="${y + 4}" text-anchor="end">${v}</text>`; }
+    GROUPS.forEach((g, gi) => {
+      const x0 = P.l + gi * gw + (gw - bw * n) / 2;
+      cols.forEach((c, i) => { const v = DATA.bars[i][gi], h = (v / max) * (H - P.t - P.b); s += `<rect x="${(x0 + i * bw + 1).toFixed(1)}" y="${(H - P.b - h).toFixed(1)}" width="${(bw - 2).toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="${c}"/>`; });
+      s += `<text class="ax" x="${P.l + gi * gw + gw / 2}" y="${H - 8}" text-anchor="middle">${g}</text>`;
+    });
+    return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="묶음 막대 그래프">${s}</svg>`;
+  }
+  function lineChart(cols) {
+    const W = 520, H = 260, P = { l: 34, r: 14, t: 10, b: 26 }, max = 35;
+    const X = i => P.l + (i / 5) * (W - P.l - P.r), Y = v => H - P.b - (v / max) * (H - P.t - P.b);
+    let s = '';
+    for (let v = 0; v <= max; v += 10) s += `<line class="grid" x1="${P.l}" x2="${W - P.r}" y1="${Y(v)}" y2="${Y(v)}"/><text class="ax" x="${P.l - 6}" y="${Y(v) + 4}" text-anchor="end">${v}</text>`;
+    for (let i = 0; i < 6; i++) s += `<text class="ax" x="${X(i)}" y="${H - 8}" text-anchor="middle">${i + 1}회기</text>`;
+    cols.forEach((c, k) => {
+      const d = DATA.lines[k].map((v, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join('');
+      s += `<path d="${d}" fill="none" stroke="${c}" stroke-width="2.4" stroke-linejoin="round"/>`;
+      DATA.lines[k].forEach((v, i) => { s += `<circle cx="${X(i).toFixed(1)}" cy="${Y(v).toFixed(1)}" r="3" fill="${c}"/>`; });
+    });
+    return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="꺾은선 그래프">${s}</svg>`;
+  }
+  function donut(cols) {
+    const W = 520, H = 260, cx = W / 2, cy = H / 2, r = 108, ri = 62, vals = DATA.pie.slice(0, cols.length), tot = vals.reduce((a, b) => a + b, 0);
+    let a = -Math.PI / 2, s = '';
+    vals.forEach((v, i) => {
+      const a2 = a + (v / tot) * Math.PI * 2, lg = a2 - a > Math.PI ? 1 : 0;
+      const p = (rr, t) => `${(cx + rr * Math.cos(t)).toFixed(2)},${(cy + rr * Math.sin(t)).toFixed(2)}`;
+      s += `<path d="M${p(r, a)}A${r},${r} 0 ${lg} 1 ${p(r, a2)}L${p(ri, a2)}A${ri},${ri} 0 ${lg} 0 ${p(ri, a)}Z" fill="${cols[i]}" stroke="var(--surface)" stroke-width="2"/>`;
+      a = a2;
+    });
+    return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="도넛 차트">${s}<text class="ax" x="${cx}" y="${cy + 4}" text-anchor="middle" style="font-size:13px">N = 240</text></svg>`;
+  }
+  function scatter(cols) {
+    const W = 520, H = 260, P = { l: 34, r: 10, t: 10, b: 26 };
+    const X = v => P.l + v * (W - P.l - P.r), Y = v => H - P.b - v * (H - P.t - P.b);
+    let s = `<line class="grid" x1="${P.l}" x2="${W - P.r}" y1="${H - P.b}" y2="${H - P.b}"/><line class="grid" x1="${P.l}" x2="${P.l}" y1="${P.t}" y2="${H - P.b}"/>`;
+    s += `<text class="ax" x="${W - P.r}" y="${H - 8}" text-anchor="end">불안 점수</text><text class="ax" x="${P.l + 4}" y="${P.t + 10}">우울 점수</text>`;
+    cols.forEach((c, k) => DATA.pts[k].forEach(([x, y]) => { s += `<circle cx="${X(clamp(x)).toFixed(1)}" cy="${Y(clamp(y)).toFixed(1)}" r="4.2" fill="${c}" fill-opacity="0.85"/>`; }));
+    return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="산점도">${s}</svg>`;
+  }
+  function heatmap(cols) {
+    const W = 520, H = 260, P = { l: 52, r: 10, t: 8, b: 26 }, rows = 6, cn = 10, cw = (W - P.l - P.r) / cn, ch = (H - P.t - P.b) / rows, n = cols.length;
+    const items = ['우울', '불안', '수면', '식욕', '집중', '피로'];
+    let s = '';
+    DATA.heat.forEach((row, r) => {
+      s += `<text class="ax" x="${P.l - 6}" y="${P.t + r * ch + ch / 2 + 4}" text-anchor="end">${items[r]}</text>`;
+      row.forEach((v, c) => { const k = Math.min(n - 1, Math.floor(v * n)); s += `<rect x="${(P.l + c * cw + 1).toFixed(1)}" y="${(P.t + r * ch + 1).toFixed(1)}" width="${(cw - 2).toFixed(1)}" height="${(ch - 2).toFixed(1)}" rx="2" fill="${cols[k]}"/>`; });
+    });
+    for (let c = 0; c < cn; c += 1) s += `<text class="ax" x="${P.l + c * cw + cw / 2}" y="${H - 8}" text-anchor="middle">${c + 1}주</text>`;
+    return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="히트맵">${s}</svg>`;
+  }
+
+  function renderCharts(cols) {
+    const fourth = S.type === 'cat'
+      ? ['산점도', '군집별 점 색 구분 (가상 데이터)', scatter(cols)]
+      : ['히트맵', '값 크기를 단계 색으로 표시 (가상 데이터)', heatmap(cols)];
+    const cards = [
+      ['묶음 막대', '측정 시점별 집단 평균 (가상 데이터)', barChart(cols)],
+      ['꺾은선', '회기별 증상 점수 변화 (가상 데이터)', lineChart(cols)],
+      ['도넛', '구성 비율 (가상 데이터)', donut(cols)],
+      fourth
+    ];
+    $('charts').innerHTML = cards.map(([t, c, svg]) =>
+      `<div class="panel chart-card"><h3>${t}</h3><p class="cap">${c}</p>${svg}${legendHtml(cols)}</div>`).join('');
+  }
+
+  function renderTable() {
+    const white = [255, 255, 255], dark = rgbOf('#1A1E27');
+    const chip = r => `<span class="chip ${r >= 3 ? 'good' : 'warn'}">${r.toFixed(2)}</span>`;
+    $('table').innerHTML = `<thead><tr><th>#</th><th></th><th>HEX</th><th>RGB</th><th>HSL</th><th>흰 배경 대비</th><th>어두운 배경 대비</th></tr></thead><tbody>` +
+      S.colors.map((h, i) => { const rgb = rgbOf(h), [hh, ss, ll] = hslOf(rgb);
+        return `<tr><td>${i + 1}</td><td><span class="dot" style="background:${h}"></span></td><td class="mono">${h}</td><td class="mono">${rgb.join(', ')}</td><td class="mono">${hh}°, ${ss}%, ${ll}%</td><td>${chip(contrast(rgb, white))}</td><td>${chip(contrast(rgb, dark))}</td></tr>`; }).join('') + '</tbody>';
+  }
+
+  function renderChecks() {
+    const modes = [['none', '일반'], ['protan', '적색맹'], ['deutan', '녹색맹'], ['tritan', '청색맹'], ['gray', '흑백 인쇄']];
+    $('checks').innerHTML = modes.map(([m, name]) => {
+      const d = minDist(S.colors, m);
+      const cls = d >= 10 ? 'good' : d >= 5 ? 'warn' : 'bad', txt = d >= 10 ? '양호' : d >= 5 ? '주의' : '어려움';
+      const mini = S.colors.map(c => `<i style="background:${simulate(c, m)}"></i>`).join('');
+      return `<div class="check-row"><span>${name}</span><span class="mini">${mini}</span><span><span class="val">${d.toFixed(1)}</span> <span class="chip ${cls}">${txt}</span></span></div>`;
+    }).join('') + (S.type !== 'cat' ? '<p class="note" style="margin:4px 0 0">순차형·발산형은 이웃 단계끼리 비슷한 것이 정상이라 수치가 낮게 나올 수 있습니다. 흑백 행에서 밝기 순서가 유지되는지를 보세요.</p>' : '');
+  }
+
+  function exportText() {
+    const c = S.colors, q = c.map(h => `'${h}'`).join(', ');
+    switch (S.exp) {
+      case 'hex': return { code: c.join(', '), hint: '쉼표로 구분된 HEX 목록' };
+      case 'excel': return { code: ['번호\tR\tG\tB\tHEX', ...c.map((h, i) => [i + 1, ...rgbOf(h), h].join('\t'))].join('\n'), hint: 'Excel에 붙여넣으면 칸이 나뉩니다. SPSS·PowerPoint의 “사용자 지정 색”에 RGB를 입력하세요.' };
+      case 'py': return { code: `import matplotlib.pyplot as plt\n\ncolors = [${q}]\nplt.rcParams['axes.prop_cycle'] = plt.cycler(color=colors)\n# seaborn: sns.set_palette(colors)`, hint: 'matplotlib·seaborn 기본 색 순서로 지정' };
+      case 'r': return { code: `pal <- c(${c.map(h => `"${h}"`).join(', ')})\n\n# ggplot2\n# + scale_fill_manual(values = pal)\n# + scale_colour_manual(values = pal)`, hint: 'ggplot2 수동 색 지정' };
+      case 'css': return { code: `:root {\n${c.map((h, i) => `  --chart-${i + 1}: ${h};`).join('\n')}\n}`, hint: '웹·발표 자료용 CSS 변수' };
+    }
+  }
+  function renderExport() { const e = exportText(); $('code').textContent = e.code; $('expHint').textContent = e.hint; }
+
+  function syncHash() {
+    const h = `${S.type}-` + S.colors.map(c => c.slice(1).toLowerCase()).join('-');
+    try { history.replaceState(null, '', '#' + h); } catch (e) { /* hash not writable here */ }
+  }
+
+  function render() {
+    const cols = shown();
+    renderStrip(cols); renderCharts(cols); renderTable(); renderChecks(); renderExport();
+    $('undo').disabled = !S.history.length;
+    $('countOut').textContent = S.n; $('count').value = S.n;
+    document.querySelectorAll('#typeSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === S.type)));
+    $('mood').querySelectorAll('option').forEach(o => { o.disabled = S.type !== 'cat' && ['analog', 'contrast'].includes(o.value); });
+    if ($('mood').selectedOptions[0]?.disabled) { $('mood').value = 'balanced'; S.mood = 'balanced'; }
+    syncHash();
+  }
+
+  // ---------- copy / toast ----------
+  let toastT;
+  function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1400); }
+  function copy(text, msg) {
+    const fallback = () => {
+      const r = document.createRange(); const pre = $('code');
+      if (text !== pre.textContent) { pre.textContent = text; $('expHint').textContent = '자동 복사가 막혀 있어 아래 글자를 선택해 두었습니다. Ctrl+C로 복사하세요.'; }
+      r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+      toast('직접 복사해 주세요 (Ctrl+C)');
+    };
+    try { navigator.clipboard.writeText(text).then(() => toast(msg), fallback); } catch (e) { fallback(); }
+  }
+
+  // ---------- events ----------
+  const seg = (id, fn) => $(id).addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; fn(b.dataset.v); });
+  seg('typeSeg', v => { S.type = v; S.locks = []; generate(); });
+  seg('simSeg', v => { S.sim = v; document.querySelectorAll('#simSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v))); render(); });
+  seg('expSeg', v => { S.exp = v; document.querySelectorAll('#expSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v))); renderExport(); });
+  $('mood').addEventListener('change', e => { S.mood = e.target.value; generate(); });
+  $('count').addEventListener('input', e => { $('countOut').textContent = e.target.value; });
+  $('count').addEventListener('change', e => { S.n = +e.target.value; generate(); });
+  $('gen').addEventListener('click', () => generate());
+  $('undo').addEventListener('click', () => { const p = S.history.pop(); if (!p) return; S.type = p.type; S.colors = p.colors; S.locks = p.locks; S.n = p.colors.length; render(); });
+  $('copyCode').addEventListener('click', () => copy($('code').textContent, '코드 복사됨'));
+  $('preset').addEventListener('change', e => {
+    const p = PRESETS[e.target.value]; if (!p) return;
+    S.history.push({ type: S.type, colors: S.colors.slice(), locks: S.locks.slice() });
+    S.type = p.type; S.colors = p.colors.slice(); S.n = p.colors.length; S.locks = p.colors.map(() => false); render();
+    e.target.value = Object.keys(PRESETS).find(k => PRESETS[k] === p);
+  });
+  document.addEventListener('keydown', e => {
+    if (e.code !== 'Space') return;
+    const t = e.target; if (t !== document.body && t !== document.documentElement) return;
+    e.preventDefault(); generate();
+  });
+
+  // ---------- boot: restore from link (#cat-e69f00-56b4e9...) or start with a sample ----------
+  const m = (location.hash || '').match(/^#(cat|seq|div)((?:-[0-9a-f]{6}){2,10})$/i);
+  if (m) {
+    S.type = m[1].toLowerCase(); S.colors = m[2].slice(1).split('-').map(h => '#' + h.toUpperCase());
+    S.n = S.colors.length; S.locks = S.colors.map(() => false); render();
+  } else generate(false);
+})();
+</script>
