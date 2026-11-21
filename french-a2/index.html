@@ -1,0 +1,1375 @@
+<title>Carnet de français A2</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a French school notebook (cahier Seyès) — ink-blue text, red correction margin, one column of lessons under a lunch-session strip */
+:root{
+  --paper:#F7F8FB; --surface:#FFFFFF; --fg:#1B2132; --muted:#5D6578; --line:#DCE2EF; --line2:#B9C4DE;
+  --ink:#2747A8; --ink-soft:#E7ECFA; --red:#C2413A; --red-soft:#FBE9E7; --ok:#25785A; --ok-soft:#E3F3EC; --warn:#9A6A12;
+  --f-display:"DM Serif Display", Georgia, "Times New Roman", serif;
+  --f-body:"IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#11141D; --surface:#191E2B; --fg:#E5E8F1; --muted:#9BA3B7; --line:#283047; --line2:#3A4565;
+  --ink:#93AAFF; --ink-soft:#232C48; --red:#FF8379; --red-soft:#3A2224; --ok:#61CB9D; --ok-soft:#1C3329; --warn:#E3B45A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#11141D; --surface:#191E2B; --fg:#E5E8F1; --muted:#9BA3B7; --line:#283047; --line2:#3A4565;
+  --ink:#93AAFF; --ink-soft:#232C48; --red:#FF8379; --red-soft:#3A2224; --ok:#61CB9D; --ok-soft:#1C3329; --warn:#E3B45A; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.65}
+.wrap{max-width:980px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px;display:flex;flex-direction:column;gap:22px}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0;line-height:1.2}
+h1{font-size:clamp(28px,5vw,40px);color:var(--ink)}
+h2{font-size:26px}
+h3{font-size:20px}
+.fr{font-family:var(--f-display);font-size:1.08em}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+button{font:inherit;cursor:pointer;color:inherit}
+button:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+a{color:var(--ink)}
+.btn{border:1px solid var(--line2);background:var(--surface);border-radius:999px;padding:6px 14px;font-size:14px;font-weight:500}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.btn.ghost{background:transparent}
+.btn[disabled]{opacity:.5;cursor:default}
+.icon-btn{border:1px solid var(--line2);background:var(--surface);border-radius:999px;width:32px;height:32px;display:inline-grid;place-items:center;flex:none}
+.icon-btn:hover{border-color:var(--ink);color:var(--ink)}
+.icon-btn svg{width:16px;height:16px}
+
+/* header */
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;border-bottom:2px solid var(--red);padding-bottom:12px}
+header.top .sub{color:var(--muted);font-size:14px;margin-top:4px}
+.stats{display:flex;gap:8px;flex-wrap:wrap}
+.stat{border:1px solid var(--line2);border-radius:var(--r);padding:6px 12px;background:var(--surface);display:flex;flex-direction:column;min-width:84px}
+.stat b{font-family:var(--f-mono);font-size:18px;font-weight:500;color:var(--ink)}
+.stat span{font-size:11px;letter-spacing:.06em;color:var(--muted)}
+
+/* lunch strip */
+.lunch{background:var(--surface);border:1px solid var(--line2);border-radius:var(--r);padding:16px;display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}
+.timer{display:flex;flex-direction:column;align-items:center;gap:6px}
+.timer .clock{font-family:var(--f-mono);font-size:34px;color:var(--ink);line-height:1}
+.timer .row{display:flex;gap:6px}
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;min-width:0}
+.step{border:1px dashed var(--line2);border-radius:8px;padding:8px 10px;background:transparent;text-align:left;display:flex;flex-direction:column;gap:2px;min-width:0}
+.step:hover{border-color:var(--ink)}
+.step .k{font-size:11px;letter-spacing:.06em;color:var(--muted)}
+.step .v{font-weight:600;font-size:14px}
+.step.done{border-style:solid;border-color:var(--ok);background:var(--ok-soft)}
+.step.done .v::after{content:" ✓";color:var(--ok)}
+.lunch-title{grid-column:1/-1;display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.lunch-title .fr{color:var(--muted)}
+
+/* units */
+.units{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.unit-chip{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 10px;text-align:left;display:flex;flex-direction:column;gap:2px;min-width:0}
+.unit-chip:hover{border-color:var(--ink)}
+.unit-chip.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.unit-chip .n{font-family:var(--f-mono);font-size:11px;color:var(--muted);display:flex;justify-content:space-between}
+.unit-chip .t{font-size:13px;font-weight:600;line-height:1.3;overflow-wrap:anywhere}
+.lvl{font-family:var(--f-mono);font-size:10px;border-radius:4px;padding:0 4px;border:1px solid currentColor}
+.lvl.a1{color:var(--ok)} .lvl.a2{color:var(--ink)}
+.dots{display:flex;gap:3px;margin-top:2px}
+.dots i{width:7px;height:7px;border-radius:50%;background:var(--line);display:block}
+.dots i.on{background:var(--ok)}
+
+/* panel */
+.panel{background:var(--surface);border:1px solid var(--line2);border-radius:var(--r);overflow:hidden}
+.panel-head{padding:18px 20px 0;display:flex;flex-direction:column;gap:6px;background:linear-gradient(90deg,transparent 46px,var(--red) 46px,var(--red) 47px,transparent 47px)}
+.panel-head>*{margin-left:62px}
+.panel-head .cando{font-size:13px;color:var(--muted)}
+.panel-head .cando b{color:var(--fg);font-weight:600}
+.tabs{display:flex;gap:2px;margin-top:10px;overflow-x:auto;border-bottom:1px solid var(--line);margin-left:0 !important;padding-left:62px}
+.tab{border:0;background:transparent;padding:10px 14px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap}
+.tab.on{color:var(--ink);border-bottom-color:var(--ink)}
+.panel-body{padding:20px;display:flex;flex-direction:column;gap:18px}
+.prose{max-width:68ch}
+.prose p{margin:0 0 .6em}
+table.g{border-collapse:collapse;font-size:14px;min-width:280px}
+table.g td,table.g th{border-bottom:1px solid var(--line);padding:5px 12px 5px 0;text-align:left;vertical-align:top}
+table.g th{font-size:11px;letter-spacing:.06em;color:var(--muted);font-weight:600}
+table.g td.fr{color:var(--ink)}
+.scroll-x{overflow-x:auto}
+.note{border-left:3px solid var(--red);background:var(--red-soft);padding:8px 12px;border-radius:0 6px 6px 0;font-size:14px}
+.tip{border-left:3px solid var(--ink);background:var(--ink-soft);padding:8px 12px;border-radius:0 6px 6px 0;font-size:14px}
+.ex{display:flex;flex-direction:column;gap:4px;margin:6px 0}
+.ex div{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.ex .fr{color:var(--ink)}
+
+/* flashcard */
+.deck{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:18px;align-items:start}
+.card{border:1px solid var(--line2);border-radius:14px;min-height:240px;padding:22px;display:flex;flex-direction:column;justify-content:space-between;gap:14px;
+  background:var(--surface) repeating-linear-gradient(0deg,transparent 0 31px,var(--line) 31px 32px);position:relative}
+.card .word{font-family:var(--f-display);font-size:clamp(30px,6vw,44px);color:var(--ink);line-height:1.1;overflow-wrap:anywhere}
+.card .meaning{font-size:20px;font-weight:600}
+.card .exs{font-size:15px}
+.card .exs .fr{color:var(--ink)}
+.card .meta{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted)}
+.card-actions{display:flex;gap:8px;flex-wrap:wrap}
+.boxes{display:flex;flex-direction:column;gap:6px;font-size:13px}
+.boxes .bar{display:flex;align-items:center;gap:8px}
+.boxes .bar span:first-child{width:56px;color:var(--muted)}
+.boxes .track{flex:1;height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.boxes .fill{height:100%;background:var(--ink)}
+.wordlist{width:100%}
+.wordlist td{padding:6px 10px 6px 0;border-bottom:1px solid var(--line);vertical-align:middle}
+.wordlist td:first-child{width:40px}
+.wordlist .fr{color:var(--ink)}
+.pill{font-family:var(--f-mono);font-size:11px;border-radius:999px;padding:1px 8px;background:var(--ink-soft);color:var(--ink);white-space:nowrap}
+.pill.new{background:var(--line);color:var(--muted)}
+.pill.due{background:var(--red-soft);color:var(--red)}
+
+/* quiz */
+.quiz{display:flex;flex-direction:column;gap:14px}
+.q{border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.q .qt{font-weight:500}
+.q .qt .fr{color:var(--ink)}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{border:1px solid var(--line2);background:var(--surface);border-radius:8px;padding:5px 12px;font-family:var(--f-display);font-size:16px}
+.opt:hover{border-color:var(--ink)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
+.opt.wrong{border-color:var(--red);background:var(--red-soft);color:var(--red);text-decoration:line-through}
+.fb{font-size:14px}
+.fb.ok{color:var(--ok)} .fb.no{color:var(--red)}
+.inrow{display:flex;gap:6px;flex-wrap:wrap}
+.inrow input{font-family:var(--f-display);font-size:16px;padding:5px 10px;border:1px solid var(--line2);border-radius:8px;background:var(--surface);color:var(--fg);min-width:0;width:200px;max-width:100%}
+.score{font-family:var(--f-mono);font-size:14px;color:var(--muted)}
+
+/* reading */
+.reading{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px}
+.text{font-family:var(--f-display);font-size:18px;line-height:1.75;white-space:pre-line;padding:16px 18px 16px 30px;border-radius:var(--r);
+  background:var(--surface) linear-gradient(90deg,transparent 18px,var(--red) 18px,var(--red) 19px,transparent 19px);border:1px solid var(--line)}
+.trans{white-space:pre-line;font-size:14px;color:var(--muted);padding:10px 14px;border:1px dashed var(--line2);border-radius:var(--r)}
+.row-gap{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* writing */
+.seyes{width:100%;min-height:230px;resize:vertical;border:1px solid var(--line2);border-radius:var(--r);color:var(--fg);
+  font-family:var(--f-display);font-size:18px;line-height:32px;padding:0 14px 0 54px;
+  background:
+    linear-gradient(90deg,transparent 40px,var(--red) 40px,var(--red) 41px,transparent 41px),
+    repeating-linear-gradient(180deg,transparent 0 31px,var(--line2) 31px 32px),
+    repeating-linear-gradient(180deg,transparent 0 7px,var(--line) 7px 8px),
+    var(--surface);
+  background-attachment:local}
+.accents{display:flex;gap:4px;flex-wrap:wrap}
+.accents button{border:1px solid var(--line2);background:var(--surface);border-radius:6px;min-width:32px;height:32px;font-family:var(--f-display);font-size:17px}
+.accents button:hover{border-color:var(--ink);color:var(--ink)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-size:13px;border:1px solid var(--line2);border-radius:999px;padding:2px 10px}
+.model{font-family:var(--f-display);font-size:17px;white-space:pre-line;padding:12px 16px;border-radius:var(--r);background:var(--ink-soft)}
+.fbbox{border:1px solid var(--line2);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.fbbox .corr{font-family:var(--f-display);font-size:17px;white-space:pre-line}
+.err{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);gap:4px 12px;font-size:14px;border-top:1px solid var(--line);padding-top:8px}
+.err s{color:var(--red);font-family:var(--f-display);font-size:16px}
+.err ins{color:var(--ok);text-decoration:none;font-family:var(--f-display);font-size:16px}
+.err .why{grid-column:1/-1;color:var(--muted)}
+.ask{border-top:1px solid var(--line);padding-top:16px;display:flex;flex-direction:column;gap:8px}
+.ask textarea{width:100%;min-height:64px;border:1px solid var(--line2);border-radius:var(--r);padding:8px 12px;background:var(--surface);color:var(--fg);font:inherit;resize:vertical}
+.answer{white-space:pre-wrap;font-size:14px;background:var(--paper);border-radius:var(--r);padding:10px 14px}
+
+.refs{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:8px}
+.refs ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.refs a{overflow-wrap:anywhere}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--paper);padding:8px 16px;border-radius:999px;font-size:14px;z-index:20;max-width:calc(100% - 32px)}
+
+@media (max-width:760px){
+  .units{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .steps{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .lunch{grid-template-columns:1fr}
+  .deck,.reading{grid-template-columns:1fr}
+  .panel-head{background:none}
+  .panel-head>*{margin-left:0}
+  .tabs{padding-left:0}
+  .panel-body{padding:16px}
+}
+@media (prefers-reduced-motion:no-preference){.card{transition:border-color .2s}.opt,.btn{transition:border-color .15s,background .15s}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Carnet de français</h1>
+      <div class="sub">점심 20분, A1에서 A2까지. 단어 · 문법 · 읽기 · 작문을 한 단원씩.</div>
+    </div>
+    <div class="stats" id="stats"></div>
+  </header>
+
+  <section class="lunch" id="lunch" aria-label="오늘의 점심 세션"></section>
+
+  <nav class="units" id="units" aria-label="단원"></nav>
+
+  <section class="panel" id="panel"></section>
+
+  <footer class="refs" id="refs">
+    <h3 style="color:var(--fg)">자료와 근거</h3>
+    <p style="margin:0">모든 예문과 지문은 아래 공개 자료의 A1–A2 범위(문법 항목·어휘 빈도·과제 유형)를 참고해 새로 쓴 것이고, 원문을 옮겨 오지 않았습니다. 지문 속 인물은 모두 <b>가상 인물</b>입니다. 원어민 검수를 거치지 않았으니, 의심스러운 표현은 Wiktionnaire나 Tatoeba에서 한 번 더 확인해 주세요. 학습 순서(인출 연습 + 간격 반복)는 아래 연구에 근거합니다.</p>
+    <ol>
+      <li>Council of Europe (2020). <i>Common European Framework of Reference for Languages: Learning, teaching, assessment – Companion volume.</i> Strasbourg: Council of Europe. <a href="https://rm.coe.int/common-european-framework-of-reference-for-languages-learning-teaching/16809ea0d4" target="_blank" rel="noopener">rm.coe.int/…/16809ea0d4</a></li>
+      <li>COERLL, University of Texas at Austin. <i>Français interactif</i> (개방형 라이선스 1–2학년 프랑스어 교재). <a href="https://www.laits.utexas.edu/fi/" target="_blank" rel="noopener">laits.utexas.edu/fi</a></li>
+      <li>Tatoeba: 다국어 예문 데이터베이스 (CC BY 2.0 FR). <a href="https://tatoeba.org" target="_blank" rel="noopener">tatoeba.org</a></li>
+      <li>Wiktionnaire: 프랑스어 위키 사전 (CC BY-SA). <a href="https://fr.wiktionary.org" target="_blank" rel="noopener">fr.wiktionary.org</a></li>
+      <li>New, B., Pallier, C., Brysbaert, M., &amp; Ferrand, L. (2004). Lexique 2: A new French lexical database. <i>Behavior Research Methods, Instruments, &amp; Computers, 36</i>(3), 516–524. <a href="https://doi.org/10.3758/BF03195598" target="_blank" rel="noopener">doi.org/10.3758/BF03195598</a> · 데이터: <a href="http://www.lexique.org" target="_blank" rel="noopener">lexique.org</a></li>
+      <li>Roediger, H. L., &amp; Karpicke, J. D. (2006). Test-enhanced learning: Taking memory tests improves long-term retention. <i>Psychological Science, 17</i>(3), 249–255. <a href="https://doi.org/10.1111/j.1467-9280.2006.01693.x" target="_blank" rel="noopener">doi.org/10.1111/j.1467-9280.2006.01693.x</a></li>
+      <li>Cepeda, N. J., Pashler, H., Vul, E., Wixted, J. T., &amp; Rohrer, D. (2006). Distributed practice in verbal recall tasks: A review and quantitative synthesis. <i>Psychological Bulletin, 132</i>(3), 354–380. <a href="https://doi.org/10.1037/0033-2909.132.3.354" target="_blank" rel="noopener">doi.org/10.1037/0033-2909.132.3.354</a></li>
+      <li>Dunlosky, J., Rawson, K. A., Marsh, E. J., Nathan, M. J., &amp; Willingham, D. T. (2013). Improving students' learning with effective learning techniques. <i>Psychological Science in the Public Interest, 14</i>(1), 4–58. <a href="https://doi.org/10.1177/1529100612453266" target="_blank" rel="noopener">doi.org/10.1177/1529100612453266</a></li>
+    </ol>
+    <p style="margin:0" id="syncnote"></p>
+  </footer>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/* ============================== CONTENT ============================== */
+const UNITS = [
+{ id:1, level:"A1", fr:"Se présenter", ko:"자기소개",
+  cando:"이름, 국적, 사는 곳, 직업을 간단한 문장으로 말할 수 있다.",
+  vocab:[
+    ["bonjour","안녕하세요 (낮 인사)","Bonjour, madame !","안녕하세요, 부인!"],
+    ["je m'appelle …","제 이름은 …입니다","Je m'appelle Sora.","제 이름은 소라예요."],
+    ["être","~이다, ~에 있다","Je suis coréenne.","저는 한국인(여)이에요."],
+    ["coréen / coréenne","한국인, 한국의 (남/여)","Il est coréen.","그는 한국인이에요."],
+    ["habiter","살다, 거주하다","J'habite à Séoul.","저는 서울에 살아요."],
+    ["psychologue","심리학자, 심리사 (남녀 동형)","Je suis psychologue.","저는 심리사예요."],
+    ["étudiant / étudiante","학생 (남/여)","Elle est étudiante en doctorat.","그녀는 박사과정 학생이에요."],
+    ["parler","말하다","Je parle un peu français.","저는 프랑스어를 조금 해요."],
+    ["le travail","일, 직장","J'aime mon travail.","저는 제 일을 좋아해요."],
+    ["enchanté / enchantée","만나서 반가워요 (화자의 성에 맞춤)","Enchantée, Paul !","반가워요, 폴!"]
+  ],
+  grammar:{ title:"être 동사와 형용사의 성(性) 일치",
+    body:`<p><b>être</b>(~이다)는 가장 자주 쓰는 불규칙 동사입니다. 주어마다 형태가 다르니 통째로 외워 두세요.</p>
+<div class="scroll-x"><table class="g"><tr><th>주어</th><th>être</th><th>주어</th><th>être</th></tr>
+<tr><td>je</td><td class="fr">suis</td><td>nous</td><td class="fr">sommes</td></tr>
+<tr><td>tu</td><td class="fr">es</td><td>vous</td><td class="fr">êtes</td></tr>
+<tr><td>il / elle / on</td><td class="fr">est</td><td>ils / elles</td><td class="fr">sont</td></tr></table></div>
+<p>국적·직업 형용사는 주어의 성과 수에 맞춥니다. 대개 여성형은 <b>-e</b>, 복수형은 <b>-s</b>를 붙입니다.</p>
+<div class="scroll-x"><table class="g"><tr><th>남성</th><th>여성</th><th>뜻</th></tr>
+<tr><td class="fr">français</td><td class="fr">française</td><td>프랑스인</td></tr>
+<tr><td class="fr">coréen</td><td class="fr">coréenne</td><td>한국인 (-en → -enne)</td></tr>
+<tr><td class="fr">étudiant</td><td class="fr">étudiante</td><td>학생</td></tr></table></div>
+<div class="note">직업 앞에는 관사를 쓰지 않습니다: <span class="fr">Il est médecin.</span> 하지만 <span class="fr">C'est</span>로 시작하면 관사가 필요해요: <span class="fr">C'est un médecin.</span></div>`,
+    quiz:[
+      {q:"Nous ___ coréens.", o:["sommes","êtes","sont","est"], a:0, w:"nous → sommes"},
+      {q:"Elle est ___ .", o:["français","française","françaises"], a:1, w:"주어가 여성 단수(elle)이므로 française."},
+      {q:"Vous ___ psychologue ?", o:["es","est","êtes"], a:2, w:"vous → êtes. 존칭 단수에도 vous를 씁니다."},
+      {q:"___ est médecin.", o:["Il","C'"], a:0, w:"관사 없는 직업명 앞에는 Il/Elle est. C'est는 C'est un médecin처럼 관사와 함께."},
+      {q:"Ils ___ étudiants.", t:["sont"], w:"ils → sont"}
+    ]},
+  reading:{ title:"Sora se présente",
+    text:`Bonjour ! Je m'appelle Sora. Je suis coréenne et j'habite à Séoul.
+Je suis psychologue et je suis aussi étudiante en doctorat. Je travaille dans un hôpital.
+Je parle coréen, anglais et un peu français. À midi, j'étudie le français pendant vingt minutes.
+C'est court, mais c'est tous les jours !`,
+    ko:`안녕하세요! 제 이름은 소라예요. 저는 한국인이고 서울에 살아요.
+저는 심리사이고 박사과정 학생이기도 해요. 병원에서 일해요.
+한국어, 영어, 그리고 프랑스어를 조금 해요. 점심에 20분 동안 프랑스어를 공부해요.
+짧지만, 매일 해요!`,
+    qs:[
+      {q:"Où habite Sora ?", o:["À Paris","À Séoul","À Busan"], a:1},
+      {q:"Où travaille-t-elle ?", o:["Dans une école","Dans un café","Dans un hôpital"], a:2},
+      {q:"Quand étudie-t-elle le français ?", o:["Le soir","À midi","Le week-end"], a:1}
+    ]},
+  writing:{ prompt:"프랑스어로 4–5문장 자기소개를 써 보세요. 이름, 국적, 사는 곳, 직업(또는 하는 일), 할 줄 아는 언어를 넣으면 됩니다.",
+    must:["je m'appelle","je suis","j'habite à","je parle"],
+    model:`Bonjour ! Je m'appelle Jiwoo. Je suis coréen.
+J'habite à Incheon. Je suis ingénieur.
+Je parle coréen et un peu anglais. J'apprends le français !`}
+},
+{ id:2, level:"A1", fr:"Ma famille", ko:"가족과 소유",
+  cando:"가족이나 가까운 사람을 나이·직업과 함께 소개할 수 있다.",
+  vocab:[
+    ["la famille","가족","Voici ma famille.","이게 제 가족이에요."],
+    ["le père","아버지","Mon père est professeur.","제 아버지는 교사예요."],
+    ["la mère","어머니","Ma mère s'appelle Claire.","제 어머니 이름은 클레르예요."],
+    ["le frère","형제 (형, 오빠, 남동생)","J'ai un frère.","저는 형제가 한 명 있어요."],
+    ["la sœur","자매 (언니, 누나, 여동생)","Ma sœur habite à Lyon.","제 자매는 리옹에 살아요."],
+    ["les parents","부모님; 친척","Mes parents sont gentils.","제 부모님은 친절하세요."],
+    ["un enfant","아이, 자녀","Ils ont deux enfants.","그들은 자녀가 둘이에요."],
+    ["le mari / la femme","남편 / 아내(여자)","Sa femme est avocate.","그의 아내는 변호사예요."],
+    ["avoir … ans","…살이다","J'ai trente ans.","저는 서른 살이에요."],
+    ["un chien / un chat","개 / 고양이","Nous avons un chat.","우리는 고양이가 있어요."]
+  ],
+  grammar:{ title:"avoir 동사와 소유형용사",
+    body:`<p><b>avoir</b>(가지다)는 나이를 말할 때도 씁니다. 한국어처럼 "나는 30살이다"가 아니라 "나는 30년을 가진다"고 말해요: <span class="fr">J'ai trente ans.</span></p>
+<div class="scroll-x"><table class="g"><tr><th>주어</th><th>avoir</th><th>주어</th><th>avoir</th></tr>
+<tr><td>j'</td><td class="fr">ai</td><td>nous</td><td class="fr">avons</td></tr>
+<tr><td>tu</td><td class="fr">as</td><td>vous</td><td class="fr">avez</td></tr>
+<tr><td>il / elle</td><td class="fr">a</td><td>ils / elles</td><td class="fr">ont</td></tr></table></div>
+<p>소유형용사는 <b>소유자가 아니라 뒤에 오는 명사</b>의 성·수에 맞춥니다.</p>
+<div class="scroll-x"><table class="g"><tr><th></th><th>남성 단수</th><th>여성 단수</th><th>복수</th></tr>
+<tr><td>나의</td><td class="fr">mon</td><td class="fr">ma</td><td class="fr">mes</td></tr>
+<tr><td>너의</td><td class="fr">ton</td><td class="fr">ta</td><td class="fr">tes</td></tr>
+<tr><td>그/그녀의</td><td class="fr">son</td><td class="fr">sa</td><td class="fr">ses</td></tr>
+<tr><td>우리의</td><td class="fr" colspan="2">notre</td><td class="fr">nos</td></tr>
+<tr><td>당신(들)의</td><td class="fr" colspan="2">votre</td><td class="fr">vos</td></tr>
+<tr><td>그들의</td><td class="fr" colspan="2">leur</td><td class="fr">leurs</td></tr></table></div>
+<div class="note">모음으로 시작하는 여성 명사 앞에서는 ma/ta/sa 대신 mon/ton/son: <span class="fr">mon amie</span>, <span class="fr">son école</span>.</div>
+<div class="tip"><span class="fr">son père</span>는 "그의 아버지"도 "그녀의 아버지"도 됩니다. 소유자의 성은 문맥으로 압니다.</div>`,
+    quiz:[
+      {q:"J'___ deux frères.", o:["ai","as","a"], a:0, w:"je → j'ai (모음 앞 축약)"},
+      {q:"___ sœur s'appelle Hana.", o:["Mon","Ma","Mes"], a:1, w:"sœur는 여성 단수 → ma"},
+      {q:"___ amie est française.", o:["Ma","Mon"], a:1, w:"amie는 여성이지만 모음으로 시작 → mon amie"},
+      {q:"C'est le livre de Paul. → C'est ___ livre.", o:["son","sa","leur"], a:0, w:"livre는 남성 단수 → son"},
+      {q:"Nous aimons ___ parents.", o:["notre","nos","leurs"], a:1, w:"우리의 + 복수 → nos"},
+      {q:"Ils ___ un chien.", t:["ont"], w:"ils → ont"}
+    ]},
+  reading:{ title:"La famille de Léa",
+    text:`Voici ma famille. Mon père s'appelle Marc. Il a cinquante-huit ans et il est professeur.
+Ma mère, Claire, est infirmière.
+J'ai un frère et une sœur. Mon frère Hugo a vingt-cinq ans ; il habite à Lyon avec sa femme.
+Ma sœur Inès a dix-neuf ans. Elle est étudiante.
+Nous avons aussi un chien, Biscuit. Le dimanche, nous déjeunons ensemble chez mes parents.`,
+    ko:`이게 제 가족이에요. 아버지 이름은 마르크예요. 58살이고 교사예요.
+어머니 클레르는 간호사예요.
+저는 남자 형제 한 명과 여자 형제 한 명이 있어요. 오빠 위고는 25살이고, 아내와 함께 리옹에 살아요.
+여동생 이네스는 19살이에요. 대학생이에요.
+우리는 개도 한 마리 있어요, 비스킷이요. 일요일마다 부모님 댁에서 함께 점심을 먹어요.`,
+    qs:[
+      {q:"Quel âge a Hugo ?", o:["19 ans","25 ans","58 ans"], a:1},
+      {q:"Que fait la mère de Léa ?", o:["Elle est professeure","Elle est infirmière","Elle est étudiante"], a:1},
+      {q:"Quand la famille déjeune-t-elle ensemble ?", o:["Le samedi","Le dimanche","Tous les jours"], a:1}
+    ]},
+  writing:{ prompt:"가까운 사람 2–3명을 소개해 보세요 (가족이 아니어도 괜찮아요: 친구, 동료, 반려동물도 좋아요). 이름, 나이, 하는 일을 넣어 보세요.",
+    must:["avoir … ans","mon / ma / mes","il est / elle est"],
+    model:`J'ai une amie très proche. Elle s'appelle Yuna.
+Elle a trente-deux ans et elle est designer.
+Mon frère s'appelle Minho. Il a vingt-huit ans. Il est cuisinier.
+Nous avons aussi un chat. Mon chat s'appelle Tofu !`}
+},
+{ id:3, level:"A1", fr:"Au café", ko:"카페에서 주문하기",
+  cando:"카페나 식당에서 정중하게 주문하고 가격을 물을 수 있다.",
+  vocab:[
+    ["un café","커피 (에스프레소)","Un café, s'il vous plaît.","커피 한 잔 주세요."],
+    ["un thé","차","Je prends un thé vert.","녹차로 할게요."],
+    ["l'eau (f)","물","Une carafe d'eau, s'il vous plaît.","물 한 병(카라프) 주세요."],
+    ["le pain","빵","Il y a du pain ?","빵 있어요?"],
+    ["un croissant","크루아상","Je voudrais deux croissants.","크루아상 두 개 주세요."],
+    ["je voudrais …","…을 원합니다 (정중)","Je voudrais un jus d'orange.","오렌지 주스 주세요."],
+    ["combien","얼마, 몇","C'est combien ?","얼마예요?"],
+    ["l'addition (f)","계산서","L'addition, s'il vous plaît.","계산서 주세요."],
+    ["le sucre","설탕","Sans sucre, merci.","설탕 빼고요, 고마워요."],
+    ["sur place / à emporter","매장에서 / 포장","C'est pour emporter.","포장이에요."]
+  ],
+  grammar:{ title:"부분관사와 정중한 주문 je voudrais",
+    body:`<p>셀 수 없는 것(물, 빵, 설탕…)의 "약간"을 말할 때 <b>부분관사</b>를 씁니다.</p>
+<div class="scroll-x"><table class="g"><tr><th>형태</th><th>쓰는 곳</th><th>예</th></tr>
+<tr><td class="fr">du</td><td>남성</td><td class="fr">du pain, du sucre</td></tr>
+<tr><td class="fr">de la</td><td>여성</td><td class="fr">de la confiture</td></tr>
+<tr><td class="fr">de l'</td><td>모음 앞</td><td class="fr">de l'eau</td></tr>
+<tr><td class="fr">des</td><td>복수</td><td class="fr">des frites</td></tr></table></div>
+<div class="note">부정문에서는 모두 <b>de / d'</b>로 바뀝니다: <span class="fr">Je ne mange pas de pain.</span> <span class="fr">Il n'y a pas d'eau.</span></div>
+<p><span class="fr">Je veux</span>(원해)는 직설적으로 들립니다. 주문할 때는 조건법 <span class="fr">je voudrais</span>(원합니다)를 쓰세요.</p>`,
+    quiz:[
+      {q:"Je bois ___ eau.", o:["du","de la","de l'"], a:2, w:"eau는 모음으로 시작 → de l'eau"},
+      {q:"Tu veux ___ sucre ?", o:["du","de la","des"], a:0, w:"sucre는 남성 → du"},
+      {q:"Je ne mange pas ___ pain.", o:["du","de","le"], a:1, w:"부정문에서 부분관사 → de"},
+      {q:"Elle prend ___ confiture.", o:["du","de la","de l'"], a:1, w:"confiture는 여성 → de la"},
+      {q:"가장 정중한 주문은?", o:["Je veux un café.","Je voudrais un café.","Un café !"], a:1, w:"조건법 voudrais가 공손한 표현입니다."},
+      {q:"Il n'y a pas ___ lait.", t:["de"], w:"부정문 → pas de"}
+    ]},
+  reading:{ title:"Au comptoir",
+    text:`Serveur : Bonjour, madame. Vous désirez ?
+Cliente : Bonjour. Je voudrais un café crème et un croissant, s'il vous plaît.
+Serveur : Sur place ou à emporter ?
+Cliente : Sur place. Vous avez du jus d'orange ?
+Serveur : Désolé, nous n'avons pas de jus d'orange aujourd'hui. Nous avons de la limonade.
+Cliente : Alors, une petite bouteille d'eau, s'il vous plaît.
+…
+Cliente : L'addition, s'il vous plaît. Ça fait combien ?
+Serveur : Ça fait sept euros cinquante.`,
+    ko:`종업원: 안녕하세요, 손님. 무엇을 드릴까요?
+손님: 안녕하세요. 카페 크렘 한 잔이랑 크루아상 하나 주세요.
+종업원: 드시고 가세요, 가져가세요?
+손님: 먹고 갈게요. 오렌지 주스 있어요?
+종업원: 죄송합니다, 오늘은 오렌지 주스가 없어요. 레모네이드가 있어요.
+손님: 그럼 작은 물 한 병 주세요.
+…
+손님: 계산서 주세요. 얼마예요?
+종업원: 7유로 50이에요.`,
+    qs:[
+      {q:"Qu'est-ce que la cliente commande d'abord ?", o:["Un thé et du pain","Un café crème et un croissant","Un jus d'orange"], a:1},
+      {q:"Pourquoi elle ne prend pas de jus d'orange ?", o:["C'est trop cher","Il n'y en a pas aujourd'hui","Elle n'aime pas ça"], a:1},
+      {q:"Combien elle paie ?", o:["5,70 €","7,15 €","7,50 €"], a:2}
+    ]},
+  writing:{ prompt:"카페에서 주문하는 짧은 대화(4–6줄)를 써 보세요. 정중한 주문, 질문 하나, 가격 묻기를 넣어 보세요.",
+    must:["je voudrais","du / de la / de l'","c'est combien ?"],
+    model:`Serveur : Bonjour ! Qu'est-ce que vous prenez ?
+Moi : Bonjour. Je voudrais un thé, s'il vous plaît.
+Serveur : Avec du sucre ?
+Moi : Non, sans sucre. Vous avez des croissants ?
+Serveur : Oui, bien sûr.
+Moi : Alors un croissant aussi. C'est combien ?`}
+},
+{ id:4, level:"A1", fr:"Ma journée", ko:"하루 일과",
+  cando:"평소 하루 일과를 시간 표현과 함께 순서대로 말할 수 있다.",
+  vocab:[
+    ["se lever","일어나다","Je me lève à sept heures.","저는 7시에 일어나요."],
+    ["se coucher","잠자리에 들다","Il se couche tard.","그는 늦게 자요."],
+    ["travailler","일하다","Elle travaille à Gangnam.","그녀는 강남에서 일해요."],
+    ["manger","먹다","Nous mangeons au bureau.","우리는 사무실에서 먹어요."],
+    ["déjeuner","점심을 먹다","Je déjeune à midi.","저는 정오에 점심을 먹어요."],
+    ["commencer","시작하다","Le travail commence à neuf heures.","일은 9시에 시작해요."],
+    ["finir","끝내다, 끝나다","Je finis à dix-huit heures.","저는 18시에 끝나요."],
+    ["le matin","아침, 오전","Le matin, je bois un café.","아침에 커피를 마셔요."],
+    ["le soir","저녁","Le soir, je lis.","저녁에 책을 읽어요."],
+    ["d'habitude","보통, 평소에","D'habitude, je prends le métro.","보통 지하철을 타요."]
+  ],
+  grammar:{ title:"-er 동사 현재형, 대명동사, 시간 말하기",
+    body:`<p>프랑스어 동사의 약 90%가 <b>-er</b>로 끝나고 규칙적으로 변합니다. 어간(parl-)에 어미를 붙이세요.</p>
+<div class="scroll-x"><table class="g"><tr><th>parler</th><th></th><th>se lever (대명동사)</th></tr>
+<tr><td>je parl<b>e</b></td><td>nous parl<b>ons</b></td><td class="fr">je me lève</td></tr>
+<tr><td>tu parl<b>es</b></td><td>vous parl<b>ez</b></td><td class="fr">tu te lèves</td></tr>
+<tr><td>il parl<b>e</b></td><td>ils parl<b>ent</b></td><td class="fr">il se lève · nous nous levons · vous vous levez · ils se lèvent</td></tr></table></div>
+<div class="note">-ger 동사는 nous에서 e를 남깁니다: <span class="fr">nous mangeons</span>. (g 소리를 [ʒ]로 유지하려고)</div>
+<p>대명동사는 "자기 자신을 ~하다"라는 뜻이라 주어와 같은 인칭의 대명사(me, te, se, nous, vous, se)가 붙습니다.</p>
+<div class="ex"><div><span class="fr">Il est huit heures.</span><span class="muted">8시예요.</span></div>
+<div><span class="fr">Il est midi et demie.</span><span class="muted">12시 반이에요.</span></div>
+<div><span class="fr">à dix-huit heures</span><span class="muted">18시에 (공식적 24시간 표기가 흔해요)</span></div></div>`,
+    quiz:[
+      {q:"Nous ___ (manger) à la cantine.", o:["mangons","mangeons","mangez"], a:1, w:"-ger 동사: nous mangeons"},
+      {q:"Ils ___ (travailler) le samedi.", o:["travaillent","travaillons","travaille"], a:0, w:"ils → -ent (발음은 안 해요)"},
+      {q:"Je ___ lève à sept heures.", o:["se","me","te"], a:1, w:"je → me"},
+      {q:"Vous vous ___ (coucher) tard ?", o:["couche","couchons","couchez"], a:2, w:"vous → -ez"},
+      {q:"12:30 →", o:["Il est midi et demie.","Il est douze et demi.","Il est midi trente heures."], a:0, w:"정오는 midi. midi는 남성이지만 관용적으로 'midi et demie'가 널리 쓰입니다 (midi et demi도 허용)."},
+      {q:"Tu ___ (parler) français ?", t:["parles"], w:"tu → -es"}
+    ]},
+  reading:{ title:"La journée de Thomas",
+    text:`Thomas est développeur à Paris. Il se lève à sept heures.
+Il prend une douche, puis il boit un café. Il commence le travail à neuf heures.
+À midi et demie, il déjeune avec ses collègues dans un petit restaurant près du bureau.
+L'après-midi, il a souvent des réunions. Il finit à dix-huit heures.
+Le soir, il cuisine, il regarde une série et il se couche vers vingt-trois heures.`,
+    ko:`토마는 파리의 개발자예요. 7시에 일어나요.
+샤워를 하고, 그다음 커피를 마셔요. 9시에 일을 시작해요.
+12시 반에 동료들과 사무실 근처 작은 식당에서 점심을 먹어요.
+오후에는 회의가 자주 있어요. 18시에 일을 마쳐요.
+저녁에는 요리를 하고, 드라마를 보고, 23시쯤 잠자리에 들어요.`,
+    qs:[
+      {q:"À quelle heure Thomas commence le travail ?", o:["À sept heures","À neuf heures","À midi"], a:1},
+      {q:"Avec qui il déjeune ?", o:["Avec ses collègues","Seul","Avec sa mère"], a:0},
+      {q:"Qu'est-ce qu'il fait le soir ?", o:["Il fait du sport","Il cuisine et regarde une série","Il travaille"], a:1}
+    ]},
+  writing:{ prompt:"평일 하루를 5문장 정도로 써 보세요. 시간 표현을 3개 이상, 대명동사를 1개 이상 넣어 보세요.",
+    must:["je me lève","à … heures","d'abord / puis / ensuite"],
+    model:`D'habitude, je me lève à six heures et demie.
+D'abord, je prends le bus. Je commence le travail à huit heures.
+À midi, je mange vite et j'étudie le français.
+Je finis à dix-huit heures. Le soir, je me couche vers minuit.`}
+},
+{ id:5, level:"A1", fr:"En ville", ko:"길 찾기와 장소",
+  cando:"가까운 장소의 위치를 묻고, 간단한 길 안내를 이해하고 할 수 있다.",
+  vocab:[
+    ["la gare","기차역","Je vais à la gare.","저는 역에 가요."],
+    ["la banque","은행","La banque est fermée.","은행이 닫혔어요."],
+    ["la pharmacie","약국","Il y a une pharmacie près d'ici ?","이 근처에 약국 있어요?"],
+    ["la rue","거리, 길","Prenez la deuxième rue.","두 번째 길로 가세요."],
+    ["tout droit","곧장, 직진","Allez tout droit.","곧장 가세요."],
+    ["à gauche / à droite","왼쪽으로 / 오른쪽으로","Tournez à droite.","오른쪽으로 도세요."],
+    ["en face de","~의 맞은편에","C'est en face de la poste.","우체국 맞은편이에요."],
+    ["à côté de","~의 옆에","Le café est à côté du cinéma.","카페는 영화관 옆이에요."],
+    ["près de / loin de","~에서 가까이 / 멀리","C'est loin d'ici ?","여기서 멀어요?"],
+    ["à pied","걸어서","On y va à pied.","걸어서 가요."]
+  ],
+  grammar:{ title:"aller, 전치사 축약 (au, du), 명령형",
+    body:`<div class="scroll-x"><table class="g"><tr><th>aller</th><th></th></tr>
+<tr><td class="fr">je vais</td><td class="fr">nous allons</td></tr>
+<tr><td class="fr">tu vas</td><td class="fr">vous allez</td></tr>
+<tr><td class="fr">il va</td><td class="fr">ils vont</td></tr></table></div>
+<p>전치사 <b>à</b>(~에)와 <b>de</b>(~의)는 남성·복수 정관사와 합쳐집니다.</p>
+<div class="scroll-x"><table class="g"><tr><th></th><th>le</th><th>la</th><th>l'</th><th>les</th></tr>
+<tr><td>à</td><td class="fr">au</td><td class="fr">à la</td><td class="fr">à l'</td><td class="fr">aux</td></tr>
+<tr><td>de</td><td class="fr">du</td><td class="fr">de la</td><td class="fr">de l'</td><td class="fr">des</td></tr></table></div>
+<p><b>명령형</b>은 주어를 빼고 동사만 씁니다. vous 형태가 정중한 길 안내에 쓰여요.</p>
+<div class="ex"><div><span class="fr">Allez tout droit.</span><span class="muted">곧장 가세요.</span></div>
+<div><span class="fr">Prenez la première rue à gauche.</span><span class="muted">첫 번째 길에서 왼쪽으로 가세요.</span></div>
+<div><span class="fr">Tournez à droite.</span><span class="muted">오른쪽으로 도세요.</span></div></div>`,
+    quiz:[
+      {q:"Je vais ___ cinéma.", o:["à le","au","à la"], a:1, w:"à + le → au"},
+      {q:"Elle va ___ pharmacie.", o:["au","à la","aux"], a:1, w:"pharmacie는 여성 → à la"},
+      {q:"La poste est à côté ___ musée.", o:["de le","du","de la"], a:1, w:"de + le → du"},
+      {q:"La banque est en face ___ hôtel.", o:["du","de la","de l'"], a:2, w:"모음(h 무음) 앞 → de l'"},
+      {q:"Vous prenez la rue. → 명령형:", o:["Prends la rue.","Prenez la rue.","Vous prenez !"], a:1, w:"vous 명령형: 주어 없이 prenez"},
+      {q:"Nous ___ à la gare.", t:["allons"], w:"nous → allons"}
+    ]},
+  reading:{ title:"Pour aller à la pharmacie",
+    text:`– Excusez-moi, monsieur, la pharmacie, c'est loin ?
+– Non, c'est tout près. Allez tout droit, puis prenez la deuxième rue à gauche.
+La pharmacie est en face de la boulangerie, à côté de la banque.
+– C'est à combien de minutes à pied ?
+– Cinq minutes, environ.
+– Merci beaucoup !
+– De rien. Bonne journée !`,
+    ko:`– 실례합니다, 선생님. 약국이 멀어요?
+– 아니요, 아주 가까워요. 곧장 가다가 두 번째 길에서 왼쪽으로 가세요.
+약국은 빵집 맞은편, 은행 옆에 있어요.
+– 걸어서 몇 분이에요?
+– 5분쯤요.
+– 정말 고맙습니다!
+– 천만에요. 좋은 하루 보내세요!`,
+    qs:[
+      {q:"La pharmacie est loin ?", o:["Oui, très loin","Non, elle est tout près"], a:1},
+      {q:"Où est la pharmacie ?", o:["En face de la banque","En face de la boulangerie","À côté de la gare"], a:1},
+      {q:"Combien de minutes à pied ?", o:["Deux","Cinq","Quinze"], a:1}
+    ]},
+  writing:{ prompt:"회사에서 가장 가까운 카페(또는 편의점)까지 가는 길을 동료에게 프랑스어로 안내해 보세요. 명령형을 3개 이상 써 보세요.",
+    must:["allez / prenez / tournez","à gauche / à droite","en face de / à côté de"],
+    model:`Sortez du bureau et tournez à droite.
+Allez tout droit pendant deux minutes.
+Prenez la première rue à gauche.
+Le café est à côté de la banque, en face d'un parc. C'est tout près !`}
+},
+{ id:6, level:"A1", fr:"Les loisirs", ko:"여가와 취향",
+  cando:"좋아하는 것과 싫어하는 활동, 그 빈도를 말할 수 있다.",
+  vocab:[
+    ["le loisir","여가 활동","Quels sont tes loisirs ?","네 여가 활동은 뭐야?"],
+    ["lire","읽다","J'adore lire.","저는 독서를 정말 좋아해요."],
+    ["la musique","음악","J'écoute de la musique.","음악을 들어요."],
+    ["la natation","수영","Je fais de la natation.","수영을 해요."],
+    ["jouer","놀다, (운동을) 하다, (악기를) 연주하다","Il joue au tennis.","그는 테니스를 쳐요."],
+    ["le dessin","그림 그리기, 드로잉","Elle aime le dessin.","그녀는 그림 그리기를 좋아해요."],
+    ["souvent","자주","Je vais souvent au musée.","저는 자주 미술관에 가요."],
+    ["ne … jamais","결코 ~않다","Je ne regarde jamais la télé.","저는 TV를 전혀 안 봐요."],
+    ["le week-end","주말","Le week-end, je me repose.","주말에는 쉬어요."],
+    ["détester","몹시 싫어하다","Je déteste courir.","저는 달리기를 정말 싫어해요."]
+  ],
+  grammar:{ title:"faire, 부정문 ne … pas, 좋고 싫음 + 동사원형",
+    body:`<div class="scroll-x"><table class="g"><tr><th>faire</th><th></th></tr>
+<tr><td class="fr">je fais</td><td class="fr">nous faisons</td></tr>
+<tr><td class="fr">tu fais</td><td class="fr">vous faites</td></tr>
+<tr><td class="fr">il fait</td><td class="fr">ils font</td></tr></table></div>
+<p>운동은 <b>faire de</b>(+부분관사) 또는 <b>jouer à</b>(구기), 악기는 <b>jouer de</b>를 씁니다.</p>
+<div class="ex"><div><span class="fr">faire du yoga · faire de la natation</span></div>
+<div><span class="fr">jouer au tennis · jouer aux cartes</span></div>
+<div><span class="fr">jouer du piano · jouer de la guitare</span></div></div>
+<p>부정문은 동사를 <b>ne … pas</b>로 감쌉니다. 모음 앞에서 ne → n'.</p>
+<div class="ex"><div><span class="fr">Je n'aime pas le sport.</span><span class="muted">저는 운동을 안 좋아해요.</span></div>
+<div><span class="fr">Il ne fait jamais de sport.</span><span class="muted">그는 운동을 전혀 안 해요.</span></div></div>
+<div class="note">aimer, adorer, détester, préférer 뒤에는 정관사(le/la/les) 또는 동사원형: <span class="fr">J'aime la musique. J'aime lire.</span></div>`,
+    quiz:[
+      {q:"Vous ___ du yoga ?", o:["faisez","faites","font"], a:1, w:"vous → faites (불규칙)"},
+      {q:"Je ___ aime ___ le sport.", o:["ne … pas","n' … pas","pas … ne"], a:1, w:"aime가 모음으로 시작 → n'aime pas"},
+      {q:"Il joue ___ piano.", o:["au","du","de la"], a:1, w:"악기 → jouer de + le = du"},
+      {q:"Elle joue ___ tennis.", o:["au","du","à la"], a:0, w:"구기 → jouer à + le = au"},
+      {q:"Je fais de la natation. → 부정:", o:["Je ne fais pas de la natation.","Je ne fais pas de natation.","Je fais pas natation."], a:1, w:"부정문에서 부분관사 → de"},
+      {q:"Nous ___ (faire) du vélo.", t:["faisons"], w:"nous → faisons"}
+    ]},
+  reading:{ title:"Forum : vos week-ends ?",
+    text:`Camille : J'adore lire. Le samedi matin, je vais à la bibliothèque, puis je lis dans un café.
+Je ne fais pas beaucoup de sport, mais je fais du yoga le dimanche.
+
+Karim : Moi, je déteste rester à la maison ! Je joue au foot avec des amis et je fais du vélo.
+Le soir, je joue de la guitare. Je ne regarde jamais la télé.`,
+    ko:`카미유: 저는 독서를 정말 좋아해요. 토요일 아침에는 도서관에 갔다가 카페에서 책을 읽어요.
+운동은 많이 안 하지만, 일요일에는 요가를 해요.
+
+카림: 저는 집에 있는 게 정말 싫어요! 친구들과 축구를 하고 자전거를 타요.
+저녁에는 기타를 쳐요. TV는 절대 안 봐요.`,
+    qs:[
+      {q:"Qui fait du yoga ?", o:["Camille","Karim","Les deux"], a:0},
+      {q:"Qu'est-ce que Karim ne fait jamais ?", o:["Du vélo","Regarder la télé","Jouer au foot"], a:1},
+      {q:"Où va Camille le samedi matin ?", o:["Au stade","À la bibliothèque","Au cinéma"], a:1}
+    ]},
+  writing:{ prompt:"좋아하는 여가 활동과 싫어하는 활동을 소개해 보세요 (4–5문장). 부정문 2개, 빈도 표현(souvent, parfois, jamais) 1개 이상.",
+    must:["j'aime / j'adore + 동사원형","ne … pas","souvent / jamais"],
+    model:`J'adore regarder des films, surtout des films d'animation.
+Je vais souvent au cinéma le vendredi soir.
+Je joue un peu du piano.
+Mais je n'aime pas courir et je ne fais jamais de jogging.`}
+},
+{ id:7, level:"A2", fr:"Au bureau", ko:"직장과 일정",
+  cando:"일정이나 부탁을 짧은 업무 이메일로 쓰고, 간단한 질문을 할 수 있다.",
+  vocab:[
+    ["la réunion","회의","La réunion commence à 14 h.","회의는 14시에 시작해요."],
+    ["le / la collègue","동료","Ma collègue est en congé.","제 동료는 휴가 중이에요."],
+    ["un mail","이메일 (= un courriel)","Je vous envoie un mail.","메일 보내 드릴게요."],
+    ["envoyer","보내다","Tu peux envoyer le fichier ?","파일 보내 줄 수 있어?"],
+    ["le rendez-vous","약속, 예약","J'ai un rendez-vous à 15 h.","15시에 약속이 있어요."],
+    ["le dossier","서류, 건, 파일","Ce dossier est urgent.","이 건은 급해요."],
+    ["occupé / occupée","바쁜","Je suis très occupée cette semaine.","이번 주는 아주 바빠요."],
+    ["libre","한가한, 시간이 있는","Vous êtes libre demain ?","내일 시간 있으세요?"],
+    ["demain","내일","À demain !","내일 봐요!"],
+    ["la pause déjeuner","점심시간","Pendant la pause déjeuner, j'étudie.","점심시간에 공부해요."]
+  ],
+  grammar:{ title:"pouvoir · vouloir · devoir + 동사원형, 의문문",
+    body:`<p>세 동사 모두 뒤에 <b>동사원형</b>을 붙여 "~할 수 있다 / ~하고 싶다 / ~해야 한다"를 만듭니다.</p>
+<div class="scroll-x"><table class="g"><tr><th></th><th>pouvoir</th><th>vouloir</th><th>devoir</th></tr>
+<tr><td>je</td><td class="fr">peux</td><td class="fr">veux</td><td class="fr">dois</td></tr>
+<tr><td>tu</td><td class="fr">peux</td><td class="fr">veux</td><td class="fr">dois</td></tr>
+<tr><td>il/elle</td><td class="fr">peut</td><td class="fr">veut</td><td class="fr">doit</td></tr>
+<tr><td>nous</td><td class="fr">pouvons</td><td class="fr">voulons</td><td class="fr">devons</td></tr>
+<tr><td>vous</td><td class="fr">pouvez</td><td class="fr">voulez</td><td class="fr">devez</td></tr>
+<tr><td>ils/elles</td><td class="fr">peuvent</td><td class="fr">veulent</td><td class="fr">doivent</td></tr></table></div>
+<p>의문문은 세 가지 방식이 있습니다 (격식 순).</p>
+<div class="ex"><div><span class="fr">Vous êtes libre ?</span><span class="muted">억양만 올림 (구어)</span></div>
+<div><span class="fr">Est-ce que vous êtes libre ?</span><span class="muted">가장 무난함</span></div>
+<div><span class="fr">Êtes-vous libre ?</span><span class="muted">도치 (격식, 이메일)</span></div></div>
+<p>의문사: <span class="fr">quand</span>(언제) · <span class="fr">où</span>(어디) · <span class="fr">pourquoi</span>(왜) · <span class="fr">comment</span>(어떻게) · <span class="fr">qui</span>(누구) · <span class="fr">combien</span>(얼마나)</p>`,
+    quiz:[
+      {q:"Est-ce que tu ___ m'aider ?", o:["peux","peut","pouvez"], a:0, w:"tu → peux"},
+      {q:"Nous ___ finir ce dossier aujourd'hui.", o:["doit","devons","doivent"], a:1, w:"nous → devons"},
+      {q:"Ils ___ prendre une pause.", o:["veut","voulons","veulent"], a:2, w:"ils → veulent"},
+      {q:"Vous êtes libre ? → 도치:", o:["Vous-êtes libre ?","Êtes-vous libre ?","Est-vous libre ?"], a:1, w:"동사-주어 + 하이픈"},
+      {q:"« ___ commence la réunion ? » – « À 14 heures. »", o:["Où","Quand","Qui"], a:1, w:"시간을 묻는 의문사 → quand"},
+      {q:"Elle ___ (devoir) partir à 17 h.", t:["doit"], w:"elle → doit"}
+    ]},
+  reading:{ title:"Objet : Réunion de jeudi",
+    text:`Bonjour à tous,
+
+La réunion de jeudi ne peut pas avoir lieu à 10 heures : je dois aller chez le médecin.
+Est-ce que vous êtes libres à 14 heures ?
+Nous devons parler du nouveau projet et préparer la présentation pour le client.
+Si vous ne pouvez pas venir, envoyez-moi un mail avant mercredi soir.
+
+Merci et bonne journée,
+Julie`,
+    ko:`모두 안녕하세요,
+
+목요일 회의를 10시에 할 수 없게 되었어요. 제가 병원에 가야 해서요.
+14시에 시간 되시나요?
+새 프로젝트에 대해 이야기하고 고객 발표를 준비해야 해요.
+참석이 어려우시면 수요일 저녁 전까지 메일 주세요.
+
+감사합니다, 좋은 하루 보내세요.
+쥘리`,
+    qs:[
+      {q:"Pourquoi la réunion change d'heure ?", o:["Le client est malade","Julie doit aller chez le médecin","La salle est occupée"], a:1},
+      {q:"Quelle heure Julie propose ?", o:["10 heures","14 heures","Mercredi soir"], a:1},
+      {q:"Si on ne peut pas venir, qu'est-ce qu'on doit faire ?", o:["Téléphoner au client","Envoyer un mail avant mercredi soir","Venir à 10 heures"], a:1}
+    ]},
+  writing:{ prompt:"동료에게 약속(회의, 점심 등) 시간을 바꾸자는 짧은 이메일을 써 보세요. pouvoir, vouloir, devoir를 각각 한 번 이상 써 보세요.",
+    must:["je dois …","est-ce que vous pouvez …","je voudrais …"],
+    model:`Bonjour Marc,
+
+Je suis désolée, mais je ne peux pas déjeuner avec vous demain : je dois finir un dossier urgent.
+Est-ce que vous êtes libre vendredi ?
+Je voudrais aussi vous montrer la nouvelle présentation.
+
+Bonne journée,
+Sora`}
+},
+{ id:8, level:"A2", fr:"Mes projets", ko:"계획과 가까운 미래",
+  cando:"주말·휴가 계획을 시간 표현과 함께 말하고 쓸 수 있다.",
+  vocab:[
+    ["le projet","계획, 프로젝트","Tu as des projets pour l'été ?","여름 계획 있어?"],
+    ["les vacances (f pl)","휴가, 방학","Bonnes vacances !","휴가 잘 보내!"],
+    ["partir","떠나다, 출발하다","Je pars en août.","저는 8월에 떠나요."],
+    ["visiter","(장소를) 방문하다, 구경하다","Nous allons visiter Lyon.","우리는 리옹을 구경할 거예요."],
+    ["bientôt","곧","À bientôt !","곧 봐요!"],
+    ["prochain / prochaine","다음의","la semaine prochaine","다음 주"],
+    ["ce soir","오늘 저녁","Qu'est-ce que tu fais ce soir ?","오늘 저녁에 뭐 해?"],
+    ["dans + 기간","(지금부터) ~후에","dans deux semaines","2주 후에"],
+    ["réserver","예약하다","Je vais réserver une table.","테이블을 예약할게요."],
+    ["le billet","표, 티켓","un billet de train","기차표"]
+  ],
+  grammar:{ title:"근접 미래 aller + 동사원형",
+    body:`<p>"~할 거예요"는 <b>aller(현재형) + 동사원형</b>으로 간단히 만듭니다. 회화에서 가장 많이 쓰는 미래 표현이에요.</p>
+<div class="ex"><div><span class="fr">Je vais partir en Bretagne.</span><span class="muted">브르타뉴로 떠날 거예요.</span></div>
+<div><span class="fr">Nous allons visiter le musée.</span><span class="muted">우리는 박물관을 구경할 거예요.</span></div></div>
+<p><b>부정문</b>은 aller를 감쌉니다: <span class="fr">Je ne vais pas travailler samedi.</span></p>
+<p><b>대명동사</b>는 대명사가 동사원형 앞에 붙고, 주어에 맞춥니다: <span class="fr">Je vais me reposer. Tu vas te coucher ?</span></p>
+<div class="tip">시간 표현: <span class="fr">demain · ce week-end · la semaine prochaine · le mois prochain · dans trois jours · cet été</span></div>`,
+    quiz:[
+      {q:"Demain, nous ___ visiter le Louvre.", o:["allons","allez","vont"], a:0, w:"nous → allons + 동사원형"},
+      {q:"Ils ___ partir en juillet.", o:["va","vont","vais"], a:1, w:"ils → vont"},
+      {q:"Je vais travailler samedi. → 부정:", o:["Je vais ne pas travailler samedi.","Je ne vais pas travailler samedi.","Je ne vais travailler pas samedi."], a:1, w:"부정은 활용된 동사(vais)를 감쌉니다."},
+      {q:"Tu vas ___ coucher tôt ?", o:["se","te","me"], a:1, w:"주어 tu에 맞춰 te"},
+      {q:"« dans deux semaines »의 뜻은?", o:["2주 동안","2주 후에","2주 전에"], a:1, w:"dans + 기간 = 지금부터 ~후"},
+      {q:"Elle ___ réserver un billet.", t:["va"], w:"elle → va"}
+    ]},
+  reading:{ title:"Message d'Antoine",
+    text:`Salut Jun !
+Bonne nouvelle : en août, je vais prendre deux semaines de vacances !
+Je vais partir en Bretagne avec ma copine.
+D'abord, nous allons passer trois jours à Rennes, puis nous allons louer des vélos pour visiter la côte.
+Je vais goûter les crêpes et les galettes, bien sûr !
+Et toi, qu'est-ce que tu vas faire cet été ? Tu vas venir en France ?
+Bises,
+Antoine`,
+    ko:`안녕 준!
+좋은 소식이 있어: 8월에 2주 휴가를 낼 거야!
+여자친구와 브르타뉴로 떠날 거야.
+먼저 렌에서 사흘을 보내고, 그다음 자전거를 빌려서 해안을 둘러볼 거야.
+물론 크레프랑 갈레트도 먹어 볼 거고!
+너는? 이번 여름에 뭐 할 거야? 프랑스에 올 거야?
+안녕,
+앙투안`,
+    qs:[
+      {q:"Quand Antoine part en vacances ?", o:["En juillet","En août","En septembre"], a:1},
+      {q:"Combien de jours à Rennes ?", o:["Deux","Trois","Quatorze"], a:1},
+      {q:"Comment ils vont visiter la côte ?", o:["En voiture","À vélo","En train"], a:1}
+    ]},
+  writing:{ prompt:"다음 휴가나 이번 주말 계획을 친구에게 메시지로 써 보세요. 근접 미래(aller + 동사원형)를 4번 이상, 시간 표현 2개 이상.",
+    must:["je vais + 동사원형","ce week-end / la semaine prochaine","d'abord / puis"],
+    model:`Salut Léa !
+Ce week-end, je vais me reposer.
+Samedi, je vais voir une exposition au musée.
+Puis, je vais dîner avec ma sœur.
+Dimanche, je ne vais pas travailler : je vais lire à la maison !`}
+},
+{ id:9, level:"A2", fr:"Le week-end dernier", ko:"지난 일 말하기 ①",
+  cando:"지난 주말에 한 일을 순서대로 이야기할 수 있다.",
+  vocab:[
+    ["hier","어제","Hier, j'ai travaillé tard.","어제 늦게까지 일했어요."],
+    ["dernier / dernière","지난","la semaine dernière","지난주"],
+    ["une exposition","전시회","J'ai vu une belle exposition.","멋진 전시회를 봤어요."],
+    ["voir","보다","Tu as vu ce film ?","그 영화 봤어?"],
+    ["acheter","사다","J'ai acheté des fruits.","과일을 샀어요."],
+    ["le marché","시장, 장","Je fais le marché le samedi.","토요일마다 장을 봐요."],
+    ["ensuite","그다음에","Ensuite, nous avons dîné.","그다음에 우리는 저녁을 먹었어요."],
+    ["inviter","초대하다","J'ai invité des amis.","친구들을 초대했어요."],
+    ["dormir","자다","J'ai bien dormi.","잘 잤어요."],
+    ["ne … rien","아무것도 ~않다","Je n'ai rien fait.","아무것도 안 했어요."]
+  ],
+  grammar:{ title:"복합과거 ① avoir + 과거분사",
+    body:`<p>"~했다"는 대부분 <b>avoir(현재형) + 과거분사</b>로 만듭니다. 이것을 복합과거(passé composé)라고 해요.</p>
+<div class="scroll-x"><table class="g"><tr><th>동사 유형</th><th>과거분사</th><th>예</th></tr>
+<tr><td>-er</td><td>-é</td><td class="fr">parler → parlé</td></tr>
+<tr><td>-ir (finir형)</td><td>-i</td><td class="fr">finir → fini, dormir → dormi</td></tr>
+<tr><td>-re</td><td>-u</td><td class="fr">vendre → vendu</td></tr></table></div>
+<p>자주 쓰는 불규칙 과거분사:</p>
+<div class="scroll-x"><table class="g">
+<tr><td class="fr">faire → fait</td><td class="fr">prendre → pris</td><td class="fr">voir → vu</td></tr>
+<tr><td class="fr">boire → bu</td><td class="fr">lire → lu</td><td class="fr">écrire → écrit</td></tr>
+<tr><td class="fr">avoir → eu</td><td class="fr">être → été</td><td class="fr">mettre → mis</td></tr></table></div>
+<p><b>부정문</b>은 avoir를 감쌉니다: <span class="fr">Je n'ai pas mangé.</span> <span class="fr">Je n'ai rien fait.</span></p>`,
+    quiz:[
+      {q:"Hier, j'___ regardé un film.", o:["ai","suis","as"], a:0, w:"avoir + 과거분사, je → ai"},
+      {q:"Nous avons ___ (prendre) le train.", o:["prendu","pris","prit"], a:1, w:"prendre → pris (불규칙)"},
+      {q:"Elle a ___ (voir) une exposition.", o:["voi","vu","voyé"], a:1, w:"voir → vu"},
+      {q:"Ils ont fait du vélo. → 부정:", o:["Ils n'ont pas fait de vélo.","Ils ont ne pas fait du vélo.","Ils n'ont fait pas de vélo."], a:0, w:"avoir를 감싸고, 부분관사는 de로"},
+      {q:"Tu as ___ (lire) ce livre ?", o:["lit","lu","lisé"], a:1, w:"lire → lu"},
+      {q:"Vous avez ___ (boire) du vin ?", t:["bu"], w:"boire → bu"}
+    ]},
+  reading:{ title:"Mon samedi",
+    text:`Samedi dernier, j'ai passé une très bonne journée.
+Le matin, j'ai fait le marché avec ma voisine : nous avons acheté des fraises et du fromage.
+L'après-midi, j'ai vu une exposition de Monet au musée. J'ai pris beaucoup de photos !
+Le soir, j'ai invité deux amis à dîner. Nous avons mangé, nous avons bu un peu de vin et nous avons parlé jusqu'à minuit.
+Dimanche, je n'ai rien fait : j'ai dormi et j'ai lu un roman.`,
+    ko:`지난 토요일, 아주 좋은 하루를 보냈어요.
+아침에 이웃과 장을 봤어요. 딸기와 치즈를 샀어요.
+오후에는 미술관에서 모네 전시를 봤어요. 사진을 많이 찍었어요!
+저녁에는 친구 두 명을 저녁 식사에 초대했어요. 먹고, 와인을 조금 마시고, 자정까지 이야기했어요.
+일요일에는 아무것도 안 했어요. 잠을 자고 소설을 읽었어요.`,
+    qs:[
+      {q:"Qu'est-ce qu'elle a acheté au marché ?", o:["Du pain et du vin","Des fraises et du fromage","Des fleurs"], a:1},
+      {q:"Quelle exposition a-t-elle vue ?", o:["Une exposition de Monet","Une exposition de photos","Une exposition de Picasso"], a:0},
+      {q:"Qu'est-ce qu'elle a fait dimanche ?", o:["Elle a travaillé","Elle a dormi et lu","Elle a fait le marché"], a:1}
+    ]},
+  writing:{ prompt:"지난 주말에 한 일을 일기처럼 5문장으로 써 보세요. avoir 복합과거 4개 이상, 순서 표현(d'abord, ensuite, enfin) 2개 이상.",
+    must:["j'ai + 과거분사","d'abord / ensuite / enfin","je n'ai pas …"],
+    model:`Le week-end dernier, j'ai beaucoup marché.
+D'abord, samedi matin, j'ai fait du yoga.
+Ensuite, j'ai déjeuné avec une amie et nous avons vu un film coréen.
+Dimanche, je n'ai pas travaillé.
+Enfin, le soir, j'ai écrit dans mon journal.`}
+},
+{ id:10, level:"A2", fr:"En voyage", ko:"지난 일 말하기 ② (여행)",
+  cando:"여행 경험을 이동·도착·날씨와 함께 엽서나 메시지로 쓸 수 있다.",
+  vocab:[
+    ["le voyage","여행","Bon voyage !","여행 잘 다녀와!"],
+    ["l'avion (m)","비행기","Je suis venue en avion.","저는 비행기로 왔어요."],
+    ["arriver","도착하다","Nous sommes arrivés hier.","우리는 어제 도착했어요."],
+    ["rester","머무르다","Elle est restée une semaine.","그녀는 일주일 머물렀어요."],
+    ["la valise","여행 가방","Ma valise est lourde.","제 가방이 무거워요."],
+    ["la plage","해변","On est allés à la plage.","우리는 해변에 갔어요."],
+    ["il a fait beau","날씨가 좋았다","Il a fait beau toute la semaine.","일주일 내내 날씨가 좋았어요."],
+    ["tomber","넘어지다, 떨어지다","Je suis tombé dans la rue.","길에서 넘어졌어요."],
+    ["la vue","전망, 경치","La vue est magnifique.","경치가 멋져요."],
+    ["rentrer","돌아가다(오다), 귀가하다","Nous rentrons dimanche.","우리는 일요일에 돌아가요."]
+  ],
+  grammar:{ title:"복합과거 ② être + 과거분사, 성·수 일치",
+    body:`<p>이동·상태 변화를 나타내는 일부 동사와 모든 대명동사는 <b>être</b>로 복합과거를 만듭니다.</p>
+<div class="tip">être를 쓰는 주요 동사: <span class="fr">aller, venir, arriver, partir, entrer, sortir, monter, descendre, rester, tomber, naître, mourir, rentrer, retourner, devenir</span> + 모든 대명동사</div>
+<p>être를 쓸 때는 과거분사를 <b>주어의 성·수</b>에 맞춥니다.</p>
+<div class="scroll-x"><table class="g"><tr><th>주어</th><th>aller</th></tr>
+<tr><td>je (남/여)</td><td class="fr">je suis allé / allée</td></tr>
+<tr><td>elle</td><td class="fr">elle est allée</td></tr>
+<tr><td>ils</td><td class="fr">ils sont allés</td></tr>
+<tr><td>elles</td><td class="fr">elles sont allées</td></tr></table></div>
+<div class="ex"><div><span class="fr">Marie s'est levée tôt.</span><span class="muted">마리는 일찍 일어났다. (대명동사)</span></div></div>
+<div class="note">같은 문장 안에서도 avoir 동사와 섞입니다: <span class="fr">Nous sommes allés au port et nous avons mangé une bouillabaisse.</span></div>`,
+    quiz:[
+      {q:"Elle ___ partie à six heures.", o:["a","est","ont"], a:1, w:"partir는 être 동사 → elle est partie"},
+      {q:"Nous (남성들) sommes ___ (arriver) à Nice.", o:["arrivé","arrivés","arrivée"], a:1, w:"주어 nous(남성 복수)에 일치 → arrivés"},
+      {q:"Ils ___ visité le château.", o:["sont","ont"], a:1, w:"visiter는 avoir 동사 → ont visité"},
+      {q:"Marie s'est ___ (lever) tôt.", o:["levé","levée","levés"], a:1, w:"대명동사, 주어 여성 단수 → levée"},
+      {q:"Je ___ resté trois jours.", o:["suis","ai"], a:0, w:"rester는 être 동사"},
+      {q:"Elles sont ___ (venir) en train.", t:["venues"], w:"venir → venu, 여성 복수 → venues"}
+    ]},
+  reading:{ title:"Carte postale de Marseille",
+    text:`Chère Maman,
+Nous sommes arrivés à Marseille mardi soir. Le voyage en train a duré trois heures et demie.
+Mercredi, nous sommes allés au Vieux-Port et nous avons mangé une bouillabaisse.
+Hier, Léna est montée à Notre-Dame-de-la-Garde : la vue est magnifique !
+Moi, je suis resté à l'hôtel parce que je suis tombé dans la rue… rien de grave !
+Il a fait beau toute la semaine. Nous rentrons dimanche.
+Gros bisous,
+Paul`,
+    ko:`사랑하는 엄마,
+우리는 화요일 저녁에 마르세유에 도착했어요. 기차 여행은 세 시간 반 걸렸어요.
+수요일에는 구항구에 가서 부야베스를 먹었어요.
+어제 레나는 노트르담 드 라 가르드에 올라갔어요. 경치가 정말 멋져요!
+저는 길에서 넘어져서 호텔에 있었어요… 별일 아니에요!
+일주일 내내 날씨가 좋았어요. 우리는 일요일에 돌아가요.
+많이 사랑해요,
+폴`,
+    qs:[
+      {q:"Comment sont-ils venus à Marseille ?", o:["En avion","En train","En voiture"], a:1},
+      {q:"Pourquoi Paul est resté à l'hôtel ?", o:["Il est tombé dans la rue","Il a fait mauvais","Il a travaillé"], a:0},
+      {q:"Quel temps a-t-il fait ?", o:["Il a plu","Il a fait beau","Il a neigé"], a:1}
+    ]},
+  writing:{ prompt:"기억에 남는 여행에 대해 엽서를 써 보세요 (5–6문장). être 복합과거 3개, avoir 복합과거 2개 이상. 성·수 일치에 주의!",
+    must:["je suis allé(e) / arrivé(e)","j'ai visité / mangé","il a fait beau"],
+    model:`Cher Thomas,
+Je suis arrivée à Jeju vendredi matin.
+Je suis allée à la plage et j'ai mangé du poisson grillé.
+Samedi, je suis montée au mont Hallasan. C'était difficile !
+Il a fait beau tout le week-end. Je suis rentrée dimanche soir.
+Bises, Sora`}
+},
+{ id:11, level:"A2", fr:"Souvenirs d'enfance", ko:"어린 시절과 반과거",
+  cando:"과거의 습관과 배경을 묘사하고, 그 안에서 일어난 일을 구분해 말할 수 있다.",
+  vocab:[
+    ["l'enfance (f)","어린 시절","Mon enfance était heureuse.","제 어린 시절은 행복했어요."],
+    ["quand j'étais petit(e)","어렸을 때","Quand j'étais petite, j'avais un vélo rouge.","어렸을 때 빨간 자전거가 있었어요."],
+    ["l'école (f)","학교","J'allais à l'école à pied.","학교에 걸어 다녔어요."],
+    ["le jardin","정원, 마당","Il y avait un grand jardin.","큰 마당이 있었어요."],
+    ["les grands-parents","조부모님","Je voyais mes grands-parents l'été.","여름에 조부모님을 뵀어요."],
+    ["chaque été","매년 여름","Chaque été, nous allions à la mer.","매년 여름 우리는 바다에 갔어요."],
+    ["autrefois","예전에","Autrefois, il n'y avait pas d'internet.","예전에는 인터넷이 없었어요."],
+    ["se souvenir de","~을 기억하다","Je me souviens de ma première école.","첫 학교가 기억나요."],
+    ["dehors","밖에서","On jouait dehors.","우리는 밖에서 놀았어요."],
+    ["un jour","어느 날","Un jour, nous avons trouvé un chat.","어느 날 우리는 고양이를 발견했어요."]
+  ],
+  grammar:{ title:"반과거(imparfait)와 복합과거의 구분",
+    body:`<p><b>만드는 법:</b> 현재형 nous의 어간 + 어미 <span class="fr">-ais, -ais, -ait, -ions, -iez, -aient</span></p>
+<div class="scroll-x"><table class="g"><tr><th>nous 현재형</th><th>반과거</th></tr>
+<tr><td class="fr">nous parlons</td><td class="fr">je parlais, nous parlions</td></tr>
+<tr><td class="fr">nous finissons</td><td class="fr">je finissais</td></tr>
+<tr><td class="fr">nous avons</td><td class="fr">j'avais, ils avaient</td></tr>
+<tr><td>예외: être</td><td class="fr">j'étais, nous étions</td></tr></table></div>
+<div class="scroll-x"><table class="g"><tr><th>반과거 = 배경·습관·묘사</th><th>복합과거 = 일어난 사건</th></tr>
+<tr><td>영화의 <b>배경 화면</b></td><td>화면 속에서 <b>벌어진 일</b></td></tr>
+<tr><td class="fr">Je dormais…</td><td class="fr">…quand le téléphone a sonné.</td></tr>
+<tr><td class="fr">Chaque été, j'allais chez ma grand-mère.</td><td class="fr">Un été, je suis allé à Jeju.</td></tr></table></div>
+<div class="tip">신호어: 반과거 ← <span class="fr">chaque, toujours, d'habitude, souvent, quand j'étais petit</span> / 복합과거 ← <span class="fr">un jour, soudain, hier, une fois</span></div>`,
+    quiz:[
+      {q:"Quand j'___ petite, j'habitais à la campagne.", o:["ai été","étais","suis"], a:1, w:"어린 시절 상태·배경 → 반과거 étais"},
+      {q:"Nous ___ (jouer) au parc tous les jours.", o:["jouions","jouons","avons joué"], a:0, w:"매일 반복된 습관 → 반과거 jouions"},
+      {q:"Ils ___ (avoir) un chien.", o:["avaient","ont eu","avions"], a:0, w:"과거의 지속 상태 → avaient"},
+      {q:"Je dormais quand le téléphone ___ .", o:["sonnait","a sonné"], a:1, w:"배경(dormais) 속에 끼어든 사건 → 복합과거"},
+      {q:"Chaque été, nous ___ chez ma grand-mère.", o:["sommes allés","allions"], a:1, w:"chaque été = 습관 → 반과거"},
+      {q:"Tu ___ (finir) l'école à quelle heure ?", t:["finissais"], w:"nous finissons → finiss- + ais"}
+    ]},
+  reading:{ title:"Nuage",
+    text:`Quand j'étais petit, j'habitais dans un petit village près de Jeonju.
+Chaque été, j'allais chez mes grands-parents. Ma grand-mère cultivait des légumes et mon grand-père lisait le journal sous un grand arbre.
+Il n'y avait pas d'internet, alors je jouais dehors toute la journée avec mon cousin.
+Un jour, nous avons trouvé un petit chat dans le jardin. Nous l'avons appelé Nuage.
+Je me souviens encore de son pelage tout blanc.`,
+    ko:`어렸을 때 저는 전주 근처의 작은 마을에 살았어요.
+매년 여름 조부모님 댁에 갔어요. 할머니는 채소를 기르셨고 할아버지는 큰 나무 아래서 신문을 읽으셨어요.
+인터넷이 없어서 사촌과 하루 종일 밖에서 놀았어요.
+어느 날 우리는 마당에서 작은 고양이를 발견했어요. 우리는 그 고양이를 '구름(뉘아주)'이라고 불렀어요.
+새하얀 털이 아직도 기억나요.`,
+    qs:[
+      {q:"Où allait-il chaque été ?", o:["À la mer","Chez ses grands-parents","À Séoul"], a:1},
+      {q:"Que faisait son grand-père ?", o:["Il cultivait des légumes","Il lisait le journal","Il jouait dehors"], a:1},
+      {q:"Qu'est-ce qui s'est passé un jour ?", o:["Ils ont trouvé un chat","Ils sont partis en voyage","Ils ont acheté un chien"], a:0}
+    ]},
+  writing:{ prompt:"어린 시절의 편안한 기억 하나를 써 보세요 (5문장). 반과거로 배경·습관 3개 이상, 복합과거로 사건 1개 이상. 떠올리기 편한 기억이면 무엇이든 좋아요.",
+    must:["quand j'étais petit(e)","반과거 3개 (-ais / -ait)","un jour, + 복합과거"],
+    model:`Quand j'étais petite, j'habitais à Busan.
+Mon père travaillait beaucoup, mais le dimanche, nous allions à la plage.
+J'adorais construire des châteaux de sable.
+Un jour, j'ai trouvé un grand coquillage.
+Je le garde encore dans ma chambre !`}
+},
+{ id:12, level:"A2", fr:"Faire les courses", ko:"쇼핑, 비교, 대명사",
+  cando:"물건을 비교해 고르고, 대명사로 반복을 피하며 자연스럽게 말할 수 있다.",
+  vocab:[
+    ["le magasin","가게","Le magasin ferme à 20 h.","가게는 20시에 닫아요."],
+    ["cher / chère","비싼","C'est trop cher !","너무 비싸요!"],
+    ["bon marché","싼 (불변)","Ces chaussures sont bon marché.","이 신발은 싸요."],
+    ["la taille","사이즈, 키","Quelle est votre taille ?","사이즈가 어떻게 되세요?"],
+    ["essayer","입어 보다, 시도하다","Je peux l'essayer ?","입어 봐도 될까요?"],
+    ["le pull","스웨터","Ce pull est chaud.","이 스웨터는 따뜻해요."],
+    ["la chemise","셔츠","Une chemise blanche","흰 셔츠"],
+    ["meilleur / meilleure","더 좋은 (bon의 비교급)","Ce café est meilleur.","이 커피가 더 맛있어요."],
+    ["préférer","더 좋아하다","Je préfère le bleu.","파란색이 더 좋아요."],
+    ["coûter","값이 ~이다","Il coûte combien ?","이거 얼마예요?"]
+  ],
+  grammar:{ title:"비교급과 직접목적어 대명사 le, la, les",
+    body:`<div class="scroll-x"><table class="g"><tr><th>비교</th><th>형태</th><th>예</th></tr>
+<tr><td>더 ~한</td><td class="fr">plus + 형용사 + que</td><td class="fr">Ce pull est plus cher que la chemise.</td></tr>
+<tr><td>덜 ~한</td><td class="fr">moins + 형용사 + que</td><td class="fr">Le gris est moins chaud.</td></tr>
+<tr><td>만큼 ~한</td><td class="fr">aussi + 형용사 + que</td><td class="fr">Il est aussi joli que l'autre.</td></tr></table></div>
+<div class="note">불규칙: <span class="fr">bon → meilleur</span>(형용사), <span class="fr">bien → mieux</span>(부사). <span class="fr">plus bon</span>은 쓰지 않아요.</div>
+<p><b>직접목적어 대명사</b>는 이미 말한 사물·사람을 받습니다. 위치는 <b>활용된 동사 앞</b>.</p>
+<div class="scroll-x"><table class="g"><tr><th>대명사</th><th>예</th></tr>
+<tr><td class="fr">le (남) / la (여) / l' (모음 앞)</td><td class="fr">Je prends le pull. → Je le prends.</td></tr>
+<tr><td class="fr">les (복수)</td><td class="fr">J'adore ces chaussures. → Je les adore.</td></tr>
+<tr><td>동사원형이 있으면</td><td class="fr">Je vais l'essayer.</td></tr>
+<tr><td>복합과거</td><td class="fr">Je l'ai acheté.</td></tr></table></div>`,
+    quiz:[
+      {q:"Ce pull est ___ cher ___ la chemise.", o:["plus … que","plus … de","très … que"], a:0, w:"비교: plus + 형용사 + que"},
+      {q:"Ce café est ___ que l'autre.", o:["plus bon","meilleur","mieux"], a:1, w:"bon의 비교급 → meilleur"},
+      {q:"Tu prends la robe ? – Oui, je ___ prends.", o:["le","la","les"], a:1, w:"la robe(여성) → la"},
+      {q:"Vous aimez ces chaussures ? – Oui, je ___ adore.", o:["la","les","l'"], a:1, w:"복수 → les (모음 앞이라도 les는 축약하지 않아요)"},
+      {q:"Tu essaies le pull ? – Oui, je vais ___ essayer.", o:["le","l'","la"], a:1, w:"essayer가 모음 → l'"},
+      {q:"Elle chante ___ que moi. (bien의 비교급)", t:["mieux"], w:"bien → mieux"}
+    ]},
+  reading:{ title:"Dans une boutique",
+    text:`Vendeuse : Bonjour ! Je peux vous aider ?
+Client : Oui, je cherche un pull pour l'hiver.
+Vendeuse : Nous avons ce pull bleu en laine. Il est très chaud.
+Client : Il est joli, mais il coûte combien ?
+Vendeuse : Quatre-vingts euros. Le gris est moins cher : cinquante-cinq euros. Mais il est moins chaud.
+Client : Hmm… Je préfère le bleu. Je peux l'essayer ?
+Vendeuse : Bien sûr. Quelle est votre taille ?
+Client : M, je pense.
+(Cinq minutes plus tard)
+Client : Il est parfait. Je le prends !`,
+    ko:`점원: 안녕하세요! 도와드릴까요?
+손님: 네, 겨울용 스웨터를 찾고 있어요.
+점원: 이 파란 울 스웨터가 있어요. 아주 따뜻해요.
+손님: 예쁘네요, 그런데 얼마예요?
+점원: 80유로예요. 회색은 더 싸요, 55유로. 하지만 덜 따뜻해요.
+손님: 음… 파란색이 더 좋아요. 입어 봐도 돼요?
+점원: 물론이죠. 사이즈가 어떻게 되세요?
+손님: M일 거예요.
+(5분 후)
+손님: 딱 맞아요. 이걸로 할게요!`,
+    qs:[
+      {q:"Qu'est-ce que le client cherche ?", o:["Une chemise","Un pull pour l'hiver","Des chaussures"], a:1},
+      {q:"Le pull gris coûte combien ?", o:["55 €","80 €","95 €"], a:0},
+      {q:"Qu'est-ce que le client fait finalement ?", o:["Il prend le gris","Il prend le bleu","Il ne prend rien"], a:1}
+    ]},
+  writing:{ prompt:"최근에 고민하며 산 물건(또는 사고 싶은 물건) 두 가지를 비교하고 하나를 골라 보세요 (4–5문장). 비교급 2개, 직접목적어 대명사 1개 이상.",
+    must:["plus / moins … que","meilleur / mieux","je le / la / les …"],
+    model:`Je voulais acheter un nouveau sac.
+Le sac noir est plus pratique que le sac beige, mais il est plus cher.
+Le beige est moins solide.
+Finalement, j'ai choisi le noir : il est meilleur pour le travail.
+Je l'utilise tous les jours !`}
+}
+];
+
+/* ============================== STATE ============================== */
+const KEY = "carnet-fr-a2-v1";
+const BOX_DAYS = [0, 0, 1, 3, 7, 16]; // index = box (1..5)
+const today = () => { const d = new Date(); d.setHours(0,0,0,0); return d.getTime(); };
+const DAY = 86400000;
+
+function blankState(){ return { cards:{}, units:{}, drafts:{}, streak:{last:0,n:0}, lunchDone:{date:0,steps:{}}, view:{unit:1,tab:"vocab"}, at:0 }; }
+let S = blankState();
+try { const raw = localStorage.getItem(KEY); if (raw) S = Object.assign(blankState(), JSON.parse(raw)); } catch(e) {}
+
+let saveTimer = null, remote = null;
+function save(){
+  S.at = Date.now();
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {}
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(pushRemote, 1500);
+}
+async function pushRemote(){ if (!remote) return; try { await remote.set({ json: JSON.stringify(S), at: S.at }); } catch(e) {} }
+
+function unitState(id){ return S.units[id] || (S.units[id] = { g:0, r:false, w:false }); }
+function cardId(u,i){ return u + "-" + i; }
+function card(id){ return S.cards[id]; }
+
+function markStudy(){
+  const t = today();
+  if (S.streak.last === t) return;
+  S.streak.n = (S.streak.last === t - DAY) ? S.streak.n + 1 : 1;
+  S.streak.last = t;
+}
+function lunchStep(k){
+  const t = today();
+  if (S.lunchDone.date !== t) S.lunchDone = { date:t, steps:{} };
+  S.lunchDone.steps[k] = true;
+}
+
+/* ============================== HELPERS ============================== */
+const $ = (s, el=document) => el.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const norm = s => s.toLowerCase().replace(/[’`]/g,"'").replace(/\s+/g," ").trim();
+const strip = s => s.normalize("NFD").replace(/[̀-ͯ]/g,"");
+const SPK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>`;
+function toast(msg){ const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast._t); toast._t = setTimeout(() => t.hidden = true, 2600); }
+
+/* ---- speech: browser French voice first, Claude voice as fallback ---- */
+let TTS = null, SAMPLE = null;
+function frVoice(){ try { return speechSynthesis.getVoices().find(v => /^fr(-|_|$)/i.test(v.lang)); } catch(e){ return null; } }
+try { speechSynthesis.onvoiceschanged = () => {}; } catch(e) {}
+function speak(text){
+  const clean = text.replace(/[…]/g, ", ").replace(/ \/ /g, ", ");
+  const v = frVoice();
+  if (v) { try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(clean); u.voice = v; u.lang = v.lang; u.rate = 0.9; speechSynthesis.speak(u); return; } catch(e) {} }
+  if (TTS) { TTS.speak(clean.slice(0,1900), { language:"fr", rate:0.9 }).catch(() => {}); return; }
+  if (window.speechSynthesis) { try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(clean); u.lang = "fr-FR"; u.rate = 0.9; speechSynthesis.speak(u); return; } catch(e) {} }
+  toast("이 브라우저에서는 소리 재생을 쓸 수 없어요");
+}
+document.addEventListener("click", e => { const b = e.target.closest("[data-say]"); if (b) speak(b.dataset.say); });
+
+/* ---- accent keyboard: inserts into the last focused field ---- */
+let lastField = null;
+document.addEventListener("focusin", e => { if (e.target.matches("input[type=text], textarea")) lastField = e.target; });
+const ACC = ["é","è","ê","à","â","ç","ù","û","î","ï","ô","ë","œ","É","«","»"];
+function accentBar(){ return `<div class="accents" role="group" aria-label="프랑스어 특수문자">${ACC.map(c => `<button type="button" data-acc="${c}" tabindex="-1">${c}</button>`).join("")}</div>`; }
+document.addEventListener("mousedown", e => { if (e.target.closest("[data-acc]")) e.preventDefault(); });
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-acc]"); if (!b) return;
+  const f = lastField && document.contains(lastField) ? lastField : null;
+  if (!f) { toast("먼저 입력칸을 눌러 주세요"); return; }
+  const s = f.selectionStart ?? f.value.length, en = f.selectionEnd ?? s;
+  f.value = f.value.slice(0, s) + b.dataset.acc + f.value.slice(en);
+  f.selectionStart = f.selectionEnd = s + b.dataset.acc.length; f.focus();
+  f.dispatchEvent(new Event("input", { bubbles:true }));
+});
+
+/* ============================== SRS ============================== */
+function dueCards(unitId){
+  const t = Date.now(), list = [];
+  UNITS.forEach(u => { if (unitId && u.id !== unitId) return;
+    u.vocab.forEach((v,i) => { const id = cardId(u.id,i), c = card(id);
+      if (unitId) { if (!c || c.d <= t) list.push(id); }
+      else if (c && c.d <= t) list.push(id); }); });
+  return list;
+}
+function grade(id, ok){
+  const isNew = !S.cards[id];
+  const c = S.cards[id] || { b:0, d:0 };
+  // a new card known on first sight skips straight to box 2; a miss always returns to box 1
+  c.b = ok ? (isNew ? 2 : Math.min(5, c.b + 1)) : 1;
+  c.d = ok ? (BOX_DAYS[c.b] ? today() + BOX_DAYS[c.b] * DAY : Date.now() + 10 * 60000) : Date.now() + 60000;
+  S.cards[id] = c; markStudy(); save();
+}
+function findVocab(id){ const [u,i] = id.split("-").map(Number); const U = UNITS.find(x => x.id === u); return { U, v: U.vocab[i] }; }
+function unitProgress(u){
+  const st = unitState(u.id);
+  const learned = u.vocab.filter((_,i) => (card(cardId(u.id,i))||{}).b >= 2).length;
+  return { vocab: learned >= Math.ceil(u.vocab.length * .8), learned, gram: st.g >= .8, read: st.r, write: st.w };
+}
+
+/* ============================== RENDER: header / lunch / units ============================== */
+let timer = { left: 20*60, running:false, h:null };
+function renderStats(){
+  const due = dueCards().length;
+  const learned = Object.values(S.cards).filter(c => c.b >= 2).length;
+  const streak = (S.streak.last >= today() - DAY) ? S.streak.n : 0;
+  $("#stats").innerHTML = `
+    <div class="stat"><b>${streak}</b><span>연속 학습일</span></div>
+    <div class="stat"><b>${learned}<small class="muted"> / ${UNITS.length*10}</small></b><span>익힌 단어</span></div>
+    <div class="stat"><b>${due}</b><span>오늘 복습</span></div>`;
+}
+function nextUnit(){ for (const u of UNITS){ const p = unitProgress(u); if (!(p.vocab && p.gram && p.read && p.write)) return u; } return UNITS[UNITS.length-1]; }
+function renderLunch(){
+  const u = nextUnit(), due = dueCards().length;
+  const steps = S.lunchDone.date === today() ? S.lunchDone.steps : {};
+  const mm = String(Math.floor(timer.left/60)).padStart(2,"0"), ss = String(timer.left%60).padStart(2,"0");
+  $("#lunch").innerHTML = `
+    <div class="lunch-title"><h3>오늘의 점심 세션 <span class="fr">· la pause déjeuner</span></h3>
+      <span class="muted" style="font-size:13px">추천 단원: ${u.id}. ${esc(u.ko)}</span></div>
+    <div class="timer">
+      <div class="clock mono" id="clock" aria-live="off">${mm}:${ss}</div>
+      <div class="row">
+        <button class="btn ${timer.running?"":"primary"}" id="tgo">${timer.running?"일시정지":"20분 시작"}</button>
+        <button class="btn ghost" id="treset" aria-label="타이머 초기화">↺</button>
+      </div>
+    </div>
+    <div class="steps">
+      <button class="step ${steps.review?"done":""}" data-go="review"><span class="k">5분 · 복습</span><span class="v">카드 ${due}장</span></button>
+      <button class="step ${steps.vocab||steps.grammar?"done":""}" data-go="${u.id}:grammar"><span class="k">5분 · 문법</span><span class="v">${esc(u.grammar.title.split(/[,(]/)[0])}</span></button>
+      <button class="step ${steps.reading?"done":""}" data-go="${u.id}:reading"><span class="k">5분 · 읽기</span><span class="v">${esc(u.reading.title)}</span></button>
+      <button class="step ${steps.writing?"done":""}" data-go="${u.id}:writing"><span class="k">5분 · 작문</span><span class="v">짧게 써 보기</span></button>
+    </div>`;
+  $("#tgo").onclick = () => {
+    if (timer.running){ clearInterval(timer.h); timer.running = false; }
+    else { timer.running = true; timer.h = setInterval(() => { timer.left--; if (timer.left <= 0){ clearInterval(timer.h); timer.running=false; timer.left = 20*60; toast("20분 끝! 남은 점심시간 편하게 보내세요."); renderLunch(); return; } const c = $("#clock"); if (c) c.textContent = String(Math.floor(timer.left/60)).padStart(2,"0")+":"+String(timer.left%60).padStart(2,"0"); }, 1000); }
+    renderLunch();
+  };
+  $("#treset").onclick = () => { clearInterval(timer.h); timer = { left:20*60, running:false, h:null }; renderLunch(); };
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-go]"); if (!b) return;
+  const g = b.dataset.go;
+  if (g === "review") S.view = { unit:"review", tab:"review" };
+  else { const [u,t] = g.split(":"); S.view = { unit:+u, tab:t }; }
+  save(); renderUnits(); renderPanel();
+  $("#panel").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block:"start" });
+});
+function renderUnits(){
+  $("#units").innerHTML = UNITS.map(u => { const p = unitProgress(u);
+    return `<button class="unit-chip ${S.view.unit===u.id?"on":""}" data-unit="${u.id}" aria-label="${u.id}단원 ${esc(u.ko)}">
+      <span class="n"><span>${String(u.id).padStart(2,"0")}</span><span class="lvl ${u.level.toLowerCase()}">${u.level}</span></span>
+      <span class="t">${esc(u.ko)}</span>
+      <span class="dots" title="단어·문법·읽기·작문"><i class="${p.vocab?"on":""}"></i><i class="${p.gram?"on":""}"></i><i class="${p.read?"on":""}"></i><i class="${p.write?"on":""}"></i></span>
+    </button>`; }).join("");
+  $("#units").querySelectorAll("[data-unit]").forEach(b => b.onclick = () => { S.view = { unit:+b.dataset.unit, tab:"vocab" }; save(); renderUnits(); renderPanel(); });
+}
+
+/* ============================== RENDER: panel ============================== */
+const TABS = [["vocab","단어"],["grammar","문법"],["reading","읽기"],["writing","작문"]];
+function renderPanel(){
+  const P = $("#panel");
+  if (S.view.unit === "review") { renderReview(P); return; }
+  const u = UNITS.find(x => x.id === S.view.unit) || UNITS[0];
+  P.innerHTML = `
+    <div class="panel-head">
+      <span class="muted mono" style="font-size:12px">UNITÉ ${u.id} · ${u.level}</span>
+      <h2><span class="fr">${esc(u.fr)}</span> <span class="muted" style="font-family:var(--f-body);font-size:16px">${esc(u.ko)}</span></h2>
+      <div class="cando"><b>할 수 있게 될 것</b> · ${esc(u.cando)}</div>
+      <div class="tabs" role="tablist">${TABS.map(([k,l]) => `<button class="tab ${S.view.tab===k?"on":""}" role="tab" aria-selected="${S.view.tab===k}" data-tab="${k}">${l}</button>`).join("")}</div>
+    </div>
+    <div class="panel-body" id="pbody"></div>`;
+  P.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => { S.view.tab = b.dataset.tab; save(); renderPanel(); });
+  const body = $("#pbody");
+  ({ vocab:renderVocab, grammar:renderGrammar, reading:renderReading, writing:renderWriting })[S.view.tab](u, body);
+}
+
+/* ---- flashcards (shared by unit vocab and global review) ---- */
+function flashDeck(host, queue, onEmpty){
+  let revealed = false;
+  function draw(){
+    if (!queue.length){ host.innerHTML = onEmpty(); return; }
+    const id = queue[0], { U, v } = findVocab(id), c = card(id);
+    host.innerHTML = `
+      <div class="card">
+        <div class="meta"><span class="mono">${U.id}단원 · ${c ? "상자 "+c.b : "새 카드"}</span><span class="mono">남은 카드 ${queue.length}</span></div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><div class="word">${esc(v[0])}</div><button class="icon-btn" data-say="${esc(v[0])}" aria-label="발음 듣기">${SPK}</button></div>
+        ${revealed ? `<div class="meaning">${esc(v[1])}</div>
+          <div class="exs"><span class="fr">${esc(v[2])}</span> <button class="icon-btn" data-say="${esc(v[2])}" aria-label="예문 듣기" style="width:26px;height:26px">${SPK}</button><br><span class="muted">${esc(v[3])}</span></div>`
+          : `<div class="muted">뜻을 먼저 떠올려 본 다음 확인하세요. 떠올리려고 애쓰는 과정 자체가 기억을 단단하게 합니다.</div>`}
+        <div class="card-actions">${revealed
+          ? `<button class="btn" id="cno">다시 볼래요</button><button class="btn primary" id="cyes">알았어요</button>`
+          : `<button class="btn primary" id="cflip">뜻 보기</button>`}</div>
+      </div>`;
+    if (revealed){
+      $("#cno", host).onclick = () => { grade(id,false); queue.push(queue.shift()); revealed=false; draw(); refreshSide(); };
+      $("#cyes", host).onclick = () => { grade(id,true); queue.shift(); revealed=false; draw(); refreshSide(); };
+    } else $("#cflip", host).onclick = () => { revealed = true; draw(); };
+  }
+  draw();
+}
+let refreshSide = () => {};
+function boxesHtml(ids){
+  const counts = [0,0,0,0,0,0]; ids.forEach(id => { const c = card(id); counts[c ? c.b : 0]++; });
+  const max = Math.max(1, ids.length);
+  const names = ["새 카드","상자 1","상자 2","상자 3","상자 4","상자 5"];
+  return `<div class="boxes"><b style="font-size:13px">라이트너 상자</b>${counts.map((n,i) => `<div class="bar"><span>${names[i]}</span><span class="track"><span class="fill" style="width:${n/max*100}%;display:block"></span></span><span class="mono">${n}</span></div>`).join("")}
+  <span class="muted" style="font-size:12px;line-height:1.5">맞히면 다음 상자로 가고 복습 간격이 늘어납니다 (당일 → 1일 → 3일 → 7일 → 16일). 틀리면 상자 1로 돌아갑니다.</span></div>`;
+}
+function renderVocab(u, body){
+  const ids = u.vocab.map((_,i) => cardId(u.id,i));
+  const queue = dueCards(u.id);
+  body.innerHTML = `<div class="deck"><div id="deckhost"></div><div id="side"></div></div>
+    <div><h3 style="margin-bottom:8px">단어 목록</h3><div class="scroll-x"><table class="wordlist">${u.vocab.map((v,i) => { const c = card(cardId(u.id,i));
+      const pill = !c ? `<span class="pill new">새 카드</span>` : (c.d <= Date.now() ? `<span class="pill due">복습</span>` : `<span class="pill">상자 ${c.b}</span>`);
+      return `<tr><td><button class="icon-btn" data-say="${esc(v[0])}" aria-label="${esc(v[0])} 발음">${SPK}</button></td><td class="fr">${esc(v[0])}</td><td>${esc(v[1])}</td><td>${pill}</td></tr>`; }).join("")}</table></div></div>`;
+  refreshSide = () => { $("#side").innerHTML = boxesHtml(ids); renderStats(); renderUnits(); };
+  refreshSide();
+  flashDeck($("#deckhost"), queue, () => { lunchStep("vocab"); save();
+    return `<div class="card"><div class="word">Bravo !</div><div>이 단원의 오늘 카드를 다 봤어요. 다음 복습일이 되면 위 '오늘 복습'에 다시 나타납니다.</div>
+    <div class="card-actions"><button class="btn primary" data-go="${u.id}:grammar">문법으로 가기</button></div></div>`; });
+}
+function renderReview(P){
+  const queue = dueCards();
+  P.innerHTML = `<div class="panel-head"><span class="muted mono" style="font-size:12px">RÉVISION</span><h2>오늘의 복습 카드</h2>
+    <div class="cando">지난 단원에서 복습일이 된 단어만 모았습니다. 새 단어는 각 단원의 '단어' 탭에서 시작하세요.</div><div class="tabs"></div></div>
+    <div class="panel-body"><div class="deck"><div id="deckhost"></div><div id="side"></div></div></div>`;
+  const all = UNITS.flatMap(u => u.vocab.map((_,i) => cardId(u.id,i))).filter(id => card(id));
+  refreshSide = () => { $("#side").innerHTML = all.length ? boxesHtml(all) : `<p class="muted">아직 공부한 카드가 없어요.</p>`; renderStats(); renderUnits(); };
+  refreshSide();
+  flashDeck($("#deckhost"), queue, () => { lunchStep("review"); save(); renderLunch();
+    const nu = nextUnit();
+    return `<div class="card"><div class="word">C'est fini !</div><div>오늘 복습할 카드가 없어요. 새 단어를 배워 볼까요?</div>
+    <div class="card-actions"><button class="btn primary" data-go="${nu.id}:vocab">${nu.id}단원 단어 시작</button></div></div>`; });
+}
+
+/* ---- grammar ---- */
+function renderGrammar(u, body){
+  const g = u.grammar, st = unitState(u.id);
+  body.innerHTML = `<div class="prose"><h3 style="margin-bottom:10px">${esc(g.title)}</h3>${g.body}</div>
+    <div><div class="row-gap" style="justify-content:space-between;margin-bottom:8px"><h3>연습 문제</h3><span class="score" id="gscore">최고 점수 ${Math.round(st.g*100)}%</span></div>
+    <div class="quiz" id="quiz"></div><div style="margin-top:10px">${accentBar()}</div></div>
+    ${askBox(u, "grammar")}`;
+  const qz = $("#quiz"); let answered = 0, right = 0;
+  g.quiz.forEach((it, qi) => {
+    const d = document.createElement("div"); d.className = "q";
+    const qt = esc(it.q).replace(/___/g, `<span class="fr">____</span>`);
+    if (it.o){
+      d.innerHTML = `<div class="qt">${qi+1}. ${qt}</div><div class="opts">${it.o.map((o,oi) => `<button class="opt" data-oi="${oi}">${esc(o)}</button>`).join("")}</div><div class="fb" aria-live="polite"></div>`;
+      let done = false, first = true;
+      d.querySelectorAll(".opt").forEach(b => b.onclick = () => { if (done) return; const oi = +b.dataset.oi, fb = $(".fb", d);
+        if (oi === it.a){ b.classList.add("right"); fb.className = "fb ok"; fb.textContent = "✓ " + it.w; done = true; answered++; if (first) right++; finish(); }
+        else { b.classList.add("wrong"); fb.className = "fb no"; fb.textContent = "다시 한번 생각해 보세요."; first = false; } });
+    } else {
+      d.innerHTML = `<div class="qt">${qi+1}. ${qt}</div><form class="inrow"><input type="text" id="g${u.id}-${qi}" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="답 입력"><button class="btn">확인</button></form><div class="fb" aria-live="polite"></div>`;
+      let done = false, first = true;
+      $("form", d).onsubmit = e => { e.preventDefault(); if (done) return; const val = norm($("input", d).value), fb = $(".fb", d); if (!val) return;
+        const ok = it.t.some(t => norm(t) === val), near = !ok && it.t.some(t => strip(norm(t)) === strip(val));
+        if (ok || near){ fb.className = "fb ok"; fb.textContent = (near ? "✓ 거의 맞아요. 악센트까지 쓰면: " + it.t[0] + ". " : "✓ ") + it.w; done = true; answered++; if (first) right++; finish(); }
+        else { fb.className = "fb no"; fb.textContent = "아직이에요. 힌트: " + it.t[0].length + "글자"; first = false; } };
+    }
+    qz.appendChild(d);
+  });
+  function finish(){
+    if (answered < g.quiz.length) return;
+    const sc = right / g.quiz.length; st.g = Math.max(st.g, sc); lunchStep("grammar"); markStudy(); save();
+    $("#gscore").textContent = `이번 ${Math.round(sc*100)}% · 최고 ${Math.round(st.g*100)}%`;
+    renderUnits(); renderStats(); renderLunch();
+    toast(sc >= .8 ? "좋아요! 한 번에 맞힌 비율 " + Math.round(sc*100) + "%" : "틀린 문항은 설명을 다시 읽어 보세요");
+  }
+  wireAsk(u, "grammar");
+}
+
+/* ---- reading ---- */
+function renderReading(u, body){
+  const r = u.reading, st = unitState(u.id);
+  body.innerHTML = `<div class="reading">
+    <div style="display:flex;flex-direction:column;gap:10px;min-width:0">
+      <div class="row-gap"><h3 class="fr" style="flex:1">${esc(r.title)}</h3><button class="btn" data-say="${esc(r.text)}">${SPK.replace('aria-hidden="true"','aria-hidden="true" style="width:14px;height:14px;vertical-align:-2px"')} 전체 듣기</button></div>
+      <div class="text">${esc(r.text)}</div>
+      <div class="row-gap"><button class="btn ghost" id="trbtn">한국어 번역 보기</button><span class="muted" style="font-size:12px">먼저 프랑스어로 끝까지 읽고 문제를 푼 뒤 번역을 확인하세요.</span></div>
+      <div class="trans" id="trans" hidden>${esc(r.ko)}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;min-width:0"><h3>이해 확인 ${st.r ? '<span class="pill">완료</span>' : ""}</h3><div class="quiz" id="rq"></div></div>
+  </div>${askBox(u,"reading")}`;
+  $("#trbtn").onclick = () => { const t = $("#trans"); t.hidden = !t.hidden; $("#trbtn").textContent = t.hidden ? "한국어 번역 보기" : "번역 숨기기"; };
+  let answered = 0;
+  r.qs.forEach((it, qi) => {
+    const d = document.createElement("div"); d.className = "q";
+    d.innerHTML = `<div class="qt"><span class="fr">${qi+1}. ${esc(it.q)}</span></div><div class="opts">${it.o.map((o,oi) => `<button class="opt" data-oi="${oi}">${esc(o)}</button>`).join("")}</div>`;
+    let done = false;
+    d.querySelectorAll(".opt").forEach(b => b.onclick = () => { if (done) return;
+      if (+b.dataset.oi === it.a){ b.classList.add("right"); done = true; answered++;
+        if (answered === r.qs.length){ st.r = true; lunchStep("reading"); markStudy(); save(); renderUnits(); renderLunch(); renderStats(); toast("읽기 완료!"); } }
+      else b.classList.add("wrong"); });
+    $("#rq").appendChild(d);
+  });
+  wireAsk(u, "reading");
+}
+
+/* ---- writing ---- */
+function renderWriting(u, body){
+  const w = u.writing, st = unitState(u.id), draft = S.drafts[u.id] || "";
+  body.innerHTML = `
+    <div class="prose"><h3 style="margin-bottom:6px">과제</h3><p>${esc(w.prompt)}</p>
+      <div class="chips" aria-label="넣어 볼 표현">${w.must.map(m => `<span class="chip fr">${esc(m)}</span>`).join("")}</div></div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <label for="wr${u.id}" class="muted" style="font-size:13px">카이에(cahier)에 써 보세요. 초안은 자동 저장됩니다.</label>
+      <textarea class="seyes" id="wr${u.id}" spellcheck="false" lang="fr">${esc(draft)}</textarea>
+      ${accentBar()}
+      <div class="row-gap" style="justify-content:space-between">
+        <span class="mono muted" id="wc" style="font-size:13px"></span>
+        <div class="row-gap">
+          <button class="btn ghost" id="mbtn">모범 답안 보기</button>
+          <button class="btn" id="donebtn">${st.w ? "완료됨 ✓" : "다 썼어요"}</button>
+          <button class="btn primary" id="aibtn" hidden>Claude에게 첨삭 받기</button>
+        </div>
+      </div>
+    </div>
+    <div id="model" hidden><div class="muted" style="font-size:13px;margin-bottom:4px">모범 답안 (가상 예시) · 정답은 하나가 아니에요</div><div class="model">${esc(w.model)}</div>
+      <button class="btn ghost" data-say="${esc(w.model)}" style="margin-top:6px">답안 듣기</button></div>
+    <div id="fb"></div>
+    ${askBox(u,"writing")}`;
+  const ta = $("#wr"+u.id), wc = $("#wc");
+  const count = () => { const n = (ta.value.match(/[A-Za-zÀ-ÿœŒ']+/g) || []).length; const s = (ta.value.match(/[.!?]+/g) || []).length; wc.textContent = `${n}단어 · ${s}문장`; };
+  count();
+  ta.oninput = () => { S.drafts[u.id] = ta.value; count(); clearTimeout(ta._t); ta._t = setTimeout(save, 600); };
+  $("#mbtn").onclick = () => { const m = $("#model"); m.hidden = !m.hidden; $("#mbtn").textContent = m.hidden ? "모범 답안 보기" : "모범 답안 숨기기"; };
+  $("#donebtn").onclick = () => { if (ta.value.trim().length < 20){ toast("두세 문장 이상 써 보고 눌러 주세요"); return; } st.w = true; lunchStep("writing"); markStudy(); save(); $("#donebtn").textContent = "완료됨 ✓"; renderUnits(); renderLunch(); renderStats(); };
+  const ai = $("#aibtn");
+  if (SAMPLE){ ai.hidden = false; ai.onclick = () => aiFeedback(u, ta.value); }
+  wireAsk(u, "writing");
+}
+async function aiFeedback(u, text){
+  const fb = $("#fb"), ai = $("#aibtn");
+  if (text.trim().length < 15){ toast("조금 더 써 본 다음 첨삭을 받아 보세요"); return; }
+  ai.disabled = true; fb.innerHTML = `<div class="fbbox muted">Claude가 읽고 있어요…</div>`;
+  const prompt = `You are a warm, precise French tutor. The learner is a Korean adult professional studying French at CEFR A1–A2 during lunch breaks.
+Unit: ${u.fr} (${u.ko}). Grammar focus: ${u.grammar.title}.
+Task given to the learner (Korean): ${u.writing.prompt}
+Target structures: ${u.writing.must.join("; ")}
+Learner's text:
+"""
+${text}
+"""
+Return ONLY a JSON object with these keys:
+- "corrected": the learner's text with minimal corrections (keep their ideas, wording and line breaks; fix only real errors).
+- "errors": array of at most 8 objects {"original": the exact wrong fragment, "correction": the fixed fragment, "explanation": 1–2 sentences in Korean explaining the rule at A2 level}.
+- "strength": one specific thing they did well, in Korean.
+- "next_tip": one concrete thing to practise next, in Korean, tied to this unit.
+- "used_targets": array of the target structures they actually used.
+Rules: do not flag stylistic preferences as errors; if the text is correct, return an empty errors array and say so; if the text is not French, say so kindly in "strength". Never invent rules; if a point is genuinely debatable, say it is acceptable.`;
+  try {
+    const r = await SAMPLE.json(prompt, { modelTier:"default" });
+    const errs = Array.isArray(r.errors) ? r.errors : [];
+    fb.innerHTML = `<div class="fbbox">
+      <div class="row-gap" style="justify-content:space-between"><b>첨삭 결과</b><span class="muted" style="font-size:12px">AI 첨삭이라 틀릴 수 있어요. 의심되면 '튜터에게 질문'으로 다시 물어보세요.</span></div>
+      <div class="corr">${esc(r.corrected || "")}</div>
+      ${errs.length ? errs.map(e => `<div class="err"><s>${esc(e.original||"")}</s><ins>→ ${esc(e.correction||"")}</ins><span class="why">${esc(e.explanation||"")}</span></div>`).join("") : `<div class="fb ok">고칠 곳이 없어요. Très bien !</div>`}
+      <div class="tip"><b>잘한 점</b> · ${esc(r.strength || "")}</div>
+      <div class="note"><b>다음 연습</b> · ${esc(r.next_tip || "")}</div>
+      ${Array.isArray(r.used_targets) && r.used_targets.length ? `<div class="chips">${r.used_targets.map(t => `<span class="chip fr">✓ ${esc(t)}</span>`).join("")}</div>` : ""}
+    </div>`;
+    markStudy(); save();
+  } catch(e){
+    const msg = e && e.code === "rate_limited" ? "요청이 많아요. 잠시 뒤 다시 눌러 주세요." : e && e.code === "not_granted" ? "Claude 첨삭 권한이 꺼져 있어요. 모범 답안과 비교해 보세요." : "첨삭을 받지 못했어요. 잠시 뒤 다시 시도해 주세요.";
+    fb.innerHTML = `<div class="fbbox fb no">${msg}</div>`;
+    if (e && e.code === "not_granted") ai.hidden = true;
+  } finally { ai.disabled = false; }
+}
+
+/* ---- ask the tutor (Claude) ---- */
+function askBox(u, where){
+  return `<div class="ask" data-ask="${where}" hidden>
+    <h3>튜터에게 질문</h3>
+    <span class="muted" style="font-size:13px">이 단원과 관련된 무엇이든 한국어로 물어보세요. 예: "son과 sa는 소유자의 성별과 상관없나요?"</span>
+    <textarea id="ask-${u.id}-${where}" placeholder="질문을 입력하세요"></textarea>
+    <div class="row-gap"><button class="btn primary" data-askgo>질문하기</button></div>
+    <div class="answer" data-ans hidden></div></div>`;
+}
+function wireAsk(u, where){
+  const box = document.querySelector(`[data-ask="${where}"]`); if (!box || !SAMPLE) return;
+  box.hidden = false;
+  const ta = $("textarea", box), out = $("[data-ans]", box), go = $("[data-askgo]", box);
+  go.onclick = async () => {
+    const q = ta.value.trim(); if (!q) return;
+    go.disabled = true; out.hidden = false; out.textContent = "생각하는 중…";
+    const ctx = where === "reading" ? `\nReading text the learner is looking at:\n${u.reading.text}` : where === "writing" ? `\nWriting task: ${u.writing.prompt}` : "";
+    const prompt = `You are a patient French tutor for a Korean adult learner (CEFR A1–A2). Answer in Korean, concisely (under 180 words), with 1–3 short French examples each followed by a Korean translation.
+Unit: ${u.fr} (${u.ko}). Grammar focus: ${u.grammar.title}.${ctx}
+Be accurate. If something varies by register or region, say so. If you are not sure, say you are not sure instead of guessing. Do not cite sources you cannot name precisely.
+Learner's question: ${q}`;
+    try { await SAMPLE(prompt, { modelTier:"default", onText: ({text}) => { out.textContent = text; } }); markStudy(); save(); }
+    catch(e){ out.textContent = e && e.code === "rate_limited" ? "요청이 많아요. 잠시 뒤 다시 질문해 주세요." : "답을 받지 못했어요. 잠시 뒤 다시 시도해 주세요."; }
+    finally { go.disabled = false; }
+  };
+}
+
+/* ============================== BOOT ============================== */
+function renderAll(){ renderStats(); renderLunch(); renderUnits(); renderPanel(); }
+renderAll();
+
+(async function connect(){
+  if (!window.claude || !window.claude.use) { $("#syncnote").textContent = "진도는 이 브라우저에만 저장됩니다."; return; }
+  const [db, user, sample, tts] = await Promise.all(["db","user","sample","tts"].map(n => window.claude.use(n).catch(() => null)));
+  TTS = tts; SAMPLE = sample;
+  if (SAMPLE && S.view.unit !== "review" && (S.view.tab === "writing" || S.view.tab === "grammar" || S.view.tab === "reading")) renderPanel();
+  if (db && user){
+    try {
+      const uid = await user.id();
+      remote = db.doc("data/users/" + uid + "/progress");
+      const snap = await remote.get();
+      if (snap.exists){ const d = snap.data(); if (d && d.json && (d.at||0) > (S.at||0)){ const v = S.view; S = Object.assign(blankState(), JSON.parse(d.json)); S.view = v; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} renderAll(); } else if ((S.at||0) > (d.at||0)) pushRemote(); }
+      else if (S.at) pushRemote();
+      $("#syncnote").textContent = "진도는 내 계정에 비공개로 저장되어, 회사 PC와 휴대폰에서 이어서 볼 수 있습니다.";
+    } catch(e){ remote = null; $("#syncnote").textContent = "진도는 이 브라우저에만 저장됩니다."; }
+  } else $("#syncnote").textContent = "진도는 이 브라우저에만 저장됩니다.";
+})();
+</script>
