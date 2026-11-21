@@ -11,63 +11,7 @@ from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.utils import get_column_letter as CL
 
 rng = random.Random(20261121)
-clamp = lambda x, a=0.0, b=1.0: min(b, max(a, x))
-to_lin = lambda c: c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
-to_gam = lambda c: 12.92 * c if c <= 0.0031308 else 1.055 * c ** (1 / 2.4) - 0.055
-
-def oklab_to_lin(L, a, b):
-    l_ = L + 0.3963377774 * a + 0.2158037573 * b
-    m_ = L - 0.1055613458 * a - 0.0638541728 * b
-    s_ = L - 0.0894841775 * a - 1.2914855480 * b
-    l, m, s = l_ ** 3, m_ ** 3, s_ ** 3
-    return [4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
-            -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
-            -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s]
-
-def lin_to_oklab(rgb):
-    r, g, b = rgb
-    l = (0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b) ** (1 / 3)
-    m = (0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b) ** (1 / 3)
-    s = (0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b) ** (1 / 3)
-    return [0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s,
-            1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s,
-            0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s]
-
-ok = lambda rgb: all(-1e-4 <= c <= 1 + 1e-4 for c in rgb)
-
-def oklch(L, C, H):
-    h = math.radians(H % 360)
-    rgb = oklab_to_lin(L, C * math.cos(h), C * math.sin(h))
-    if not ok(rgb):
-        lo, hi = 0.0, C
-        for _ in range(20):
-            mid = (lo + hi) / 2
-            if ok(oklab_to_lin(L, mid * math.cos(h), mid * math.sin(h))): lo = mid
-            else: hi = mid
-        rgb = oklab_to_lin(L, lo * math.cos(h), lo * math.sin(h))
-    return tuple(round(clamp(to_gam(clamp(c))) * 255) for c in rgb)
-
-hexof = lambda rgb: '%02X%02X%02X' % rgb
-rgbof = lambda h: tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
-linof = lambda rgb: [to_lin(v / 255) for v in rgb]
-def lum(rgb):
-    r, g, b = linof(rgb); return 0.2126 * r + 0.7152 * g + 0.0722 * b
-def contrast(a, b):
-    x, y = lum(a), lum(b); return (max(x, y) + 0.05) / (min(x, y) + 0.05)
-
-CVD = {'deutan': [[0.367322, 0.860646, -0.227968], [0.280085, 0.672501, 0.047413], [-0.011820, 0.042940, 0.968881]]}
-def simulate(h, mode):
-    rgb = rgbof(h)
-    if mode == 'none': return h
-    if mode == 'gray':
-        y = round(clamp(to_gam(lum(rgb))) * 255); return hexof((y, y, y))
-    lin = linof(rgb)
-    out = [sum(M * c for M, c in zip(row, lin)) for row in CVD[mode]]
-    return hexof(tuple(round(clamp(to_gam(clamp(c))) * 255) for c in out))
-
-def min_dist(hs, mode):
-    labs = [lin_to_oklab(linof(rgbof(simulate(h, mode)))) for h in hs]
-    return min(math.dist(labs[i], labs[j]) for i in range(len(labs)) for j in range(i + 1, len(labs))) * 100
+from colorlib import *
 
 # ---- generators (ported from the web tool) ----
 r = lambda a, b: a + rng.random() * (b - a)
@@ -344,29 +288,22 @@ for i, (kind, t) in enumerate(lines, 1):
 
 # == Theme colors: ready-made pack + live XML from the random sheet ==
 import zipfile
-def theme_xml(name, cols6):
-    acc = ''.join(f"<a:accent{i+1}><a:srgbClr val='{h}'/></a:accent{i+1}>" for i, h in enumerate(cols6))
-    return ("<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"
-            f"<a:clrScheme xmlns:a='http://schemas.openxmlformats.org/drawingml/2006/main' name='{name}'>"
-            "<a:dk1><a:sysClr val='windowText' lastClr='000000'/></a:dk1><a:lt1><a:sysClr val='window' lastClr='FFFFFF'/></a:lt1>"
-            "<a:dk2><a:srgbClr val='44546A'/></a:dk2><a:lt2><a:srgbClr val='E7E6E6'/></a:lt2>"
-            f"{acc}<a:hlink><a:srgbClr val='0563C1'/></a:hlink><a:folHlink><a:srgbClr val='954F72'/></a:folHlink></a:clrScheme>")
-
-pack = [('CP 01 Okabe-Ito', ['E69F00', '56B4E9', '009E73', 'F0E442', '0072B2', 'D55E00'], 'Okabe & Ito (2008) 색맹 친화 표준')]
+MOOD_SLUG = {'균형': 'balanced', '학술지': 'academic', '선명': 'vivid', '파스텔': 'pastel', '유사색': 'analogous', '보색': 'complementary'}
+base = [('Okabe-Ito', 'okabe-ito', ['E69F00', '56B4E9', '009E73', 'F0E442', '0072B2', 'D55E00'], 'Okabe & Ito (2008) 색맹 친화 표준')]
 cat6 = [p_ for p_ in pals if p_[0] == '범주형-6']
 for mood in [m[0] for m in MOODS]:
     cands = [p_ for p_ in cat6 if p_[4] == mood]
     best = max(cands, key=lambda p_: min(min_dist(p_[5], 'none'), min_dist(p_[5], 'deutan')))
-    pack.append((f'CP {len(pack)+1:02d} {mood}', best[5], f'범주형 · {mood} (목록 범주형-6 #{best[3]})'))
-for key, desc in (('순차형-6', '순차형 (누적 막대·단계 비교용)'), ('발산형-6', '발산형 (증감·찬반 비교용)')):
-    for p_ in [x for x in pals if x[0] == key][:2]:
-        pack.append((f'CP {len(pack)+1:02d} {key.split("-")[0]}{p_[3]}', p_[5], f'{desc} (목록 {key} #{p_[3]})'))
-
-ASCII = {'Okabe-Ito': 'okabe-ito', '균형': 'balanced', '학술지': 'academic', '선명': 'vivid', '파스텔': 'pastel', '유사색': 'analogous', '보색': 'complementary', '순차형1': 'sequential1', '순차형2': 'sequential2', '발산형1': 'diverging1', '발산형2': 'diverging2'}
+    base.append((mood, MOOD_SLUG[mood], best[5], f'범주형 · {mood} (목록 범주형-6 #{best[3]})'))
+base += [(n.replace('CP ', '', 1), slug, c, d) for n, slug, k, c, d in CURATED]
+pack, files = [], []
+for idx, (label, slug, cols, desc) in enumerate(base, 1):
+    pack.append((f'CP {idx:02d} {label}', cols, desc))
+    files.append(f'CP{idx:02d}_{slug}.xml')
 zpath = os.path.join(os.path.dirname(os.path.abspath(__file__)), '테마색_팩.zip')
 with zipfile.ZipFile(zpath, 'w', zipfile.ZIP_DEFLATED) as z:
-    for name, cols, _ in pack:
-        z.writestr(name.split(' ')[0] + name.split(' ')[1] + '_' + ASCII.get(name.split(' ', 2)[2], 'theme') + '.xml', theme_xml(name, cols).encode('utf-8'))
+    for fn, (name, cols, _) in zip(files, pack):
+        z.writestr(fn, theme_xml(name, cols).encode('utf-8'))
 
 th = wb.create_sheet('테마색', 1)
 th.sheet_view.showGridLines = False
