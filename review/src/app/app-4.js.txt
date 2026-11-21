@@ -1,4 +1,4 @@
-/* PsyStat 화면(UI) 코드 — 조각 4/4: 네트워크 분석·데이터 화면·화면 전환·시작
+/* PsyStat 화면(UI) 코드 — 조각 4/5: 네트워크 분석·데이터 화면·화면 전환·시작
  * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다.
  * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 코드는 분할 전과 동일) */
 (function (G) {
@@ -254,6 +254,7 @@
       ['West, S. G., Finch, J. F., & Curran, P. J. (1995). Structural equation models with nonnormal variables. In R. H. Hoyle (Ed.), Structural equation modeling (pp. 56–75). Sage.', 'https://psycnet.apa.org/record/1995-97753-004'],
       ['Williams, D. R., & Rast, P. (2020). Back to the basics: Rethinking partial correlation network methodology. British Journal of Mathematical and Statistical Psychology, 73(2), 187–212.', 'https://doi.org/10.1111/bmsp.12173']
     ];
+    refs = refs.concat(NS.extraRefs || []).sort(function (a, b) { return a[0] < b[0] ? -1 : 1; }); // 다른 조각이 더한 참고문헌 포함
     var res = $('#results'), pv = $('.datapreview', res); if (pv) pv.remove();
     if (savedResults && savedResults.childNodes.length) { res.appendChild(savedResults); savedResults = null; }
     addCard('참고문헌', '<ul style="padding-left:18px;margin:0">' + refs.map(function (r) { return '<li style="margin-bottom:6px">' + esc(r[0]) + ' <span class="note">' + esc(r[1]) + '</span></li>'; }).join('') + '</ul>' +

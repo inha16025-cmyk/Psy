@@ -1,7 +1,7 @@
 PsyStat 검토 안내문 (내부망 보안·오픈소스 검토용)
 ====================================================
 
-작성일: 2026-11-20 / 버전: 0.6.1
+작성일: 2026-11-21 / 버전: 0.7.0
 작성: 사용자 요청으로 AI 코딩 도우미(Claude)가 작성. 아래 사실관계는 코드 검색 결과에 근거함.
 
 
@@ -15,14 +15,15 @@ PsyStat 검토 안내문 (내부망 보안·오픈소스 검토용)
 
 2. 파일 구성
 -----------
-  PsyStat.html.txt          실제 사용할 파일(단일 파일판, 298,346바이트). 확장자만 .txt로 바꾼 것으로 내용은 바이트 단위로 동일.
+  PsyStat.html.txt          실제 사용할 파일(단일 파일판, 345,921바이트). 확장자만 .txt로 바꾼 것으로 내용은 바이트 단위로 동일.
                             (검토·승인 후 이름을 PsyStat.html로 바꾸면 그대로 실행됨)
   split/PsyStat.html.txt + split/PsyStat-engine.js.txt
                             분할판(두 파일을 같은 폴더에 두고 사용). 기능·코드 동일.
   src/stats/stats-1.js.txt  통계 계산 엔진 조각 1: 특수함수·분포·행렬·기초통계·검정·회귀·신뢰도 (863줄)
   src/stats/stats-2.js.txt  통계 계산 엔진 조각 2: 네트워크·다분상관·조절·매개·다변량 (951줄)
+  src/stats/stats-3.js.txt  통계 계산 엔진 조각 3: 잠재프로파일·잠재계층 (282줄)
   src/sem.js.txt            구조방정식 엔진 (506줄)
-  src/app/app-1~4.js.txt    화면(UI) 코드 조각 1~4 (합계 1,628줄)
+  src/app/app-1~5.js.txt    화면(UI) 코드 조각 1~5 (합계 1,810줄)
   src/style.css.txt         화면 서식
   src/index.template.html.txt  HTML 틀
   src/stats.js.txt          Node.js 검증용 로더(조각을 불러오기만 함; 브라우저에서는 쓰지 않음)
@@ -66,7 +67,7 @@ PsyStat 검토 안내문 (내부망 보안·오픈소스 검토용)
 
   [사용하는 브라우저 기능]
   - localStorage: 1곳. 구조방정식 화면에 입력한 "모형 문법 텍스트"만 저장해 다음에 다시 보여준다.
-    분석 자료(데이터)는 저장하지 않는다. (src/app/app-3.js.txt 122, 135행)
+    분석 자료(데이터)는 저장하지 않는다. (src/app/app-3.js.txt 의 구조방정식 화면 코드 2곳)
   - document.execCommand('copy'): 사용자가 [복사] 버튼을 눌렀을 때 결과표를 클립보드에 넣는다.
   - URL.createObjectURL(Blob): 사용자가 [결과 저장]·[그림 저장]을 눌렀을 때 PC에 파일로 내려받게 한다.
   - FileReader: 사용자가 직접 고른 CSV/XLSX 파일만 읽는다.
@@ -111,7 +112,7 @@ PsyStat 검토 안내문 (내부망 보안·오픈소스 검토용)
 5. 정확성 검증
 -------------
   외부망 개발 환경에서 R 4.x(stats, car, psych, MASS, qgraph, glasso, lavaan 0.6-17)와
-  Python(scipy, pingouin) 결과와 2,608개 수치를 자동 대조해 모두 일치했다(허용오차 내).
+  Python(scipy, pingouin) 결과와 3,109개 수치를 자동 대조해 모두 일치했다(허용오차 내). 잠재프로파일은 mclust, 잠재계층은 flexmix와 대조했다.
   검증 스크립트는 저장소 tests/ 폴더에 있다(이 묶음에는 포함하지 않음).
 
 

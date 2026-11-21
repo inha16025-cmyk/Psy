@@ -171,6 +171,32 @@ const ref = require('./reference.json');
   check('SEM 문법 오류 안내', (await lastCard()).includes('자료에 없습니다'));
   await page.locator('#results .card').first().locator('[data-act=del]').click();
 
+  // 잠재프로파일 → 해 보기 → 소속 변수 저장 → 프로파일별 ANOVA (앞 단계에서 자료가 바뀌었으므로 예시 자료를 다시 불러옴)
+  await page.click('#exBtn');
+  await nav('lpa'); await pick('vl', ['수면', '스트레스', '사회적지지']); await page.selectOption('#kmax', '3'); await page.fill('#nst', '15'); await page.fill('#nbl', '20'); await run();
+  await page.waitForFunction(() => { const c = [...document.querySelectorAll('#results .card')][0].querySelectorAll('.blrt'); return c.length && [...c].every(e => !e.textContent.startsWith('계산')) && [...c].some(e => /\d/.test(e.textContent)); }, null, { timeout: 180000 });
+  const lp = await lastCard();
+  check('LPA 모형 비교 + BLRT', lp.includes('잠재프로파일 모형 비교') && lp.includes('엔트로피') && lp.includes('SABIC'));
+  await page.locator('#results .card').first().screenshot({ path: path.join(outDir, '11_lpa.png') });
+  await page.locator('#results .card').first().locator('[data-act=detail]').click(); await page.waitForTimeout(300);
+  const ld2 = await lastCard();
+  check('LPA 해 상세', ld2.includes('프로파일별 지표 평균') && ld2.includes('평균 사후확률'));
+  await page.locator('#results .card').first().screenshot({ path: path.join(outDir, '12_lpa_detail.png') });
+  await page.locator('#results .card').first().locator('[data-act=save-class]').click();
+  const added = await page.textContent('#datainfo');
+  check('소속 프로파일 변수 추가', added.includes('15변수'), added);
+  await nav('anova'); await pick('dv', ['우울1']);
+  const gopt = await page.evaluate(() => [...document.querySelectorAll('#g option')].map(o => o.textContent).filter(t => t.startsWith('LPA_')));
+  await sel('g', gopt[0]); await run();
+  check('프로파일별 ANOVA', (await lastCard()).includes('분산분석표'), gopt[0]);
+  // 잠재계층 (리커트 문항)
+  await nav('lpa'); await page.check('input[name=lk][value=LCA]'); await page.dispatchEvent('input[name=lk][value=LCA]', 'change');
+  await pick('vc', ['우울1', '우울2', '우울3', '불안1']); await page.selectOption('#kmax', '3'); await page.fill('#nst', '15'); await run();
+  const lc = await lastCard();
+  check('LCA 모형 비교', lc.includes('잠재계층 모형 비교') && lc.includes('G²'));
+  await page.locator('#results .card').first().locator('[data-act=detail]').click(); await page.waitForTimeout(300);
+  check('LCA 해 상세 (문항 응답확률)', (await lastCard()).includes('계층별 문항 응답확률'));
+
   // 실제 데이터(bfi) 붙여넣기 → 네트워크 결과가 qgraph와 같은지 화면 경로로 확인
   const N = ref.network, items = Object.keys(N.data);
   const tsv = [items.join('\t')].concat(N.data[items[0]].map((_, r) => items.map(k => N.data[k][r]).join('\t'))).join('\n');
