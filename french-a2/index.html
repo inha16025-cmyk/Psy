@@ -175,7 +175,42 @@ table.g td.fr{color:var(--ink)}
 .refs a{overflow-wrap:anywhere}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--paper);padding:8px 16px;border-radius:999px;font-size:14px;z-index:20;max-width:calc(100% - 32px)}
 
+/* modes + reader */
+.modes{display:flex;gap:8px;flex-wrap:wrap}
+.mode{border:1px solid var(--line2);background:var(--surface);border-radius:999px;padding:6px 14px;font-weight:600;font-size:14px;display:flex;gap:8px;align-items:center}
+.mode:hover{border-color:var(--ink)}
+.mode.on{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.mode .mono{font-size:12px;font-weight:400;opacity:.8}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field label{font-size:12px;color:var(--muted);letter-spacing:.04em}
+.field input,.paste{font:inherit;padding:7px 10px;border:1px solid var(--line2);border-radius:8px;background:var(--surface);color:var(--fg);min-width:0;width:100%}
+.paste{min-height:180px;resize:vertical;font-family:var(--f-display);font-size:16px;line-height:1.6}
+.form-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.arts{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.art{border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;text-align:left;background:var(--surface);display:flex;flex-direction:column;gap:4px;min-width:0}
+.art:hover{border-color:var(--ink)}
+.art .t{font-family:var(--f-display);font-size:17px;line-height:1.3;overflow-wrap:anywhere}
+.art .m{font-size:12px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap}
+.reader2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:20px;align-items:start}
+.tok{cursor:pointer;border-radius:3px}
+.tok:hover{background:var(--ink-soft)}
+.tok.gl{text-decoration:underline dotted var(--ink);text-underline-offset:4px;text-decoration-thickness:2px}
+.tok.known{background:var(--ok-soft);color:var(--ok)}
+.tok.sel{outline:2px solid var(--ink)}
+.wp{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);border:1px solid var(--line2);border-radius:var(--r);padding:14px 16px;background:var(--surface);display:flex;flex-direction:column;gap:8px}
+.wp .w{font-family:var(--f-display);font-size:28px;color:var(--ink);line-height:1.1;overflow-wrap:anywhere}
+.legend{display:flex;flex-direction:column;gap:4px;font-size:13px}
+.legend span b{font-weight:500}
+.glist{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.gitem{border:1px solid var(--line);border-radius:8px;padding:8px 10px;display:flex;justify-content:space-between;gap:8px;align-items:flex-start;min-width:0}
+.gitem .fr{color:var(--ink)}
+.gitem div{min-width:0;overflow-wrap:anywhere}
+.small{font-size:13px}
+.danger{color:var(--red);border-color:var(--red)}
+
 @media (max-width:760px){
+  .reader2,.form-grid{grid-template-columns:1fr}
+  .wp{position:sticky;top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);box-shadow:0 -6px 24px rgba(0,0,0,.12);max-height:45vh;overflow:auto}
   .units{grid-template-columns:repeat(3,minmax(0,1fr))}
   .steps{grid-template-columns:repeat(2,minmax(0,1fr))}
   .lunch{grid-template-columns:1fr}
@@ -198,6 +233,8 @@ table.g td.fr{color:var(--ink)}
   </header>
 
   <section class="lunch" id="lunch" aria-label="오늘의 점심 세션"></section>
+
+  <nav class="modes" id="modes" aria-label="도구"></nav>
 
   <nav class="units" id="units" aria-label="단원"></nav>
 
@@ -964,7 +1001,7 @@ const BOX_DAYS = [0, 0, 1, 3, 7, 16]; // index = box (1..5)
 const today = () => { const d = new Date(); d.setHours(0,0,0,0); return d.getTime(); };
 const DAY = 86400000;
 
-function blankState(){ return { cards:{}, units:{}, drafts:{}, streak:{last:0,n:0}, lunchDone:{date:0,steps:{}}, view:{unit:1,tab:"vocab"}, at:0 }; }
+function blankState(){ return { cards:{}, units:{}, drafts:{}, custom:{}, streak:{last:0,n:0}, lunchDone:{date:0,steps:{}}, view:{unit:1,tab:"vocab"}, at:0 }; }
 let S = blankState();
 try { const raw = localStorage.getItem(KEY); if (raw) S = Object.assign(blankState(), JSON.parse(raw)); } catch(e) {}
 
@@ -1038,6 +1075,7 @@ function dueCards(unitId){
     u.vocab.forEach((v,i) => { const id = cardId(u.id,i), c = card(id);
       if (unitId) { if (!c || c.d <= t) list.push(id); }
       else if (c && c.d <= t) list.push(id); }); });
+  if (!unitId) Object.keys(S.custom).forEach(k => { const id = "n-" + k, c = card(id); if (!c || c.d <= t) list.push(id); });
   return list;
 }
 function grade(id, ok){
@@ -1048,7 +1086,10 @@ function grade(id, ok){
   c.d = ok ? (BOX_DAYS[c.b] ? today() + BOX_DAYS[c.b] * DAY : Date.now() + 10 * 60000) : Date.now() + 60000;
   S.cards[id] = c; markStudy(); save();
 }
-function findVocab(id){ const [u,i] = id.split("-").map(Number); const U = UNITS.find(x => x.id === u); return { U, v: U.vocab[i] }; }
+function findVocab(id){
+  if (id.startsWith("n-")){ const w = S.custom[id.slice(2)]; return w ? { label:"내 단어장 · " + (w.srcTitle || "직접 추가"), v:[w.fr, w.ko, w.ex || "", w.exKo || ""] } : null; }
+  const [u,i] = id.split("-").map(Number); const U = UNITS.find(x => x.id === u); return { label: U.id + "단원", v: U.vocab[i] };
+}
 function unitProgress(u){
   const st = unitState(u.id);
   const learned = u.vocab.filter((_,i) => (card(cardId(u.id,i))||{}).b >= 2).length;
@@ -1063,7 +1104,7 @@ function renderStats(){
   const streak = (S.streak.last >= today() - DAY) ? S.streak.n : 0;
   $("#stats").innerHTML = `
     <div class="stat"><b>${streak}</b><span>연속 학습일</span></div>
-    <div class="stat"><b>${learned}<small class="muted"> / ${UNITS.length*10}</small></b><span>익힌 단어</span></div>
+    <div class="stat"><b>${learned}<small class="muted"> / ${UNITS.length*10 + Object.keys(S.custom).length}</small></b><span>익힌 단어</span></div>
     <div class="stat"><b>${due}</b><span>오늘 복습</span></div>`;
 }
 function nextUnit(){ for (const u of UNITS){ const p = unitProgress(u); if (!(p.vocab && p.gram && p.read && p.write)) return u; } return UNITS[UNITS.length-1]; }
@@ -1116,7 +1157,10 @@ function renderUnits(){
 const TABS = [["vocab","단어"],["grammar","문법"],["reading","읽기"],["writing","작문"]];
 function renderPanel(){
   const P = $("#panel");
+  renderModes();
   if (S.view.unit === "review") { renderReview(P); return; }
+  if (S.view.unit === "reader") { renderReader(P); return; }
+  if (S.view.unit === "words") { renderWords(P); return; }
   const u = UNITS.find(x => x.id === S.view.unit) || UNITS[0];
   P.innerHTML = `
     <div class="panel-head">
@@ -1135,14 +1179,15 @@ function renderPanel(){
 function flashDeck(host, queue, onEmpty){
   let revealed = false;
   function draw(){
+    while (queue.length && !findVocab(queue[0])) queue.shift();
     if (!queue.length){ host.innerHTML = onEmpty(); return; }
-    const id = queue[0], { U, v } = findVocab(id), c = card(id);
+    const id = queue[0], { label, v } = findVocab(id), c = card(id);
     host.innerHTML = `
       <div class="card">
-        <div class="meta"><span class="mono">${U.id}단원 · ${c ? "상자 "+c.b : "새 카드"}</span><span class="mono">남은 카드 ${queue.length}</span></div>
+        <div class="meta"><span class="mono">${esc(label)} · ${c ? "상자 "+c.b : "새 카드"}</span><span class="mono">남은 카드 ${queue.length}</span></div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><div class="word">${esc(v[0])}</div><button class="icon-btn" data-say="${esc(v[0])}" aria-label="발음 듣기">${SPK}</button></div>
         ${revealed ? `<div class="meaning">${esc(v[1])}</div>
-          <div class="exs"><span class="fr">${esc(v[2])}</span> <button class="icon-btn" data-say="${esc(v[2])}" aria-label="예문 듣기" style="width:26px;height:26px">${SPK}</button><br><span class="muted">${esc(v[3])}</span></div>`
+          ${v[2] ? `<div class="exs"><span class="fr">${esc(v[2])}</span> <button class="icon-btn" data-say="${esc(v[2])}" aria-label="예문 듣기" style="width:26px;height:26px">${SPK}</button><br><span class="muted">${esc(v[3])}</span></div>` : ""}`
           : `<div class="muted">뜻을 먼저 떠올려 본 다음 확인하세요. 떠올리려고 애쓰는 과정 자체가 기억을 단단하게 합니다.</div>`}
         <div class="card-actions">${revealed
           ? `<button class="btn" id="cno">다시 볼래요</button><button class="btn primary" id="cyes">알았어요</button>`
@@ -1181,7 +1226,7 @@ function renderReview(P){
   P.innerHTML = `<div class="panel-head"><span class="muted mono" style="font-size:12px">RÉVISION</span><h2>오늘의 복습 카드</h2>
     <div class="cando">지난 단원에서 복습일이 된 단어만 모았습니다. 새 단어는 각 단원의 '단어' 탭에서 시작하세요.</div><div class="tabs"></div></div>
     <div class="panel-body"><div class="deck"><div id="deckhost"></div><div id="side"></div></div></div>`;
-  const all = UNITS.flatMap(u => u.vocab.map((_,i) => cardId(u.id,i))).filter(id => card(id));
+  const all = UNITS.flatMap(u => u.vocab.map((_,i) => cardId(u.id,i))).filter(id => card(id)).concat(Object.keys(S.custom).map(k => "n-" + k));
   refreshSide = () => { $("#side").innerHTML = all.length ? boxesHtml(all) : `<p class="muted">아직 공부한 카드가 없어요.</p>`; renderStats(); renderUnits(); };
   refreshSide();
   flashDeck($("#deckhost"), queue, () => { lunchStep("review"); save(); renderLunch();
@@ -1352,6 +1397,307 @@ Learner's question: ${q}`;
   };
 }
 
+/* ============================== MODES ============================== */
+function renderModes(){
+  const v = S.view.unit, nw = Object.keys(S.custom).length;
+  $("#modes").innerHTML = `
+    <button class="mode ${v==="review"?"on":""}" data-mode="review">복습 카드 <span class="mono">${dueCards().length}</span></button>
+    <button class="mode ${v==="reader"?"on":""}" data-mode="reader">기사 리더 <span class="mono">${ARTS.length}</span></button>
+    <button class="mode ${v==="words"?"on":""}" data-mode="words">내 단어장 <span class="mono">${nw}</span></button>`;
+  $("#modes").querySelectorAll("[data-mode]").forEach(b => b.onclick = () => {
+    S.view = { unit:b.dataset.mode, tab:b.dataset.mode, art:null }; save(); renderUnits(); renderPanel(); });
+}
+
+/* ============================== ARTICLE STORE ============================== */
+/* Pasted articles stay in the viewer's own private space (db under data/users/<id>, or this browser). They are never part of the page. */
+const ART_KEY = "carnet-fr-a2-articles";
+let ARTS = [], artRemote = null;
+try { ARTS = JSON.parse(localStorage.getItem(ART_KEY) || "[]"); } catch(e) { ARTS = []; }
+const sortArts = () => ARTS.sort((a,b) => (b.at||0) - (a.at||0));
+function saveArtsLocal(){ try { localStorage.setItem(ART_KEY, JSON.stringify(ARTS)); } catch(e) {} }
+async function putArt(a){
+  const i = ARTS.findIndex(x => x.id === a.id); if (i >= 0) ARTS[i] = a; else ARTS.push(a);
+  sortArts(); saveArtsLocal();
+  if (artRemote) { try { await artRemote.doc(a.id).set(JSON.parse(JSON.stringify(a))); } catch(e) { toast("기사를 계정에 저장하지 못했어요. 이 브라우저에는 저장됐어요."); } }
+}
+async function delArt(id){
+  ARTS = ARTS.filter(x => x.id !== id); saveArtsLocal();
+  if (artRemote) { try { await artRemote.doc(id).delete(); } catch(e) {} }
+}
+async function syncArts(){
+  if (!artRemote) return;
+  try {
+    const qs = await artRemote.get();
+    const remoteList = qs.docs.filter(d => d.exists).map(d => Object.assign({ id:d.id }, d.data()));
+    const ids = new Set(remoteList.map(a => a.id));
+    const localOnly = ARTS.filter(a => !ids.has(a.id));
+    ARTS = remoteList.concat(localOnly); sortArts(); saveArtsLocal();
+    for (const a of localOnly) { try { await artRemote.doc(a.id).set(JSON.parse(JSON.stringify(a))); } catch(e) {} }
+  } catch(e) {}
+}
+
+/* ============================== WORD MATCHING ============================== */
+const WORD_RE = /[A-Za-zÀ-ÖØ-öø-ÿŒœÆæ]+(?:-[A-Za-zÀ-ÖØ-öø-ÿŒœÆæ]+)*/g;
+function lemmaForms(s){
+  const out = [];
+  String(s).split("/").forEach(part => {
+    let p = part.replace(/\([^)]*\)/g, "").replace(/[…+].*$/, "").replace(/동사원형|[가-힣]+/g, "").trim().toLowerCase();
+    p = p.replace(/^(?:(?:les|le|la|une|un|des|se)\s+|[lsd]['’])/, "").trim();
+    if (p && !/\s/.test(p)) out.push(p);
+  });
+  return out;
+}
+let BUILTIN_FORMS = null;
+function builtinForms(){
+  if (BUILTIN_FORMS) return BUILTIN_FORMS;
+  BUILTIN_FORMS = new Map();
+  UNITS.forEach(u => u.vocab.forEach((v,i) => lemmaForms(v[0]).forEach(f => { if (!BUILTIN_FORMS.has(f)) BUILTIN_FORMS.set(f, cardId(u.id,i)); })));
+  return BUILTIN_FORMS;
+}
+function findKnown(lw){
+  for (const [k,w] of Object.entries(S.custom)) if ((w.forms || []).includes(lw)) return "n-" + k;
+  const id = builtinForms().get(lw);
+  return id && card(id) ? id : null;
+}
+function sentenceAt(text, i){
+  let s = i, e = i;
+  while (s > 0 && !/[.!?\n]/.test(text[s-1])) s--;
+  while (e < text.length && !/[.!?\n]/.test(text[e])) e++;
+  return text.slice(s, Math.min(text.length, e + 1)).trim().slice(0, 220);
+}
+function addWord({ fr, ko, ex, surface, src, srcTitle }){
+  const forms = Array.from(new Set([String(surface||"").toLowerCase(), ...lemmaForms(fr)].filter(Boolean)));
+  const already = forms.map(findKnown).find(Boolean);
+  if (already && already.startsWith("n-")) { toast("이미 내 단어장에 있어요"); return already; }
+  const id = Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+  S.custom[id] = { fr: String(fr).slice(0,80), ko: String(ko).slice(0,120), ex: String(ex||"").slice(0,220), exKo:"", forms, src: src || null, srcTitle: srcTitle || null, at: Date.now() };
+  markStudy(); save(); renderStats(); renderModes();
+  toast(`단어장에 추가했어요 · 총 ${Object.keys(S.custom).length}개`);
+  return "n-" + id;
+}
+
+/* ============================== READER ============================== */
+function renderReader(P){
+  const a = S.view.art && ARTS.find(x => x.id === S.view.art);
+  if (a) renderArticle(P, a); else renderReaderHome(P);
+}
+function renderReaderHome(P){
+  const draft = S.drafts.reader || "";
+  P.innerHTML = `
+    <div class="panel-head"><span class="muted mono" style="font-size:12px">LECTEUR</span><h2>기사 리더</h2>
+      <div class="cando">기사 한두 문단을 붙여 넣으면 Claude가 A2 눈높이로 핵심 단어와 이해 문제를 만들어 줍니다. 붙여 넣은 글은 <b>내 계정(또는 이 브라우저)에만</b> 저장되고, 교재 페이지에는 실리지 않아요.</div><div class="tabs"></div></div>
+    <div class="panel-body">
+      <form id="artform" style="display:flex;flex-direction:column;gap:10px">
+        <div class="form-grid">
+          <div class="field"><label for="art-title">제목 (비워 두면 자동)</label><input id="art-title" type="text" maxlength="120" autocomplete="off"></div>
+          <div class="field"><label for="art-url">원문 주소 (선택)</label><input id="art-url" type="text" maxlength="400" placeholder="https://" autocomplete="off"></div>
+        </div>
+        <div class="field"><label for="art-text">본문 붙여넣기 · 1–3문단(200–400단어)이 점심 10분 분량이에요</label>
+          <textarea class="paste" id="art-text" maxlength="6000" lang="fr" spellcheck="false">${esc(draft)}</textarea></div>
+        <div class="row-gap" style="justify-content:space-between">
+          <span class="mono muted small" id="art-count"></span>
+          <button class="btn primary" id="art-save">${SAMPLE ? "저장하고 분석하기" : "저장하기"}</button>
+        </div>
+        ${SAMPLE ? "" : `<div class="note small">지금은 Claude 분석을 쓸 수 없어서 글만 저장됩니다. 저장한 뒤 단어를 눌러 뜻을 직접 적어 단어장에 넣을 수 있어요.</div>`}
+      </form>
+      <div class="tip small">읽을거리: <a href="https://francaisfacile.rfi.fr" target="_blank" rel="noopener">RFI 쉬운 프랑스어</a> · <a href="https://www.1jour1actu.com" target="_blank" rel="noopener">1jour1actu</a> · <a href="https://apprendre.tv5monde.com" target="_blank" rel="noopener">TV5MONDE</a> · <a href="https://fr.vikidia.org" target="_blank" rel="noopener">Vikidia</a>. 저작권이 있는 기사이니 개인 학습용으로만 붙여 넣어 주세요.</div>
+      <div><h3 style="margin-bottom:10px">내 스크랩 <span class="muted mono small">${ARTS.length}</span></h3>
+        ${ARTS.length ? `<div class="arts">${ARTS.map(a => { const n = Object.values(S.custom).filter(w => w.src === a.id).length;
+          return `<button class="art" data-art="${esc(a.id)}"><span class="t">${esc(a.title || "제목 없음")}</span>
+            <span class="m"><span class="mono">${new Date(a.at).toLocaleDateString("ko-KR")}</span>${a.level ? `<span class="pill">${esc(a.level)}</span>` : ""}<span>모은 단어 ${n}</span></span></button>`; }).join("")}</div>`
+          : `<p class="muted">아직 저장한 기사가 없어요. 위에 첫 문단을 붙여 넣어 보세요.</p>`}</div>
+    </div>`;
+  const ta = $("#art-text"), cnt = $("#art-count");
+  const upd = () => { const n = (ta.value.match(WORD_RE) || []).length; cnt.textContent = `${n}단어 · ${ta.value.length}/6000자`; };
+  upd(); ta.oninput = () => { upd(); S.drafts.reader = ta.value; clearTimeout(ta._t); ta._t = setTimeout(save, 600); };
+  $("#artform").onsubmit = async e => {
+    e.preventDefault();
+    const text = ta.value.trim(); if (text.length < 40) { toast("두세 문장 이상 붙여 넣어 주세요"); return; }
+    const url = $("#art-url").value.trim();
+    const a = { id: "a" + Date.now().toString(36), title: $("#art-title").value.trim(), url: /^https?:\/\//i.test(url) ? url : "", text, at: Date.now(), level:"", ana:null };
+    await putArt(a); S.drafts.reader = ""; S.view.art = a.id; save(); renderPanel();
+    if (SAMPLE) analyze(a);
+  };
+  P.querySelectorAll("[data-art]").forEach(b => b.onclick = () => { S.view.art = b.dataset.art; save(); renderPanel(); });
+}
+const PENDING = new Set();
+async function analyze(a){
+  if (!SAMPLE || PENDING.has(a.id)) return;
+  PENDING.add(a.id); if (S.view.art === a.id) renderPanel();
+  const prompt = `You are a French tutor for a Korean adult learner at CEFR A2 who is reading an authentic French text during a lunch break.
+Text:
+"""
+${a.text.slice(0, 6000)}
+"""
+Return ONLY a JSON object:
+- "title": a short French title for the text (max 10 words)${a.title ? ` — the learner already titled it "${a.title}", return that` : ""}.
+- "level": your CEFR estimate of the text ("A2", "B1", "B2" or "C1").
+- "summary_ko": 2–3 sentence summary in Korean.
+- "glossary": up to 15 items an A2 learner most likely does not know but would find useful, excluding proper nouns. Each {"surface": the exact form as it appears in the text (one word if possible), "lemma": dictionary form (nouns with le/la/l' and gender in parentheses if l', verbs in infinitive), "ko": Korean meaning in this context, "example": the sentence from the text that contains it, shortened to at most 20 words}.
+- "questions": exactly 3 comprehension questions in simple French, each {"q": question, "o": [3 short options in French], "a": index of the correct option}.
+- "notes": up to 3 grammar points that appear in the text and matter at A2–B1, each {"fragment": short quote from the text, "ko": 1–2 sentence explanation in Korean}.
+Be accurate; if a meaning depends on context, give the contextual meaning.`;
+  try {
+    const r = await SAMPLE.json(prompt, { modelTier:"default" });
+    const arr = x => Array.isArray(x) ? x : [];
+    a.ana = {
+      summary: String(r.summary_ko || ""),
+      glossary: arr(r.glossary).filter(g => g && g.surface && g.ko).slice(0,15).map(g => ({ surface:String(g.surface), lemma:String(g.lemma||g.surface), ko:String(g.ko), example:String(g.example||"") })),
+      questions: arr(r.questions).filter(q => q && Array.isArray(q.o) && q.o.length >= 2 && Number.isInteger(q.a) && q.a < q.o.length).slice(0,3).map(q => ({ q:String(q.q), o:q.o.map(String), a:q.a })),
+      notes: arr(r.notes).filter(n => n && n.fragment).slice(0,3).map(n => ({ fragment:String(n.fragment), ko:String(n.ko||"") }))
+    };
+    a.level = /^[ABC][12]$/.test(r.level) ? r.level : "";
+    if (!a.title && r.title) a.title = String(r.title).slice(0,120);
+    await putArt(a); markStudy(); save();
+  } catch(e){
+    toast(e && e.code === "rate_limited" ? "요청이 많아요. 잠시 뒤 '다시 분석'을 눌러 주세요." : "분석하지 못했어요. 글은 저장되어 있어요.");
+  } finally { PENDING.delete(a.id); if (S.view.art === a.id && S.view.unit === "reader") renderPanel(); }
+}
+function tokensHtml(a, glossMap){
+  let html = "", last = 0, m; WORD_RE.lastIndex = 0;
+  const text = a.text;
+  while ((m = WORD_RE.exec(text))){
+    html += esc(text.slice(last, m.index));
+    const w = m[0], lw = w.toLowerCase();
+    const cls = findKnown(lw) ? "known" : (glossMap.has(lw) ? "gl" : "");
+    html += `<span class="tok ${cls}" data-i="${m.index}" data-w="${esc(w)}">${esc(w)}</span>`;
+    last = m.index + w.length;
+  }
+  return html + esc(text.slice(last));
+}
+function renderArticle(P, a){
+  const ana = a.ana, glossMap = new Map();
+  (ana ? ana.glossary : []).forEach(g => { const k = g.surface.toLowerCase(); if (!/\s/.test(k)) glossMap.set(k, g); });
+  const seen = new Set(); (a.text.match(WORD_RE) || []).forEach(w => { const lw = w.toLowerCase(); if (findKnown(lw)) seen.add(lw); });
+  const collected = Object.values(S.custom).filter(w => w.src === a.id).length;
+  let host = ""; try { host = a.url ? new URL(a.url).hostname.replace(/^www\./,"") : ""; } catch(e) {}
+  P.innerHTML = `
+    <div class="panel-head"><span class="muted mono" style="font-size:12px">LECTEUR · ${new Date(a.at).toLocaleDateString("ko-KR")}${a.level ? " · " + esc(a.level) : ""}</span>
+      <h2 class="fr">${esc(a.title || "제목 없음")}</h2>
+      <div class="cando">${host ? `원문: <a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(host)}</a> · ` : ""}이 기사에서 모은 단어 <b>${collected}</b>개 · 내 단어 다시 만남 <b>${seen.size}</b>개</div>
+      <div class="tabs"></div></div>
+    <div class="panel-body">
+      <div class="row-gap">
+        <button class="btn ghost" id="back">← 스크랩 목록</button>
+        <button class="btn" data-say="${esc(a.text.slice(0,1900))}">전체 듣기</button>
+        ${SAMPLE && !ana && !PENDING.has(a.id) ? `<button class="btn primary" id="reana">다시 분석</button>` : ""}
+        <span style="flex:1"></span>
+        <span id="delwrap"><button class="btn ghost danger" id="del">삭제</button></span>
+      </div>
+      ${PENDING.has(a.id) ? `<div class="tip">Claude가 기사를 읽고 핵심 단어와 문제를 만드는 중이에요. 그동안 먼저 읽어 보세요.</div>` : ""}
+      <div class="reader2">
+        <div class="text" id="atext" style="min-width:0">${tokensHtml(a, glossMap)}</div>
+        <aside class="wp" id="wp" aria-live="polite">
+          <b>단어를 눌러 보세요</b>
+          <div class="legend">
+            <span><span class="tok gl">점선 밑줄</span> Claude가 고른 핵심 단어</span>
+            <span><span class="tok known">초록 바탕</span> 이미 내 단어장에 있는 단어</span>
+            <span class="muted">어떤 단어든 누르면 뜻을 보고 단어장에 넣을 수 있어요.</span>
+          </div>
+        </aside>
+      </div>
+      ${ana && ana.glossary.length ? `<div><h3 style="margin-bottom:8px">핵심 단어</h3><div class="glist">${ana.glossary.map((g,gi) => { const k = findKnown(g.surface.toLowerCase()) || lemmaForms(g.lemma).map(findKnown).find(Boolean);
+        return `<div class="gitem"><div><span class="fr">${esc(g.lemma)}</span><br><span class="small">${esc(g.ko)}</span></div>${k ? `<span class="pill">담김</span>` : `<button class="btn small" data-addg="${gi}">담기</button>`}</div>`; }).join("")}</div>
+        <div class="row-gap" style="margin-top:8px"><button class="btn" id="addall">핵심 단어 모두 담기</button></div></div>` : ""}
+      ${ana && ana.summary ? `<div><button class="btn ghost" id="sumbtn">한국어 요약 보기</button><div class="trans" id="sum" hidden style="margin-top:8px">${esc(ana.summary)}</div></div>` : ""}
+      ${ana && ana.questions.length ? `<div><h3 style="margin-bottom:8px">이해 확인</h3><div class="quiz" id="aq"></div></div>` : ""}
+      ${ana && ana.notes.length ? `<div><h3 style="margin-bottom:8px">문법 노트</h3><div class="quiz">${ana.notes.map(n => `<div class="q"><span class="fr" style="color:var(--ink)">« ${esc(n.fragment)} »</span><span class="small">${esc(n.ko)}</span></div>`).join("")}</div></div>` : ""}
+      ${ana ? `<p class="muted small" style="margin:0">풀이와 문제는 AI가 만든 것이라 틀릴 수 있어요. 원문이 기준입니다.</p>` : ""}
+    </div>`;
+  $("#back").onclick = () => { S.view.art = null; save(); renderPanel(); };
+  if ($("#reana")) $("#reana").onclick = () => analyze(a);
+  $("#del").onclick = () => {
+    $("#delwrap").innerHTML = `<span class="small muted">기사를 지울까요? 모은 단어는 단어장에 남아요.</span> <button class="btn danger" id="delyes">삭제</button> <button class="btn ghost" id="delno">취소</button>`;
+    $("#delno").onclick = () => renderPanel();
+    $("#delyes").onclick = async () => { await delArt(a.id); S.view.art = null; save(); renderPanel(); toast("기사를 지웠어요"); };
+  };
+  if ($("#sumbtn")) $("#sumbtn").onclick = () => { const s = $("#sum"); s.hidden = !s.hidden; $("#sumbtn").textContent = s.hidden ? "한국어 요약 보기" : "요약 숨기기"; };
+  P.querySelectorAll("[data-addg]").forEach(b => b.onclick = () => { const g = ana.glossary[+b.dataset.addg];
+    addWord({ fr:g.lemma, ko:g.ko, ex:g.example, surface:g.surface, src:a.id, srcTitle:a.title }); renderPanel(); });
+  if ($("#addall")) $("#addall").onclick = () => { let n = 0;
+    ana.glossary.forEach(g => { if (!(findKnown(g.surface.toLowerCase()) || lemmaForms(g.lemma).map(findKnown).find(Boolean))) { addWord({ fr:g.lemma, ko:g.ko, ex:g.example, surface:g.surface, src:a.id, srcTitle:a.title }); n++; } });
+    toast(n ? `${n}개를 담았어요 · 오늘 복습 카드에 나옵니다` : "이미 모두 담겨 있어요"); renderPanel(); };
+  if (ana && ana.questions.length){
+    ana.questions.forEach((it, qi) => { const d = document.createElement("div"); d.className = "q";
+      d.innerHTML = `<div class="qt"><span class="fr">${qi+1}. ${esc(it.q)}</span></div><div class="opts">${it.o.map((o,oi) => `<button class="opt" data-oi="${oi}">${esc(o)}</button>`).join("")}</div>`;
+      let done = false; d.querySelectorAll(".opt").forEach(b => b.onclick = () => { if (done) return;
+        if (+b.dataset.oi === it.a){ b.classList.add("right"); done = true; markStudy(); save(); } else b.classList.add("wrong"); });
+      $("#aq").appendChild(d); });
+  }
+  $("#atext").onclick = e => { const t = e.target.closest(".tok"); if (!t) return;
+    P.querySelectorAll(".tok.sel").forEach(x => x.classList.remove("sel")); t.classList.add("sel");
+    showWord(a, t.dataset.w, +t.dataset.i, glossMap); };
+}
+function showWord(a, word, idx, glossMap){
+  const wp = $("#wp"), lw = word.toLowerCase(), g = glossMap.get(lw), known = findKnown(lw), ctx = sentenceAt(a.text, idx);
+  const kv = known && findVocab(known), kc = known && card(known);
+  wp.innerHTML = `
+    <div class="row-gap"><span class="w">${esc(word)}</span><button class="icon-btn" data-say="${esc(word)}" aria-label="발음 듣기">${SPK}</button></div>
+    ${known ? `<div><span class="fr" style="color:var(--ink)">${esc(kv.v[0])}</span> · ${esc(kv.v[1])}</div><span class="pill" style="align-self:flex-start">이미 담김 · ${kc ? "상자 " + kc.b : "새 카드"}</span>`
+      : g ? `<div><span class="fr" style="color:var(--ink)">${esc(g.lemma)}</span></div><div>${esc(g.ko)}</div><button class="btn primary" id="wadd">단어장에 담기</button>`
+      : `<div id="wlook">${SAMPLE ? `<button class="btn primary" id="wask">Claude에게 뜻 묻기</button>` : ""}</div>`}
+    <div class="small muted fr" style="font-size:14px">« ${esc(ctx)} »</div>
+    ${!known ? `<details ${!g && !SAMPLE ? "open" : ""}><summary class="small muted" style="cursor:pointer">직접 적어서 담기</summary>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:6px">
+        <div class="field"><label for="m-fr">사전형</label><input id="m-fr" type="text" value="${esc(g ? g.lemma : lw)}"></div>
+        <div class="field"><label for="m-ko">뜻</label><input id="m-ko" type="text" value="${esc(g ? g.ko : "")}"></div>
+        <button class="btn" id="madd">담기</button></div></details>` : ""}`;
+  const refresh = () => { renderPanel(); };
+  if ($("#wadd")) $("#wadd").onclick = () => { addWord({ fr:g.lemma, ko:g.ko, ex:g.example || ctx, surface:word, src:a.id, srcTitle:a.title }); refresh(); };
+  if ($("#madd")) $("#madd").onclick = () => { const fr = $("#m-fr").value.trim(), ko = $("#m-ko").value.trim(); if (!fr || !ko) { toast("사전형과 뜻을 모두 적어 주세요"); return; }
+    addWord({ fr, ko, ex:ctx, surface:word, src:a.id, srcTitle:a.title }); refresh(); };
+  if ($("#wask")) $("#wask").onclick = async () => {
+    const box = $("#wlook"); box.innerHTML = `<span class="muted small">찾는 중…</span>`;
+    try {
+      const r = await SAMPLE.json(`A Korean A2 learner of French clicked the word "${word}" in this sentence: "${ctx}"
+Return ONLY JSON: {"lemma": dictionary form (nouns with le/la or l' plus gender in parentheses, verbs in infinitive, adjectives in masculine singular), "ko": short Korean meaning in this context, "note": one short Korean note on the form if it is inflected (e.g. "aller의 3인칭 복수 현재"), else ""}`, { modelTier:"quick" });
+      if (!r || !r.lemma || !r.ko) throw new Error("shape");
+      box.innerHTML = `<div><span class="fr" style="color:var(--ink)">${esc(r.lemma)}</span></div><div>${esc(r.ko)}</div>${r.note ? `<div class="small muted">${esc(r.note)}</div>` : ""}<button class="btn primary" id="wadd2" style="margin-top:6px">단어장에 담기</button>`;
+      $("#wadd2").onclick = () => { addWord({ fr:r.lemma, ko:r.ko, ex:ctx, surface:word, src:a.id, srcTitle:a.title }); refresh(); };
+    } catch(e){ box.innerHTML = `<span class="small" style="color:var(--red)">${e && e.code === "rate_limited" ? "요청이 많아요. 잠시 뒤 다시 눌러 주세요." : "뜻을 가져오지 못했어요. 아래에 직접 적어서 담을 수 있어요."}</span>`; }
+  };
+}
+
+/* ============================== MY WORDS ============================== */
+function renderWords(P){
+  const list = Object.entries(S.custom).sort((x,y) => (y[1].at||0) - (x[1].at||0));
+  const due = list.filter(([k]) => { const c = card("n-"+k); return !c || c.d <= Date.now(); }).length;
+  P.innerHTML = `
+    <div class="panel-head"><span class="muted mono" style="font-size:12px">MON LEXIQUE</span><h2>내 단어장</h2>
+      <div class="cando">기사에서 모은 단어 <b>${list.length}</b>개. 교재 단어와 함께 '복습 카드'에 섞여 나오고, 기사를 읽을 때 초록색으로 다시 보입니다.</div><div class="tabs"></div></div>
+    <div class="panel-body">
+      <div class="row-gap"><button class="btn primary" id="wrev" ${due ? "" : "disabled"}>내 단어만 복습 (${due})</button></div>
+      <div id="deckwrap" hidden><div class="deck"><div id="deckhost"></div><div id="side"></div></div></div>
+      <form id="wform" class="row-gap" style="align-items:flex-end">
+        <div class="field" style="flex:1 1 160px"><label for="nw-fr">프랑스어</label><input id="nw-fr" type="text" autocomplete="off" lang="fr"></div>
+        <div class="field" style="flex:1 1 160px"><label for="nw-ko">뜻</label><input id="nw-ko" type="text" autocomplete="off"></div>
+        <button class="btn">직접 추가</button>
+      </form>
+      ${accentBar()}
+      ${list.length ? `<div class="scroll-x"><table class="wordlist">${list.map(([k,w]) => { const c = card("n-"+k);
+        const pill = !c ? `<span class="pill new">새 카드</span>` : (c.d <= Date.now() ? `<span class="pill due">복습</span>` : `<span class="pill">상자 ${c.b}</span>`);
+        const src = w.src && ARTS.find(a => a.id === w.src) ? `<button class="btn ghost small" data-src="${esc(w.src)}">${esc((w.srcTitle || "기사").slice(0,24))}</button>` : `<span class="muted small">${esc(w.srcTitle || "직접 추가")}</span>`;
+        return `<tr><td><button class="icon-btn" data-say="${esc(w.fr)}" aria-label="${esc(w.fr)} 발음">${SPK}</button></td><td class="fr">${esc(w.fr)}</td><td>${esc(w.ko)}</td><td>${src}</td><td>${pill}</td><td><button class="icon-btn" data-delw="${k}" aria-label="${esc(w.fr)} 삭제">×</button></td></tr>`; }).join("")}</table></div>`
+        : `<p class="muted">아직 모은 단어가 없어요. '기사 리더'에서 기사를 붙여 넣고 단어를 눌러 담아 보세요.</p>`}
+    </div>`;
+  $("#wform").onsubmit = e => { e.preventDefault(); const fr = $("#nw-fr").value.trim(), ko = $("#nw-ko").value.trim();
+    if (!fr || !ko) { toast("프랑스어와 뜻을 모두 적어 주세요"); return; } addWord({ fr, ko, surface: fr.toLowerCase() }); renderPanel(); };
+  P.querySelectorAll("[data-src]").forEach(b => b.onclick = () => { S.view = { unit:"reader", tab:"reader", art:b.dataset.src }; save(); renderPanel(); });
+  P.querySelectorAll("[data-delw]").forEach(b => b.onclick = () => {
+    const k = b.dataset.delw, td = b.parentElement;
+    td.innerHTML = `<button class="btn danger small" data-yes>지우기</button>`;
+    $("[data-yes]", td).onclick = () => { delete S.custom[k]; delete S.cards["n-"+k]; save(); renderStats(); renderPanel(); };
+  });
+  $("#wrev").onclick = () => {
+    $("#deckwrap").hidden = false;
+    const ids = list.map(([k]) => "n-" + k);
+    const queue = ids.filter(id => { const c = card(id); return !c || c.d <= Date.now(); });
+    refreshSide = () => { $("#side").innerHTML = boxesHtml(ids); renderStats(); renderModes(); };
+    refreshSide();
+    flashDeck($("#deckhost"), queue, () => `<div class="card"><div class="word">Bravo !</div><div>오늘 복습할 내 단어를 다 봤어요.</div></div>`);
+  };
+}
+
 /* ============================== BOOT ============================== */
 function renderAll(){ renderStats(); renderLunch(); renderUnits(); renderPanel(); }
 renderAll();
@@ -1360,11 +1706,13 @@ renderAll();
   if (!window.claude || !window.claude.use) { $("#syncnote").textContent = "진도는 이 브라우저에만 저장됩니다."; return; }
   const [db, user, sample, tts] = await Promise.all(["db","user","sample","tts"].map(n => window.claude.use(n).catch(() => null)));
   TTS = tts; SAMPLE = sample;
-  if (SAMPLE && S.view.unit !== "review" && (S.view.tab === "writing" || S.view.tab === "grammar" || S.view.tab === "reading")) renderPanel();
+  if (SAMPLE && S.view.unit !== "review" && S.view.unit !== "words") renderPanel();
   if (db && user){
     try {
       const uid = await user.id();
       remote = db.doc("data/users/" + uid + "/progress");
+      artRemote = db.doc("data/users/" + uid + "/reader").collection("articles");
+      syncArts().then(() => { renderModes(); if (S.view.unit === "reader") renderPanel(); });
       const snap = await remote.get();
       if (snap.exists){ const d = snap.data(); if (d && d.json && (d.at||0) > (S.at||0)){ const v = S.view; S = Object.assign(blankState(), JSON.parse(d.json)); S.view = v; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} renderAll(); } else if ((S.at||0) > (d.at||0)) pushRemote(); }
       else if (S.at) pushRemote();
