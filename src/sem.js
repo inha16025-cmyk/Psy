@@ -55,7 +55,10 @@
 
   // := 수식 컴파일 (+ − * / ^, 괄호, 라벨, 숫자)
   function compileExpr(src) {
-    var toks = src.match(/\s*([A-Za-z가-힣_.][A-Za-z0-9가-힣_.]*|\d*\.?\d+(?:[eE][-+]?\d+)?|[-+*/^()])\s*/g);
+    // (전송용 줄 길이 제한 때문에 정규식을 문자열로 나눠 만듦; 내용은 같음)
+    var TOK_RE = new RegExp('\\s*([A-Za-z가-힣_.][A-Za-z0-9가-힣_.]*|' +
+      '\\d*\\.?\\d+(?:[eE][-+]?\\d+)?|[-+*/^()])\\s*', 'g');
+    var toks = src.match(TOK_RE);
     if (!toks || toks.join('').replace(/\s/g, '') !== src.replace(/\s/g, '')) throw new Error('정의 수식을 해석할 수 없습니다: "' + src + '"');
     toks = toks.map(function (t) { return t.trim(); });
     var i = 0, names = [];

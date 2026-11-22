@@ -68,7 +68,10 @@
       var bc = S.bridgeCentrality(net, comm), cut = S.quantile(bc.strength, 0.8);
       html += table(['노드', '커뮤니티', '브리지 강도', '브리지 기대영향', '브리지 매개', '브리지 근접'], names.map(function (nm, i) {
         return [esc(nm) + (bc.strength[i] >= cut && bc.strength[i] > 0 ? ' †' : ''), esc(commNames[comm[i]]), f(bc.strength[i], 3), f(bc.expectedInfluence[i], 3), f(bc.betweenness[i], 1), isFinite(bc.closeness[i]) ? f(bc.closeness[i], 4) : '—'];
-      }), { left: [0, 1], title: '브리지 중심성', note: '브리지 강도 = 다른 커뮤니티 노드와의 엣지 |가중치| 합, 브리지 기대영향(1단계) = 부호를 살린 합, 브리지 매개 = 서로 다른 커뮤니티 노드 쌍의 최단 경로 위에 놓인 횟수(경로가 여러 개면 비율), 브리지 근접 = 다른 커뮤니티 노드까지 평균 최단거리의 역수(거리 = 1/|w|). † = 브리지 강도 상위 20%(80번째 백분위수 이상)로, 선행연구에서 브리지 노드를 고를 때 흔히 쓰는 기준(Jones et al., 2021). 2단계 기대영향은 제공하지 않는다.' });
+      }), { left: [0, 1], title: '브리지 중심성', note: '브리지 강도 = 다른 커뮤니티 노드와의 엣지 |가중치| 합, 브리지 기대영향(1단계) = 부호를 살린 합, ' +
+        '브리지 매개 = 서로 다른 커뮤니티 노드 쌍의 최단 경로 위에 놓인 횟수(경로가 여러 개면 비율), ' +
+        '브리지 근접 = 다른 커뮤니티 노드까지 평균 최단거리의 역수(거리 = 1/|w|). ' +
+        '† = 브리지 강도 상위 20%(80번째 백분위수 이상)로, 선행연구에서 브리지 노드를 고를 때 흔히 쓰는 기준(Jones et al., 2021). 2단계 기대영향은 제공하지 않는다.' });
       html += '<div class="cent-plot">' + centralityPlotSVG(names, { '브리지 강도': S.zscore(bc.strength), '브리지 기대영향': S.zscore(bc.expectedInfluence), '브리지 매개': S.zscore(bc.betweenness), '브리지 근접': S.zscore(bc.closeness) }) + '</div>';
     } else html += '<p class="note">커뮤니티가 하나뿐이라 브리지 중심성을 계산하지 않았습니다.</p>';
     var boot = card.querySelector('.bootbox'), div = document.createElement('div');
