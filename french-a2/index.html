@@ -1668,6 +1668,18 @@ function renderWords(P){
     <div class="panel-body">
       <div class="row-gap"><button class="btn primary" id="wrev" ${due ? "" : "disabled"}>내 단어만 복습 (${due})</button></div>
       <div id="deckwrap" hidden><div class="deck"><div id="deckhost"></div><div id="side"></div></div></div>
+      <section class="fbbox" aria-label="내 단어로 읽기">
+        <div class="row-gap" style="justify-content:space-between"><h3>내 단어로 읽기</h3><span class="muted small">덜 익은 단어 최대 12개로 Claude가 A2 글을 새로 씁니다</span></div>
+        ${!SAMPLE ? `<p class="muted small" style="margin:0">지금은 Claude를 쓸 수 없어서 이 기능이 꺼져 있어요.</p>`
+          : list.length < 5 ? `<p class="muted small" style="margin:0">단어가 5개 이상 모이면 쓸 수 있어요. (지금 ${list.length}개)</p>`
+          : `<form id="stform" class="row-gap" style="align-items:flex-end">
+              <div class="field" style="flex:2 1 200px"><label for="st-topic">주제 (선택)</label><input id="st-topic" type="text" maxlength="80" placeholder="예: 전시회, 회사 점심, 비 오는 주말" autocomplete="off"></div>
+              <div class="field" style="flex:1 1 120px"><label for="st-len">길이</label><select id="st-len" class="btn" style="border-radius:8px"><option value="90">짧게 (약 90단어)</option><option value="150">보통 (약 150단어)</option></select></div>
+              <button class="btn primary" id="st-go">글 만들기</button>
+            </form>
+            ${list.length < 30 ? `<p class="muted small" style="margin:0">단어가 30–50개쯤 쌓이면 글이 더 자연스러워져요.</p>` : ""}`}
+        <div id="story"></div>
+      </section>
       <form id="wform" class="row-gap" style="align-items:flex-end">
         <div class="field" style="flex:1 1 160px"><label for="nw-fr">프랑스어</label><input id="nw-fr" type="text" autocomplete="off" lang="fr"></div>
         <div class="field" style="flex:1 1 160px"><label for="nw-ko">뜻</label><input id="nw-ko" type="text" autocomplete="off"></div>
@@ -1680,6 +1692,8 @@ function renderWords(P){
         return `<tr><td><button class="icon-btn" data-say="${esc(w.fr)}" aria-label="${esc(w.fr)} 발음">${SPK}</button></td><td class="fr">${esc(w.fr)}</td><td>${esc(w.ko)}</td><td>${src}</td><td>${pill}</td><td><button class="icon-btn" data-delw="${k}" aria-label="${esc(w.fr)} 삭제">×</button></td></tr>`; }).join("")}</table></div>`
         : `<p class="muted">아직 모은 단어가 없어요. '기사 리더'에서 기사를 붙여 넣고 단어를 눌러 담아 보세요.</p>`}
     </div>`;
+  if ($("#stform")) $("#stform").onsubmit = e => { e.preventDefault(); makeStory($("#st-topic").value.trim(), +$("#st-len").value); };
+  if (STORY) drawStory();
   $("#wform").onsubmit = e => { e.preventDefault(); const fr = $("#nw-fr").value.trim(), ko = $("#nw-ko").value.trim();
     if (!fr || !ko) { toast("프랑스어와 뜻을 모두 적어 주세요"); return; } addWord({ fr, ko, surface: fr.toLowerCase() }); renderPanel(); };
   P.querySelectorAll("[data-src]").forEach(b => b.onclick = () => { S.view = { unit:"reader", tab:"reader", art:b.dataset.src }; save(); renderPanel(); });
@@ -1698,6 +1712,81 @@ function renderWords(P){
   };
 }
 
+/* ---- a fresh A2 text built from the learner's own least-known words ---- */
+let STORY = null, STORY_BUSY = false;
+function pickStoryWords(){
+  const now = Date.now();
+  return Object.entries(S.custom).map(([k,w]) => { const c = card("n-"+k); return { k, w, b: c ? c.b : 0, due: !c || c.d <= now }; })
+    .sort((x,y) => (y.due - x.due) || (x.b - y.b) || ((x.w.at||0) - (y.w.at||0))).slice(0, 12);
+}
+async function makeStory(topic, len){
+  if (!SAMPLE || STORY_BUSY) return;
+  const picks = pickStoryWords(), box = $("#story"), go = $("#st-go");
+  STORY_BUSY = true; if (go) go.disabled = true;
+  box.innerHTML = `<p class="muted small">Claude가 ${picks.length}개 단어로 글을 쓰는 중이에요…</p>`;
+  const prompt = `Write a short, warm, everyday French text for a Korean adult learner at CEFR A2.
+Use as many of these target words as fit naturally (at least ${Math.min(picks.length, 8)}), inflecting them as needed:
+${picks.map(p => `- id ${p.k}: ${p.w.fr} (${p.w.ko})`).join("\n")}
+Topic: ${topic ? topic.slice(0,80) : "your choice from everyday life (work, food, the city, culture, a weekend)"}. Avoid distressing subjects such as violence, disasters or illness.
+Length: about ${len} words. Use only A1–A2 grammar (present, passé composé, imparfait, futur proche); apart from the target words, use very common vocabulary.
+Return ONLY a JSON object:
+{"title": short French title, "text": the text with paragraphs separated by \\n, "used": [{"id": target id, "surface": the exact form as it appears in the text}], "ko": natural Korean translation, "questions": [exactly 3 × {"q": simple French question, "o": [3 short French options], "a": index of the correct option}]}`;
+  try {
+    const r = await SAMPLE.json(prompt, { modelTier:"default", cache:false });
+    const text = String(r.text || ""); if (!text) throw new Error("empty");
+    const low = text.toLowerCase();
+    const used = (Array.isArray(r.used) ? r.used : []).filter(u => u && S.custom[u.id] && u.surface && low.includes(String(u.surface).toLowerCase()))
+      .map(u => ({ id:String(u.id), surface:String(u.surface) }));
+    const seen = new Set(), uniq = used.filter(u => !seen.has(u.id) && seen.add(u.id));
+    // remember inflected forms so these words light up when they reappear in articles
+    uniq.forEach(u => { const w = S.custom[u.id], f = u.surface.toLowerCase(); if (!/\s/.test(f) && !(w.forms||[]).includes(f)) (w.forms = w.forms || []).push(f); });
+    const qs = (Array.isArray(r.questions) ? r.questions : []).filter(q => q && Array.isArray(q.o) && Number.isInteger(q.a) && q.a < q.o.length).slice(0,3);
+    STORY = { title:String(r.title || "Mon texte"), text, ko:String(r.ko || ""), used:uniq, questions:qs, saved:false };
+    markStudy(); save(); drawStory();
+  } catch(e){
+    box.innerHTML = `<p class="small" style="color:var(--red)">${e && e.code === "rate_limited" ? "요청이 많아요. 잠시 뒤 다시 눌러 주세요." : "글을 만들지 못했어요. 다시 한번 눌러 주세요."}</p>`;
+  } finally { STORY_BUSY = false; if ($("#st-go")) $("#st-go").disabled = false; }
+}
+function drawStory(){
+  const box = $("#story"); if (!box || !STORY) return;
+  const st = STORY, hl = new Set(); st.used.forEach(u => u.surface.toLowerCase().split(/\s+/).forEach(x => hl.add(x)));
+  let html = "", last = 0, m; WORD_RE.lastIndex = 0;
+  while ((m = WORD_RE.exec(st.text))){ html += esc(st.text.slice(last, m.index)); html += hl.has(m[0].toLowerCase()) ? `<span class="tok known">${esc(m[0])}</span>` : esc(m[0]); last = m.index + m[0].length; }
+  html += esc(st.text.slice(last));
+  box.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:6px">
+      <div class="row-gap"><h3 class="fr" style="flex:1">${esc(st.title)}</h3><button class="btn" data-say="${esc(st.text.slice(0,1900))}">듣기</button></div>
+      <div class="text">${html}</div>
+      <span class="muted small">초록색이 내 단어장 단어예요 · 쓰인 단어 ${st.used.length}개</span>
+      <div><button class="btn ghost" id="st-trbtn">한국어 번역 보기</button><div class="trans" id="st-tr" hidden style="margin-top:8px">${esc(st.ko)}</div></div>
+      ${st.used.length ? `<div><h3 style="margin-bottom:6px">기억 확인</h3><span class="muted small">단어를 눌러 뜻을 떠올린 뒤 확인하세요. 결과가 복습 상자에 반영됩니다.</span>
+        <div class="glist" style="margin-top:8px">${st.used.map((u,i) => `<div class="gitem" data-rc="${i}"><div><span class="fr">${esc(u.surface)}</span><div class="small" data-rcm hidden>${esc(S.custom[u.id] ? S.custom[u.id].fr + " · " + S.custom[u.id].ko : "")}</div></div><div class="row-gap" data-rcb><button class="btn small" data-rshow>뜻 보기</button></div></div>`).join("")}</div></div>` : ""}
+      ${st.questions.length ? `<div><h3 style="margin-bottom:6px">이해 확인</h3><div class="quiz" id="st-q"></div></div>` : ""}
+      <div class="row-gap"><button class="btn" id="st-save" ${st.saved ? "disabled" : ""}>${st.saved ? "스크랩에 저장됨" : "스크랩에 저장"}</button><span class="muted small">AI가 쓴 글이라 어색한 표현이 있을 수 있어요.</span></div>
+    </div>`;
+  $("#st-trbtn").onclick = () => { const t = $("#st-tr"); t.hidden = !t.hidden; $("#st-trbtn").textContent = t.hidden ? "한국어 번역 보기" : "번역 숨기기"; };
+  box.querySelectorAll("[data-rc]").forEach(el => {
+    const u = st.used[+el.dataset.rc];
+    $("[data-rshow]", el).onclick = () => {
+      $("[data-rcm]", el).hidden = false;
+      $("[data-rcb]", el).innerHTML = `<button class="btn small" data-rno>다시</button><button class="btn primary small" data-ryes>알았어요</button>`;
+      const done = ok => { grade("n-" + u.id, ok); $("[data-rcb]", el).innerHTML = `<span class="pill ${ok ? "" : "due"}">${ok ? "상자 " + card("n-"+u.id).b : "다시 볼게요"}</span>`; renderStats(); renderModes(); };
+      $("[data-rno]", el).onclick = () => done(false); $("[data-ryes]", el).onclick = () => done(true);
+    };
+  });
+  st.questions.forEach((it, qi) => { const d = document.createElement("div"); d.className = "q";
+    d.innerHTML = `<div class="qt"><span class="fr">${qi+1}. ${esc(it.q)}</span></div><div class="opts">${it.o.map((o,oi) => `<button class="opt" data-oi="${oi}">${esc(o)}</button>`).join("")}</div>`;
+    let fin = false; d.querySelectorAll(".opt").forEach(b => b.onclick = () => { if (fin) return; if (+b.dataset.oi === it.a){ b.classList.add("right"); fin = true; } else b.classList.add("wrong"); });
+    $("#st-q").appendChild(d); });
+  $("#st-save").onclick = async () => {
+    const a = { id:"a" + Date.now().toString(36), title:"[내 단어] " + st.title, url:"", text:st.text, at:Date.now(), level:"A2", generated:true,
+      ana:{ summary:st.ko, glossary:st.used.filter(u => S.custom[u.id]).map(u => ({ surface:u.surface, lemma:S.custom[u.id].fr, ko:S.custom[u.id].ko, example:sentenceAt(st.text, st.text.toLowerCase().indexOf(u.surface.toLowerCase())) })), questions:st.questions, notes:[] } };
+    await putArt(a); st.saved = true; renderModes();
+    const sb = $("#st-save"); if (sb) { sb.disabled = true; sb.textContent = "스크랩에 저장됨"; }
+    toast("기사 리더 스크랩에 저장했어요");
+  };
+}
+
 /* ============================== BOOT ============================== */
 function renderAll(){ renderStats(); renderLunch(); renderUnits(); renderPanel(); }
 renderAll();
@@ -1706,7 +1795,7 @@ renderAll();
   if (!window.claude || !window.claude.use) { $("#syncnote").textContent = "진도는 이 브라우저에만 저장됩니다."; return; }
   const [db, user, sample, tts] = await Promise.all(["db","user","sample","tts"].map(n => window.claude.use(n).catch(() => null)));
   TTS = tts; SAMPLE = sample;
-  if (SAMPLE && S.view.unit !== "review" && S.view.unit !== "words") renderPanel();
+  if (SAMPLE && S.view.unit !== "review") renderPanel();
   if (db && user){
     try {
       const uid = await user.id();
