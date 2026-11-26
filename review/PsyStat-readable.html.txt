@@ -124,7 +124,7 @@ table.res thead th:first-child { text-align: left; }
   <b style="font-size:16px">PsyStat의 스크립트가 실행되지 않았습니다.</b><br>
   이 상자가 보이면 HTML은 열렸지만 계산 코드(JavaScript)가 동작하지 않은 것입니다. 다음을 순서대로 확인해 주세요.
   <ol style="margin:8px 0 0 18px;padding:0">
-    <li><b>파일 크기</b>: 파일 속성에서 크기가 약 <b>   462,753바이트</b>인지 확인하세요. 훨씬 작다면 자료 전송(망연계) 과정에서 보안 프로그램이 스크립트를 제거한 것입니다. 보안 담당자에게 이 파일의 반입 예외(스크립트 포함 HTML) 승인을 요청하세요. 원본 SHA-256: <code style="font-size:12px;word-break:break-all">(스크립트 본문) 5626a3d8ef92e243cfeda45c4ba52f3d9ec20c9d03bcdad5c43ac686c076ab9f</code></li>
+    <li><b>파일 크기</b>: 파일 속성에서 크기가 약 <b>   465,749바이트</b>인지 확인하세요. 훨씬 작다면 자료 전송(망연계) 과정에서 보안 프로그램이 스크립트를 제거한 것입니다. 보안 담당자에게 이 파일의 반입 예외(스크립트 포함 HTML) 승인을 요청하세요. 원본 SHA-256: <code style="font-size:12px;word-break:break-all">(스크립트 본문) 6432675f3299f317c7168d6443be3dbfdded06b7476e259bead3c5597b93a456</code></li>
     <li><b>브라우저 정책</b>: 기관 정책으로 로컬 파일(file://)의 JavaScript가 차단되었을 수 있습니다. Chrome이 있다면 Chrome으로 열어 보고, 같은 증상이면 전산 담당자에게 문의하세요.</li>
     <li><b>문서 보안(DRM) 뷰어</b>: 탐색기에서 파일을 더블클릭했을 때 일반 브라우저가 아닌 보안 뷰어로 열리면 스크립트가 꺼져 있을 수 있습니다.</li>
   </ol>
@@ -211,19 +211,19 @@ table.res thead th:first-child { text-align: left; }
      "Z":["1l3g6bc", "v0k1c0", "t1gg7l", "1d1pzv0", "z7yi6i",
       "1gdqw6z", "17fauiz", "1rnj6cz", "13e1za8", "1ex72nc",
       "oytlih", "1wgpci9", "p7763u", "wsa2vl"]},
-    {"n": "화면 코드 1/7", "L": 42454, "f": "7hnem3", "te": 100,
+    {"n": "화면 코드 1/7", "L": 44049, "f": "67wkdm", "te": 100,
      "h":"/* PsyStat 화면(UI) 코드 — 조각 1/7: 공통 도우미·자료 읽기·APA 표·결과 카드·기술통계~판별분석\n * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다.\n * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 코드는 분할 전과 동일) */\n",
      "t":" = wireLevelPicker; NS.boxMTable = boxMTable; NS.groupDescTable = groupDescTable;\n  NS.ldaPlotSVG = ",
-     "A":["1yn9j8v", "1ilhiww", "d8ju2k", "1l24wv6", "hgte9x",
-      "1fvj7lp", "1j58f2b", "9azyjq", "hkys0y", "8rpm2d",
-      "1q2vr49", "xh0ucb", "ogwas0", "1x1qjc8", "1i9jzu8",
-      "3xgnpo", "17d4r3a", "7oyehj", "1xf51ge", "1lz7l8",
-      "1hioesa"],
+     "A":["1yn9j8v", "1ilhiww", "d8ju2k", "1l24wv6", "1gkdzvs",
+      "123p4qf", "lozsu1", "1axocea", "x13b3i", "jmmwz6",
+      "8rbyu9", "26fsjx", "s0fujc", "1gis9g5", "1jfudfw",
+      "cq8oyx", "xay9kw", "183yd50", "1qutq5x", "1352rrc",
+      "1o9ydh", "9kycjr"],
      "Z":["5og6v6", "1gwjo8t", "1koq6bc", "455sdo", "1az1p1o",
       "8k97vh", "1gywo0p", "q33q9w", "dal313", "1bksj2y",
       "1pmd2s0", "1pr7x6x", "122hajo", "vzoh7i", "7g5lsq",
-      "jbqkce", "siylrt", "13vqnl9", "1k68tu5", "wu9y5t",
-      "xsldoj"]},
+      "jbqkce", "1x77y72", "1daaa1h", "8yo1oa", "1wuiy3z",
+      "rv2ya3", "8xpjma"]},
     {"n": "화면 코드 2/7", "L": 44277, "f": "1q6vksj", "te": 100,
      "h":"/* PsyStat 화면(UI) 코드 — 조각 2/7: 상관~조건부 과정 모형\n * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다.\n * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 코드는 분할 전과 동일) */\n(function (G) {\n  'use",
      "t":"= ptTwoSidedSafe; NS.processSVG = processSVG;\n  NS.PROCESS_DESC = PROCESS_DESC; NS.processRcode = pr",
@@ -246,15 +246,15 @@ table.res thead th:first-child { text-align: left; }
      "Z":["4abnno", "1hu66kf", "1gbts5g", "2a7xki", "1nd0dq8",
       "wm35rh", "1mz34ah", "1d8w0e", "iungjs", "ppvfog",
       "kfs9r3", "k0v7ju", "16myari"]},
-    {"n": "화면 코드 4/7", "L": 30580, "f": "1e8h04r", "te": 100,
+    {"n": "화면 코드 4/7", "L": 31248, "f": "1idhnj0", "te": 100,
      "h":"/* PsyStat 화면(UI) 코드 — 조각 4/7: 네트워크 분석·데이터 화면·화면 전환·시작\n * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다.\n * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 코드는 분할 전과 동일) */\n(function (",
      "t":"s = savedResults; NS.select = select; NS.buildNav = buildNav;\n  NS.about = about; NS.saveResults = s",
      "A":["1nnydvf", "1fnpabg", "1o961qh", "1j2uwf5", "1lbihdp",
-      "wfsc1m", "ssqa3w", "u7iv19", "12f07gk", "1ildlls",
-      "1sz8qn0", "1kmrbr1", "642qai", "1ryn66a", "6eswlf"],
+      "wfsc1m", "ssqa3w", "1jqr3ti", "1jizepk", "e29yhw",
+      "a3cu3w", "2k88l8", "1ao8tgo", "1h565gr", "1sel9jg"],
      "Z":["11kd019", "c5ty6a", "1s8zsj8", "o8jhyt", "17kaqmz",
-      "1nvosv7", "19j81dl", "5eif87", "1umla5q", "1ghyujz",
-      "1odhc5f", "1qno0na", "ft21ii", "40jtu", "j2gg8g"]},
+      "1nvosv7", "3r74iw", "1t4vhd8", "1j4h146", "tbyis6",
+      "137xs7j", "3wkf3h", "poarow", "1ctx6ow", "1og073f"]},
     {"n": "화면 코드 5/7", "L": 31742, "f": "6xn65p", "te": 100,
      "h":"/* PsyStat 화면(UI) 코드 — 조각 5/7: 잠재프로파일(LPA)·잠재계층(LCA) 분석\n * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다. */\n(function (G) {\n  'use strict';\n  if (G.__psyEngineMissing",
      "t":"ior research. Journal of Vocational Behavior, 120, 103445.', 'https://doi.org/10.1016/j.jvb.2020.103",
@@ -307,12 +307,12 @@ table.res thead th:first-child { text-align: left; }
   if (!box || !out) return;
   box.style.display = ''; out.style.display = '';
   box.firstElementChild.textContent = '파일 점검 결과: 원본과 다른 부분이 있습니다. 아래 내용을 사진으로 보내 주세요.';
-  out.textContent += '[파일 자가 점검 · v0.9.2]\n' + rows.join('\n') + '\n';
+  out.textContent += '[파일 자가 점검 · v0.9.3]\n' + rows.join('\n') + '\n';
   });
 })();
 </script>
 <header class="top">
-  <h1>PsyStat <small>오프라인 통계 · v0.9.2</small></h1>
+  <h1>PsyStat <small>오프라인 통계 · v0.9.3</small></h1>
   <button class="btn" id="openBtn">파일 열기 (CSV·XLSX)</button>
   <button class="btn" id="exBtn">예시 데이터</button>
   <input type="file" id="file" accept=".csv,.txt,.tsv,.xlsx" style="display:none">
@@ -3539,21 +3539,45 @@ table.res thead th:first-child { text-align: left; }
     var seen = {};
     header = header.map(function (h) { var b = h, k = 2; while (seen[h]) h = b + '_' + k++; seen[h] = 1; return h; });
     var body = rows.slice(1), p = header.length;
-    var cols = [], types = [];
+    var cols = [], types = [], notes = [];
+    // 불러오기 점검: 결과가 이상할 때 원인을 바로 볼 수 있게
+    if (p === 1) notes.push('변수가 1개로 읽혔습니다. 구분자(탭·쉼표)를 찾지 못했을 수 있습니다. 엑셀에서 범위를 다시 복사해 보세요.');
+    var wide = body.filter(function (r) { return r.length > p && r.slice(p).some(function (c) { return String(c).trim() !== ''; }); }).length;
+    if (wide) notes.push(wide + '개 행의 칸 수가 머리행보다 많아 넘친 칸은 버렸습니다. 병합된 머리행이나 셀 안 줄바꿈을 확인하세요.');
+    var blankHead = rows[0].filter(function (h) { return String(h).trim() === ''; }).length;
+    if (blankHead) notes.push('이름이 빈 열 ' + blankHead + '개에 V1, V2… 이름을 붙였습니다. 머리행이 2줄(병합 셀)이면 1줄로 정리해 주세요.');
     for (var j = 0; j < p; j++) {
       var raw = body.map(function (r) { return r[j] === undefined ? '' : String(r[j]).trim(); });
       var allNum = raw.every(function (v) { return MISSING[v] === 1 || (!isNaN(Number(v.replace(/,/g, ''))) && v !== ''); });
       if (allNum) { cols.push(raw.map(function (v) { return MISSING[v] === 1 ? null : Number(v.replace(/,/g, '')); })); types.push('num'); }
-      else { cols.push(raw.map(function (v) { return MISSING[v] === 1 ? null : v; })); types.push('text'); }
+      else {
+        cols.push(raw.map(function (v) { return MISSING[v] === 1 ? null : v; })); types.push('text');
+        var nonMiss = raw.filter(function (v) { return MISSING[v] !== 1; });
+        var bad = nonMiss.filter(function (v) { return isNaN(Number(v.replace(/,/g, ''))); });
+        if (nonMiss.length >= 5 && bad.length <= nonMiss.length * 0.2) {
+          var ex = []; bad.forEach(function (v) { if (ex.indexOf(v) < 0 && ex.length < 3) ex.push(v); });
+          notes.push('"' + header[j] + '": 숫자가 아닌 값 ' + bad.length + '건 때문에 문자형으로 읽혔습니다 (예: ' + ex.map(function (v) { return '"' + v + '"'; }).join(', ') + '). 결측이면 빈 칸으로 바꾸거나 아래 "변수 형식"에서 숫자로 바꾸세요(숫자가 아닌 값은 결측 처리).');
+        }
+      }
     }
+    state.loadNotes = notes;
     state.names = header; state.cols = cols; state.types = types; state.nrows = body.length; state.fileName = fileName || ''; // 객체를 바꾸지 않고 필드만 갱신 (조각 간 공유)
     updateInfo();
     select('data');
   }
   function parseDelimited(text) {
     if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
-    var first = text.split(/\r?\n/)[0] || '';
-    var delim = first.indexOf('\t') >= 0 ? '\t' : (first.split(';').length > first.split(',').length ? ';' : ',');
+    // 구분자: 첫 '레코드'에서 따옴표 밖의 탭·세미콜론·쉼표를 센다.
+    // (머리행 셀 안에 줄바꿈(Alt+Enter)이 있으면 엑셀이 그 셀을 따옴표로 감싸므로, 단순히 첫 줄만 보면 탭을 놓친다)
+    var nt = 0, ns = 0, nc = 0, inq = false;
+    for (var k = 0; k < text.length; k++) {
+      var ch = text[k];
+      if (ch === '"') { if (inq && text[k + 1] === '"') { k++; continue; } inq = !inq; continue; }
+      if (inq) continue;
+      if (ch === '\n' || ch === '\r') break;
+      if (ch === '\t') nt++; else if (ch === ';') ns++; else if (ch === ',') nc++;
+    }
+    var delim = nt > 0 ? '\t' : (ns > nc ? ';' : ',');
     var rows = [], row = [], cell = '', q = false;
     for (var i = 0; i < text.length; i++) {
       var c = text[i];
@@ -4933,7 +4957,8 @@ table.res thead th:first-child { text-align: left; }
   function dataPreview() {
     if (!state.nrows) return '<div class="empty"><h2>PsyStat</h2><p>폐쇄망용 단일 파일 통계 도구입니다. 외부와 통신하지 않으며, 자료는 이 PC의 브라우저 밖으로 나가지 않습니다.</p><p>왼쪽에서 자료를 붙여넣거나, 위의 <b>예시 데이터</b>로 먼저 둘러보세요.</p></div>';
     var maxR = Math.min(state.nrows, 300);
-    var h = '<div class="card"><h3>데이터 미리보기</h3><div class="meta">' + esc(state.fileName) + ' · ' + state.nrows + '행 × ' + state.names.length + '변수' + (state.nrows > maxR ? ' (처음 ' + maxR + '행 표시)' : '') + '</div><div class="datagrid"><table><thead><tr><th>#</th>' +
+    var h = '<div class="card"><h3>데이터 미리보기</h3><div class="meta">' + esc(state.fileName) + ' · ' + state.nrows + '행 × ' + state.names.length + '변수' + (state.nrows > maxR ? ' (처음 ' + maxR + '행 표시)' : '') + '</div>' +
+      (state.loadNotes && state.loadNotes.length ? '<div class="warn"><b>불러오기 점검</b><br>' + state.loadNotes.map(esc).join('<br>') + '</div>' : '') + '<div class="datagrid"><table><thead><tr><th>#</th>' +
       state.names.map(function (n, i) { return '<th>' + esc(n) + '<br><span class="note">' + (state.types[i] === 'num' ? '숫자' : '문자') + '</span></th>'; }).join('') + '</tr></thead><tbody>';
     for (var r = 0; r < maxR; r++) {
       h += '<tr><td class="na">' + (r + 1) + '</td>' + state.cols.map(function (c) { var v = c[r]; return v === null ? '<td class="na">·</td>' : '<td>' + esc(v) + '</td>'; }).join('') + '</tr>';
@@ -4953,14 +4978,19 @@ table.res thead th:first-child { text-align: left; }
       while (res.firstChild && !res.firstChild.classList.contains('datapreview')) savedResults.appendChild(res.firstChild);
       opts.innerHTML = dataView();
       res.innerHTML = '<div class="datapreview">' + dataPreview() + '</div>';
-      $('#pasteGo').onclick = function () { var t = $('#pastebox').value; if (!t.trim()) return; try { setData(parseDelimited(t), '붙여넣은 자료'); } catch (e) { alert(e.message); } };
+      $('#pasteGo').onclick = function () { var t = $('#pastebox').value; if (!t.trim()) { alert('붙여넣은 내용이 비어 있습니다. 엑셀에서 범위를 복사(Ctrl+C)한 뒤 위 칸을 클릭하고 Ctrl+V를 눌러 주세요. 그래도 비어 있으면 문서보안(DRM) 프로그램이 브라우저로의 붙여넣기를 막고 있을 수 있습니다.'); return; } try { setData(parseDelimited(t), '붙여넣은 자료'); } catch (e) { alert(e.message); } };
       $('#openBtn2').onclick = function () { $('#file').click(); };
       $$('[data-type]').forEach(function (s) {
         s.onchange = function () {
           var i = Number(s.dataset.type);
           if (s.value === 'num') {
-            var conv = state.cols[i].map(function (v) { return v === null ? null : Number(v); });
-            if (conv.some(function (v) { return v !== null && isNaN(v); })) { alert('숫자로 바꿀 수 없는 값이 있습니다.'); s.value = 'text'; return; }
+            var conv = state.cols[i].map(function (v) { return v === null ? null : Number(String(v).replace(/,/g, '')); });
+            var badV = state.cols[i].filter(function (v, r) { return v !== null && isNaN(conv[r]); });
+            if (badV.length) {
+              var ex = []; badV.forEach(function (v) { if (ex.indexOf(v) < 0 && ex.length < 3) ex.push(v); });
+              if (!confirm('숫자가 아닌 값 ' + badV.length + '건(예: ' + ex.join(', ') + ')을 결측으로 처리하고 숫자형으로 바꿀까요?')) { s.value = 'text'; return; }
+              conv = conv.map(function (v) { return v === null || isNaN(v) ? null : v; });
+            }
             state.cols[i] = conv;
           } else state.cols[i] = state.cols[i].map(function (v) { return v === null ? null : String(v); });
           state.types[i] = s.value; $('#results').innerHTML = '<div class="datapreview">' + dataPreview() + '</div>';

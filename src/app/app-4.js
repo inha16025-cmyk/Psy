@@ -159,7 +159,8 @@
   function dataPreview() {
     if (!state.nrows) return '<div class="empty"><h2>PsyStat</h2><p>폐쇄망용 단일 파일 통계 도구입니다. 외부와 통신하지 않으며, 자료는 이 PC의 브라우저 밖으로 나가지 않습니다.</p><p>왼쪽에서 자료를 붙여넣거나, 위의 <b>예시 데이터</b>로 먼저 둘러보세요.</p></div>';
     var maxR = Math.min(state.nrows, 300);
-    var h = '<div class="card"><h3>데이터 미리보기</h3><div class="meta">' + esc(state.fileName) + ' · ' + state.nrows + '행 × ' + state.names.length + '변수' + (state.nrows > maxR ? ' (처음 ' + maxR + '행 표시)' : '') + '</div><div class="datagrid"><table><thead><tr><th>#</th>' +
+    var h = '<div class="card"><h3>데이터 미리보기</h3><div class="meta">' + esc(state.fileName) + ' · ' + state.nrows + '행 × ' + state.names.length + '변수' + (state.nrows > maxR ? ' (처음 ' + maxR + '행 표시)' : '') + '</div>' +
+      (state.loadNotes && state.loadNotes.length ? '<div class="warn"><b>불러오기 점검</b><br>' + state.loadNotes.map(esc).join('<br>') + '</div>' : '') + '<div class="datagrid"><table><thead><tr><th>#</th>' +
       state.names.map(function (n, i) { return '<th>' + esc(n) + '<br><span class="note">' + (state.types[i] === 'num' ? '숫자' : '문자') + '</span></th>'; }).join('') + '</tr></thead><tbody>';
     for (var r = 0; r < maxR; r++) {
       h += '<tr><td class="na">' + (r + 1) + '</td>' + state.cols.map(function (c) { var v = c[r]; return v === null ? '<td class="na">·</td>' : '<td>' + esc(v) + '</td>'; }).join('') + '</tr>';
@@ -179,14 +180,19 @@
       while (res.firstChild && !res.firstChild.classList.contains('datapreview')) savedResults.appendChild(res.firstChild);
       opts.innerHTML = dataView();
       res.innerHTML = '<div class="datapreview">' + dataPreview() + '</div>';
-      $('#pasteGo').onclick = function () { var t = $('#pastebox').value; if (!t.trim()) return; try { setData(parseDelimited(t), '붙여넣은 자료'); } catch (e) { alert(e.message); } };
+      $('#pasteGo').onclick = function () { var t = $('#pastebox').value; if (!t.trim()) { alert('붙여넣은 내용이 비어 있습니다. 엑셀에서 범위를 복사(Ctrl+C)한 뒤 위 칸을 클릭하고 Ctrl+V를 눌러 주세요. 그래도 비어 있으면 문서보안(DRM) 프로그램이 브라우저로의 붙여넣기를 막고 있을 수 있습니다.'); return; } try { setData(parseDelimited(t), '붙여넣은 자료'); } catch (e) { alert(e.message); } };
       $('#openBtn2').onclick = function () { $('#file').click(); };
       $$('[data-type]').forEach(function (s) {
         s.onchange = function () {
           var i = Number(s.dataset.type);
           if (s.value === 'num') {
-            var conv = state.cols[i].map(function (v) { return v === null ? null : Number(v); });
-            if (conv.some(function (v) { return v !== null && isNaN(v); })) { alert('숫자로 바꿀 수 없는 값이 있습니다.'); s.value = 'text'; return; }
+            var conv = state.cols[i].map(function (v) { return v === null ? null : Number(String(v).replace(/,/g, '')); });
+            var badV = state.cols[i].filter(function (v, r) { return v !== null && isNaN(conv[r]); });
+            if (badV.length) {
+              var ex = []; badV.forEach(function (v) { if (ex.indexOf(v) < 0 && ex.length < 3) ex.push(v); });
+              if (!confirm('숫자가 아닌 값 ' + badV.length + '건(예: ' + ex.join(', ') + ')을 결측으로 처리하고 숫자형으로 바꿀까요?')) { s.value = 'text'; return; }
+              conv = conv.map(function (v) { return v === null || isNaN(v) ? null : v; });
+            }
             state.cols[i] = conv;
           } else state.cols[i] = state.cols[i].map(function (v) { return v === null ? null : String(v); });
           state.types[i] = s.value; $('#results').innerHTML = '<div class="datapreview">' + dataPreview() + '</div>';

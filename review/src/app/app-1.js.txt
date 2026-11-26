@@ -124,21 +124,45 @@
     var seen = {};
     header = header.map(function (h) { var b = h, k = 2; while (seen[h]) h = b + '_' + k++; seen[h] = 1; return h; });
     var body = rows.slice(1), p = header.length;
-    var cols = [], types = [];
+    var cols = [], types = [], notes = [];
+    // 불러오기 점검: 결과가 이상할 때 원인을 바로 볼 수 있게
+    if (p === 1) notes.push('변수가 1개로 읽혔습니다. 구분자(탭·쉼표)를 찾지 못했을 수 있습니다. 엑셀에서 범위를 다시 복사해 보세요.');
+    var wide = body.filter(function (r) { return r.length > p && r.slice(p).some(function (c) { return String(c).trim() !== ''; }); }).length;
+    if (wide) notes.push(wide + '개 행의 칸 수가 머리행보다 많아 넘친 칸은 버렸습니다. 병합된 머리행이나 셀 안 줄바꿈을 확인하세요.');
+    var blankHead = rows[0].filter(function (h) { return String(h).trim() === ''; }).length;
+    if (blankHead) notes.push('이름이 빈 열 ' + blankHead + '개에 V1, V2… 이름을 붙였습니다. 머리행이 2줄(병합 셀)이면 1줄로 정리해 주세요.');
     for (var j = 0; j < p; j++) {
       var raw = body.map(function (r) { return r[j] === undefined ? '' : String(r[j]).trim(); });
       var allNum = raw.every(function (v) { return MISSING[v] === 1 || (!isNaN(Number(v.replace(/,/g, ''))) && v !== ''); });
       if (allNum) { cols.push(raw.map(function (v) { return MISSING[v] === 1 ? null : Number(v.replace(/,/g, '')); })); types.push('num'); }
-      else { cols.push(raw.map(function (v) { return MISSING[v] === 1 ? null : v; })); types.push('text'); }
+      else {
+        cols.push(raw.map(function (v) { return MISSING[v] === 1 ? null : v; })); types.push('text');
+        var nonMiss = raw.filter(function (v) { return MISSING[v] !== 1; });
+        var bad = nonMiss.filter(function (v) { return isNaN(Number(v.replace(/,/g, ''))); });
+        if (nonMiss.length >= 5 && bad.length <= nonMiss.length * 0.2) {
+          var ex = []; bad.forEach(function (v) { if (ex.indexOf(v) < 0 && ex.length < 3) ex.push(v); });
+          notes.push('"' + header[j] + '": 숫자가 아닌 값 ' + bad.length + '건 때문에 문자형으로 읽혔습니다 (예: ' + ex.map(function (v) { return '"' + v + '"'; }).join(', ') + '). 결측이면 빈 칸으로 바꾸거나 아래 "변수 형식"에서 숫자로 바꾸세요(숫자가 아닌 값은 결측 처리).');
+        }
+      }
     }
+    state.loadNotes = notes;
     state.names = header; state.cols = cols; state.types = types; state.nrows = body.length; state.fileName = fileName || ''; // 객체를 바꾸지 않고 필드만 갱신 (조각 간 공유)
     updateInfo();
     select('data');
   }
   function parseDelimited(text) {
     if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
-    var first = text.split(/\r?\n/)[0] || '';
-    var delim = first.indexOf('\t') >= 0 ? '\t' : (first.split(';').length > first.split(',').length ? ';' : ',');
+    // 구분자: 첫 '레코드'에서 따옴표 밖의 탭·세미콜론·쉼표를 센다.
+    // (머리행 셀 안에 줄바꿈(Alt+Enter)이 있으면 엑셀이 그 셀을 따옴표로 감싸므로, 단순히 첫 줄만 보면 탭을 놓친다)
+    var nt = 0, ns = 0, nc = 0, inq = false;
+    for (var k = 0; k < text.length; k++) {
+      var ch = text[k];
+      if (ch === '"') { if (inq && text[k + 1] === '"') { k++; continue; } inq = !inq; continue; }
+      if (inq) continue;
+      if (ch === '\n' || ch === '\r') break;
+      if (ch === '\t') nt++; else if (ch === ';') ns++; else if (ch === ',') nc++;
+    }
+    var delim = nt > 0 ? '\t' : (ns > nc ? ';' : ',');
     var rows = [], row = [], cell = '', q = false;
     for (var i = 0; i < text.length; i++) {
       var c = text[i];

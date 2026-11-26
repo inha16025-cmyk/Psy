@@ -1,4 +1,4 @@
-/* PsyStat 0.9.2 \uACC4\uC0B0 \uC5D4\uC9C4 \u2014 PsyStat.html\uACFC
+/* PsyStat 0.9.3 \uACC4\uC0B0 \uC5D4\uC9C4 \u2014 PsyStat.html\uACFC
   \uAC19\uC740 \uD3F4\uB354\uC5D0 \uB450\uC138\uC694 */
 /*
  * PsyStat \uD1B5\uACC4 \uC5D4\uC9C4 (stats) \u2014 \uC870\uAC01 1/4:

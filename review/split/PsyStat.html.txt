@@ -188,7 +188,7 @@ table.res thead th:first-child { text-align: left; }
     <li><b>&#xD30C;&#xC77C; &#xD06C;&#xAE30;</b>: &#xD30C;&#xC77C;
       &#xC18D;<!--
       -->&#xC131;&#xC5D0;&#xC11C; &#xD06C;&#xAE30;&#xAC00; &#xC57D; <b><!--
-      -->   365,456&#xBC14;&#xC774;&#xD2B8;</b>(&#xBD84;&#xD560;<!--
+      -->   370,215&#xBC14;&#xC774;&#xD2B8;</b>(&#xBD84;&#xD560;<!--
         -->&#xD310;: PsyStat-engine.js 213,007&#xBC14;&#xC774;&#xD2B8;<!--
         -->&#xB3C4; &#xAC19;&#xC740; &#xD3F4;&#xB354;&#xC5D0; &#xC788;<!--
         -->&#xC5B4;&#xC57C; &#xD568;)&#xC778;<!--
@@ -206,8 +206,8 @@ table.res thead th:first-child { text-align: left; }
         &#xC6D0;<!--
       -->&#xBCF8; SHA-256: <code style="font-size:12px;
 word-break:break-all">(&#xC2A4;&#xD06C;&#xB9BD;&#xD2B8; &#xBCF8;<!--
-        -->&#xBB38;) 5626a3d8ef92e243cfeda45c4ba52f<!--
-        -->3d9ec20c9d03bcdad5c43ac686c076ab9f</code></li>
+        -->&#xBB38;) 6432675f3299f317c7168d6443be3d<!--
+        -->bfdded06b7476e259bead3c5597b93a456</code></li>
     <li><b>&#xBE0C;&#xB77C;&#xC6B0;&#xC800; &#xC815;&#xCC45;</b>:
       &#xAE30;<!--
       -->&#xAD00; &#xC815;&#xCC45;&#xC73C;&#xB85C; &#xB85C;&#xCEEC;
@@ -291,7 +291,7 @@ word-break:break-all">(&#xC2A4;&#xD06C;&#xB9BD;&#xD2B8; &#xBCF8;<!--
        + "\\uC54A\\uC558'\n  + '\\uB294\\uC9C0(\\uD06C\\uAE30 213,0"),
      "A":[],
      "Z":[]},
-    {"n": "\uD654\uBA74 \uCF54\uB4DC 1/7", "L": 59420, "f": "sfghew", "te":
+    {"n": "\uD654\uBA74 \uCF54\uB4DC 1/7", "L": 62741, "f": "186y5i8", "te":
       100,
      "h":("\n/* PsyStat \\uD654\\uBA74(UI) \\uCF54\\uB4DC \\u2014 \\"
        + "uC870\\uAC01 1/7:\n  \\uACF5\\uD1B5 \\uB3C4\\uC6B0\\uBBF8"
@@ -300,17 +300,19 @@ word-break:break-all">(&#xC2A4;&#xD06C;&#xB9BD;&#xD2B8; &#xBCF8;<!--
      "t":("eLevelPicker; NS.boxMTable = boxMTable; NS.groupDescTable"
        + " =\n    groupDescTable;\n  NS.ldaPlotSVG = ld"),
      "A":["j6pfcu", "vvd7xa", "vbp3n2", "16l4x4v", "1cx4zdq",
-      "kejdmx", "8w353o", "14oyeoh", "c0l3ia", "9xqfzh",
-      "fllzwt", "bril27", "1mfgync", "gvijoj", "1ct1tde",
-      "m4ioos", "1k0g4gp", "1usot7l", "wqahze", "1pfu3ae",
-      "qtqwrq", "1627tr0", "1yn3mgu", "i45b68", "1oco1w",
-      "k16v78", "lsoy4u", "1mrfzoq", "186b5n"],
+      "kejdmx", "1igbu5i", "1oefkug", "1n1hj88", "htl4ya",
+      "74ym1y", "1b7r6mc", "omvp4o", "1tkr0vj", "iz6kda",
+      "18cyb0h", "113gm4y", "1kld1lv", "c2agrp", "1jeqq6f",
+      "11cddoe", "en5spf", "1kl2nc6", "jwanab", "1dyc5ve",
+      "x7anc9", "jp1qf8", "13by214", "l4gxq2", "1m7btma",
+      "nlqsnc"],
      "Z":["13vq7gu", "1ehn37m", "1yksfia", "sv2s6p", "1s0ns2e",
       "1xsw38y", "1tub2gf", "y5maxg", "1so7fyd", "12yicn",
       "mdlqd8", "1idhpz7", "1ip0zv3", "1qrn6jv", "1u4nn73",
       "1sh5pru", "z79n99", "txm6o7", "71bocp", "a93hhg",
-      "18sozdl", "71wsk3", "50oenw", "1an8f55", "1iz570l",
-      "1bwr4eo", "1g3azi9", "1c8l013", "1f8e9kv"]},
+      "18sozdl", "71wsk3", "50oenw", "1907xpm", "o087b3",
+      "gir59p", "1l2vey0", "9ntp1h", "eumiim", "137udyv",
+      "u4so7w"]},
     {"n": "\uD654\uBA74 \uCF54\uB4DC 2/7", "L": 67814, "f": "uczlfd", "te":
       100,
      "h":("\n/* PsyStat \\uD654\\uBA74(UI) \\uCF54\\uB4DC \\u2014 \\"
@@ -349,7 +351,7 @@ word-break:break-all">(&#xC2A4;&#xD06C;&#xB9BD;&#xD2B8; &#xBCF8;<!--
       "1r261g", "dw0pvm", "165baoh", "10cgi47", "vx663v",
       "1xhsb1m", "1grs0q0", "1qdi6w2", "4uavo", "haaebc",
       "ck36oj", "cua7ve", "1rqqrmx"]},
-    {"n": "\uD654\uBA74 \uCF54\uB4DC 4/7", "L": 44057, "f": "bqetqp", "te":
+    {"n": "\uD654\uBA74 \uCF54\uB4DC 4/7", "L": 45435, "f": "fihjed", "te":
       100,
      "h":("\n/* PsyStat \\uD654\\uBA74(UI) \\uCF54\\uB4DC \\u2014 \\"
        + "uC870\\uAC01 4/7:\n  \\uB124\\uD2B8\\uC6CC\\uD06C \\uBD84"
@@ -359,14 +361,14 @@ word-break:break-all">(&#xC2A4;&#xD06C;&#xB9BD;&#xD2B8; &#xBCF8;<!--
        + "v;\n  NS.about = about; NS.saveResults = sav"),
      "A":["1f4co62", "n2qhgx", "1sw4bua", "109f8jv", "y585vn",
       "1vnaivl", "1hq997g", "13qkiez", "1gdq0sb", "ddn0ih",
-      "1nufjev", "5owrbk", "c4vioz", "157yun0", "dv0kz8",
-      "4frzai", "110t8mf", "3wfcs1", "10e4ams", "1526m3e",
-      "5kr0d", "8zx2z3"],
+      "1nufjev", "5owrbk", "9o5gkm", "1u0onii", "7fddkm",
+      "9x6h2t", "1wqh9e3", "1p8xjgw", "js3lo2", "oc307s",
+      "seb1st", "wdt6oi"],
      "Z":["16lb2lg", "1dmsvt8", "ps6i89", "1asmuab", "1i8zbd6",
-      "30r3vs", "7vsfk", "1x3gky0", "srwg1j", "7fe08a",
-      "1i9shwe", "166e26v", "1qb7faa", "g8j38y", "8fnw71",
-      "1eo6tlb", "t0bphj", "1vpq46m", "tk3zhc", "739uyj",
-      "lveahq", "claw3e"]},
+      "30r3vs", "7vsfk", "1x3gky0", "h69pab", "1yrkgc1",
+      "19nh55w", "1bndbp1", "i0kt1l", "1fp5rvq", "1rid4vo",
+      "cffz57", "1ry07jm", "16b851q", "2oyy1v", "19ow349",
+      "1fkeutx", "1daijp5"]},
     {"n": "\uD654\uBA74 \uCF54\uB4DC 5/7", "L": 49476, "f": "1eh0ggf", "te":
       100,
      "h":("\n/* PsyStat \\uD654\\uBA74(UI) \\uCF54\\uB4DC \\u2014 \\"
@@ -477,14 +479,14 @@ word-break:break-all">(&#xC2A4;&#xD06C;&#xB9BD;&#xD2B8; &#xBCF8;<!--
     + '\uC544\uB798 \uB0B4\uC6A9\uC744 \uC0AC\uC9C4\uC73C\uB85C '
     + '\uBCF4\uB0B4 \uC8FC\uC138\uC694.');
   out.textContent +=
-    '[\uD30C\uC77C \uC790\uAC00 \uC810\uAC80 \u00B7 v0.9.2]\n' + rows.join(
+    '[\uD30C\uC77C \uC790\uAC00 \uC810\uAC80 \u00B7 v0.9.3]\n' + rows.join(
     '\n') + '\n';
   });
 })();
 </script>
 <header class="top">
   <h1>PsyStat <small>&#xC624;&#xD504;&#xB77C;&#xC778; &#xD1B5;&#xACC4;
-    &#xB7; v0.9.2</small></h1>
+    &#xB7; v0.9.3</small></h1>
   <button class="btn" id="openBtn">&#xD30C;&#xC77C; &#xC5F4;&#xAE30;
     (CSV&#xB7;XLSX)</button>
   <button class="btn" id="exBtn">&#xC608;&#xC2DC; &#xB370;&#xC774;<!--
@@ -751,7 +753,32 @@ if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById(
     header = header.map(function (h) { var b = h, k = 2; while (seen[h]) h =
       b + '_' + k++; seen[h] = 1; return h; });
     var body = rows.slice(1), p = header.length;
-    var cols = [], types = [];
+    var cols = [], types = [], notes = [];
+    // \uBD88\uB7EC\uC624\uAE30 \uC810\uAC80: \uACB0\uACFC\uAC00
+    // \uC774\uC0C1\uD560 \uB54C \uC6D0\uC778\uC744 \uBC14\uB85C \uBCFC
+    // \uC218 \uC788\uAC8C
+    if (p === 1) notes.push(
+      ('\uBCC0\uC218\uAC00 1\uAC1C\uB85C \uC77D\uD614\uC2B5\uB2C8'
+      + '\uB2E4. \uAD6C\uBD84\uC790(\uD0ED\u00B7\uC27C\uD45C)\uB97C'
+      + ' \uCC3E\uC9C0 \uBABB\uD588\uC744 \uC218 \uC788\uC2B5\uB2C8'
+      + '\uB2E4. \uC5D1\uC140\uC5D0\uC11C \uBC94\uC704\uB97C \uB2E4'
+      + '\uC2DC \uBCF5\uC0AC\uD574 \uBCF4\uC138\uC694.'));
+    var wide = body.filter(function (r) { return r.length > p && r.slice(
+      p).some(function (c) { return String(c).trim() !== ''; }); }).length;
+    if (wide) notes.push(wide +
+      ('\uAC1C \uD589\uC758 \uCE78 \uC218\uAC00 \uBA38\uB9AC\uD589'
+      + '\uBCF4\uB2E4 \uB9CE\uC544 \uB118\uCE5C \uCE78\uC740 \uBC84'
+      + '\uB838\uC2B5\uB2C8\uB2E4. \uBCD1\uD569\uB41C \uBA38\uB9AC'
+      + '\uD589\uC774\uB098 \uC140 \uC548 \uC904\uBC14\uAFC8\uC744 '
+      + '\uD655\uC778\uD558\uC138\uC694.'));
+    var blankHead = rows[0].filter(function (h) { return String(h).trim()
+      === ''; }).length;
+    if (blankHead) notes.push('\uC774\uB984\uC774 \uBE48 \uC5F4 ' +
+      blankHead +
+      ('\uAC1C\uC5D0 V1, V2\u2026 \uC774\uB984\uC744 \uBD99\uC600'
+      + '\uC2B5\uB2C8\uB2E4. \uBA38\uB9AC\uD589\uC774 2\uC904('
+      + '\uBCD1\uD569 \uC140)\uC774\uBA74 1\uC904\uB85C \uC815'
+      + '\uB9AC\uD574 \uC8FC\uC138\uC694.'));
     for (var j = 0; j < p; j++) {
       var raw = body.map(function (r) { return r[j] === undefined ? '' :
         String(r[j]).trim(); });
@@ -759,9 +786,29 @@ if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById(
         !isNaN(Number(v.replace(/,/g, ''))) && v !== ''); });
       if (allNum) { cols.push(raw.map(function (v) { return MISSING[v] === 1
         ? null : Number(v.replace(/,/g, '')); })); types.push('num'); }
-      else { cols.push(raw.map(function (v) { return MISSING[v] === 1 ? null
-        : v; })); types.push('text'); }
+      else {
+        cols.push(raw.map(function (v) { return MISSING[v] === 1 ? null : v;
+          })); types.push('text');
+        var nonMiss = raw.filter(function (v) { return MISSING[v] !== 1; });
+        var bad = nonMiss.filter(function (v) { return isNaN(Number(
+          v.replace(/,/g, ''))); });
+        if (nonMiss.length >= 5 && bad.length <= nonMiss.length * 0.2) {
+          var ex = []; bad.forEach(function (v) { if (ex.indexOf(v) < 0 &&
+            ex.length < 3) ex.push(v); });
+          notes.push('"' + header[j] +
+            '": \uC22B\uC790\uAC00 \uC544\uB2CC \uAC12 ' + bad.length +
+            ('\uAC74 \uB54C\uBB38\uC5D0 \uBB38\uC790\uD615\uC73C'
+            + '\uB85C \uC77D\uD614\uC2B5\uB2C8\uB2E4 (\uC608: ') + ex.map(
+            function (v) { return '"' + v + '"'; }).join(', ') +
+            ('). \uACB0\uCE21\uC774\uBA74 \uBE48 \uCE78\uC73C'
+            + '\uB85C \uBC14\uAFB8\uAC70\uB098 \uC544\uB798 "\uBCC0'
+            + '\uC218 \uD615\uC2DD"\uC5D0\uC11C \uC22B\uC790\uB85C '
+            + '\uBC14\uAFB8\uC138\uC694(\uC22B\uC790\uAC00 \uC544'
+            + '\uB2CC \uAC12\uC740 \uACB0\uCE21 \uCC98\uB9AC).'));
+        }
+      }
     }
+    state.loadNotes = notes;
     state.names = header; state.cols = cols; state.types = types;
       state.nrows = body.length; state.fileName = fileName || '';
       // \uAC1D\uCCB4\uB97C \uBC14\uAFB8\uC9C0 \uC54A\uACE0
@@ -771,9 +818,26 @@ if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById(
   }
   function parseDelimited(text) {
     if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
-    var first = text.split(/\r?\n/)[0] || '';
-    var delim = first.indexOf('\t') >= 0 ? '\t' : (first.split(';').length >
-      first.split(',').length ? ';' : ',');
+    // \uAD6C\uBD84\uC790: \uCCAB '\uB808\uCF54\uB4DC'\uC5D0\uC11C
+    // \uB530\uC634\uD45C \uBC16\uC758
+    // \uD0ED\u00B7\uC138\uBBF8\uCF5C\uB860\u00B7\uC27C\uD45C\uB97C
+    // \uC13C\uB2E4.
+    // (\uBA38\uB9AC\uD589 \uC140 \uC548\uC5D0
+    // \uC904\uBC14\uAFC8(Alt+Enter)\uC774 \uC788\uC73C\uBA74
+    // \uC5D1\uC140\uC774 \uADF8 \uC140\uC744 \uB530\uC634\uD45C\uB85C
+    // \uAC10\uC2F8\uBBC0\uB85C, \uB2E8\uC21C\uD788 \uCCAB \uC904\uB9CC
+    // \uBCF4\uBA74 \uD0ED\uC744 \uB193\uCE5C\uB2E4)
+    var nt = 0, ns = 0, nc = 0, inq = false;
+    for (var k = 0; k < text.length; k++) {
+      var ch = text[k];
+      if (ch === '"') { if (inq && text[k + 1] === '"') { k++; continue; }
+        inq = !inq; continue; }
+      if (inq) continue;
+      if (ch === '\n' || ch === '\r') break;
+      if (ch === '\t') nt++; else if (ch === ';') ns++; else if (ch === ',')
+        nc++;
+    }
+    var delim = nt > 0 ? '\t' : (ns > nc ? ';' : ',');
     var rows = [], row = [], cell = '', q = false;
     for (var i = 0; i < text.length; i++) {
       var c = text[i];
@@ -4013,8 +4077,12 @@ if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById(
       + '\uBCF4\uAE30</h3><div class="meta">') + esc(state.fileName) +
       ' \u00B7 ' + state.nrows + '\uD589 \u00D7 ' + state.names.length +
       '\uBCC0\uC218' + (state.nrows > maxR ? ' (\uCC98\uC74C ' + maxR +
-      '\uD589 \uD45C\uC2DC)' : '') +
-      '</div><div class="datagrid"><table><thead><tr><th>#</th>' +
+      '\uD589 \uD45C\uC2DC)' : '') + '</div>' +
+      (state.loadNotes && state.loadNotes.length ?
+        ('<div class="warn"><b>\uBD88\uB7EC\uC624\uAE30 \uC810'
+        + '\uAC80</b><br>') + state.loadNotes.map(esc).join('<br>') +
+        '</div>' : '') +
+        '<div class="datagrid"><table><thead><tr><th>#</th>' +
       state.names.map(function (n, i) { return '<th>' + esc(n) +
         '<br><span class="note">' + (state.types[i] === 'num' ?
         '\uC22B\uC790' : '\uBB38\uC790') + '</span></th>'; }).join('') +
@@ -4044,7 +4112,17 @@ if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById(
       res.innerHTML = '<div class="datapreview">' + dataPreview() +
         '</div>';
       $('#pasteGo').onclick = function () { var t = $('#pastebox').value; if
-        (!t.trim()) return; try { setData(parseDelimited(t),
+        (!t.trim()) { alert(
+        ('\uBD99\uC5EC\uB123\uC740 \uB0B4\uC6A9\uC774 \uBE44\uC5B4'
+        + ' \uC788\uC2B5\uB2C8\uB2E4. \uC5D1\uC140\uC5D0\uC11C '
+        + '\uBC94\uC704\uB97C \uBCF5\uC0AC(Ctrl+C)\uD55C \uB4A4 '
+        + '\uC704 \uCE78\uC744 \uD074\uB9AD\uD558\uACE0 Ctrl+V'
+        + '\uB97C \uB20C\uB7EC \uC8FC\uC138\uC694. \uADF8\uB798'
+        + '\uB3C4 \uBE44\uC5B4 \uC788\uC73C\uBA74 \uBB38\uC11C'
+        + '\uBCF4\uC548(DRM) \uD504\uB85C\uADF8\uB7A8\uC774 \uBE0C'
+        + '\uB77C\uC6B0\uC800\uB85C\uC758 \uBD99\uC5EC\uB123\uAE30'
+        + '\uB97C \uB9C9\uACE0 \uC788\uC744 \uC218 \uC788\uC2B5'
+        + '\uB2C8\uB2E4.')); return; } try { setData(parseDelimited(t),
         '\uBD99\uC5EC\uB123\uC740 \uC790\uB8CC'); } catch (e) { alert(
         e.message); } };
       $('#openBtn2').onclick = function () { $('#file').click(); };
@@ -4053,11 +4131,21 @@ if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById(
           var i = Number(s.dataset.type);
           if (s.value === 'num') {
             var conv = state.cols[i].map(function (v) { return v === null ?
-              null : Number(v); });
-            if (conv.some(function (v) { return v !== null && isNaN(v); }))
-              { alert(('\uC22B\uC790\uB85C \uBC14\uAFC0 \uC218 \uC5C6'
-              + '\uB294 \uAC12\uC774 \uC788\uC2B5\uB2C8\uB2E4.')); s.value =
-              'text'; return; }
+              null : Number(String(v).replace(/,/g, '')); });
+            var badV = state.cols[i].filter(function (v, r) { return v !==
+              null && isNaN(conv[r]); });
+            if (badV.length) {
+              var ex = []; badV.forEach(function (v) { if (ex.indexOf(v) < 0
+                && ex.length < 3) ex.push(v); });
+              if (!confirm('\uC22B\uC790\uAC00 \uC544\uB2CC \uAC12 ' +
+                badV.length + '\uAC74(\uC608: ' + ex.join(', ') +
+                (')\uC744 \uACB0\uCE21\uC73C\uB85C \uCC98\uB9AC'
+                + '\uD558\uACE0 \uC22B\uC790\uD615\uC73C\uB85C '
+                + '\uBC14\uAFC0\uAE4C\uC694?'))) { s.value = 'text'; return;
+                }
+              conv = conv.map(function (v) { return v === null || isNaN(v) ?
+                null : v; });
+            }
             state.cols[i] = conv;
           } else state.cols[i] = state.cols[i].map(function (v) { return v
             === null ? null : String(v); });
