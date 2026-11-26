@@ -148,7 +148,17 @@
         rcode(rRelevel(x) + 'df$y01 <- as.integer(df$' + rname(state.names[y]) + ' == "' + ev + '")\nm <- glm(y01 ~ ' + x.map(function (i) { return rname(state.names[i]); }).join(' + ') + ', data = df, family = binomial)\nsummary(m); exp(cbind(OR = coef(m), confint.default(m)))\nResourceSelection::hoslem.test(m$y, fitted(m), g = 10)');
       var card = addCard('이분형 로지스틱 회귀: ' + state.names[y] + ' = ' + ev, html, x.length + '개 예측변수');
       if (NS.addForest) NS.addForest(card, { panels: [{ title: '예측변수', coefs: m.coefs.slice(1) }], meta: dc.meta, file: 'logistic_OR',
-        lowLabel: '"' + ev + '" 가능성 낮음', highLabel: '"' + ev + '" 가능성 높음' });
+        lowLabel: '"' + ev + '" 가능성 낮음', highLabel: '"' + ev + '" 가능성 높음',
+        // 선형 추세 검정: 해당 변수의 더미 대신 순서 점수(1, 2, …)를 넣고 같은 모형을 다시 적합
+        trendTest: function (vname, order) {
+          var cols = [], names = [], at = -1;
+          x.forEach(function (i) {
+            if (state.names[i] === vname) { at = names.length; names.push(vname + ' (순서 점수)'); cols.push(state.cols[i].map(function (v) { var k = v === null ? -1 : order.indexOf(String(v)); return k < 0 ? null : k + 1; })); return; }
+            var d = designColumns([i]); cols = cols.concat(d.cols); names = names.concat(d.names);
+          });
+          var mt = S.logisticRegression(yy, cols, names, { cutoff: cut }), c = mt.coefs[at + 1];
+          return { b: c.b, se: c.se, wald: c.wald, p: c.p, or: c.or, orLow: c.orLow, orHigh: c.orHigh, n: mt.n };
+        } });
     }
   };
 

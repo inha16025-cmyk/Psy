@@ -1,4 +1,4 @@
-/* PsyStat 화면(UI) 코드 — 조각 8/8: 그림 (오즈비 숲 그림)
+/* PsyStat 화면(UI) 코드 — 조각 8/8: 그림 (오즈비 숲 그림, 범주별 오즈비 추세 그림)
  * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다. */
 (function (G) {
   'use strict';
@@ -131,8 +131,124 @@
     var cb = box.querySelector('[data-act=cont]'); if (cb) cb.onchange = draw;
     box.querySelector('[data-act=svg]').onclick = function () { NS.svgDownload(box.querySelector('.or-plot svg'), spec.file, false); };
     box.querySelector('[data-act=png]').onclick = function () { NS.svgDownload(box.querySelector('.or-plot svg'), spec.file, true); };
+    addTrend(box, spec);
     return box;
   }
 
-  NS.forestSVG = forestSVG; NS.addForest = addForest; NS.buildForestRows = buildRows;
+
+  /*
+   * 범주 추세 그림: 순서가 있는 범주(예: 20대·30대·40대·50대)를 x축에, 기준 범주 대비 오즈비를 y축에 두고 점을 잇는다.
+   * series: [{ name, pts: [{ lv, or, lo, hi, isRef }] }]  (pts는 x축 순서대로)
+   * opts: { log: true(로그 y축) | false, yLabel }
+   */
+  var COLORS = ['#2b5fc7', '#c8372d', '#2e8b57', '#b8860b', '#7b4fb0', '#1a8a9a'];
+  function trendSVG(levels, series, opts) {
+    opts = opts || {};
+    var fs = 12, W = 560, left = 64, right = 16, top = series.length > 1 ? 34 : 14, bottom = 58, plotH = 230;
+    var H = top + plotH + bottom, plotW = W - left - right;
+    var vals = [1];
+    series.forEach(function (sr) { sr.pts.forEach(function (p) { [p.or, p.lo, p.hi].forEach(function (v) { if (isFinite(v) && v > 0) vals.push(v); }); }); });
+    var lo = Math.max(Math.min.apply(null, vals), opts.log ? 0.001 : 0), hi = Math.min(Math.max.apply(null, vals), 1000);
+    var tr = opts.log ? function (v) { return Math.log10(v); } : function (v) { return v; };
+    var a = tr(lo), b = tr(hi), pad = (b - a) * 0.08 || 0.1; a -= pad; b += pad;
+    if (!opts.log && a < 0) a = 0;
+    var Y = function (v) { return top + plotH - (tr(Math.min(Math.max(v, opts.log ? 1e-300 : -1e300), 1e300)) - a) / (b - a) * plotH; };
+    var step = plotW / levels.length, X = function (k, si) { return left + step * (k + 0.5) + (series.length > 1 ? (si - (series.length - 1) / 2) * Math.min(10, step / (series.length + 2)) : 0); };
+    var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + H + '" width="100%" style="max-width:' + W + 'px" font-family="sans-serif" font-size="' + fs + '">' +
+      '<rect x="0" y="0" width="' + W + '" height="' + H + '" fill="#ffffff"/>';
+    // y축 눈금
+    var ticks = opts.log ? niceTicks(Math.pow(10, a), Math.pow(10, b)) : (function () {
+      var span = b - a, st = Math.pow(10, Math.floor(Math.log10(span / 5))), m = span / st > 25 ? 5 : span / st > 10 ? 2 : 1, out = [];
+      for (var t = Math.ceil(a / (st * m)) * st * m; t <= b + 1e-12; t += st * m) out.push(Number(t.toFixed(10)));
+      if (out.indexOf(1) < 0 && 1 >= a && 1 <= b) out.push(1);
+      return out.sort(function (x, y) { return x - y; });
+    })();
+    ticks.forEach(function (t) {
+      var yt = Y(t); if (yt < top - 0.5 || yt > top + plotH + 0.5) return;
+      s += '<line x1="' + left + '" y1="' + yt.toFixed(1) + '" x2="' + (left + plotW) + '" y2="' + yt.toFixed(1) + '" stroke="#e3e7ee"/>' +
+        '<text x="' + (left - 6) + '" y="' + (yt + 4).toFixed(1) + '" text-anchor="end" font-size="11">' + t + '</text>';
+    });
+    s += '<line x1="' + left + '" y1="' + Y(1).toFixed(1) + '" x2="' + (left + plotW) + '" y2="' + Y(1).toFixed(1) + '" stroke="#8a94a6" stroke-dasharray="4 3"/>';
+    s += '<line x1="' + left + '" y1="' + top + '" x2="' + left + '" y2="' + (top + plotH) + '" stroke="#1d2433"/>' +
+      '<line x1="' + left + '" y1="' + (top + plotH) + '" x2="' + (left + plotW) + '" y2="' + (top + plotH) + '" stroke="#1d2433"/>';
+    levels.forEach(function (l, k) { s += '<text x="' + X(k, (series.length - 1) / 2).toFixed(1) + '" y="' + (top + plotH + 17) + '" text-anchor="middle">' + esc(l) + '</text>'; });
+    s += '<text x="' + (left + plotW / 2) + '" y="' + (H - 22) + '" text-anchor="middle" font-size="11">' + esc(opts.xLabel || '') + '</text>';
+    s += '<text transform="translate(14 ' + (top + plotH / 2) + ') rotate(-90)" text-anchor="middle" font-size="11">' + (opts.log ? '오즈비 (로그 척도)' : '오즈비') + '</text>';
+    series.forEach(function (sr, si) {
+      var col = COLORS[si % COLORS.length], path = [];
+      sr.pts.forEach(function (p, k) { if (isFinite(p.or) && p.or > 0) path.push(X(k, si).toFixed(1) + ',' + Y(p.or).toFixed(1)); });
+      s += '<polyline points="' + path.join(' ') + '" fill="none" stroke="' + col + '" stroke-width="1.8"/>';
+      sr.pts.forEach(function (p, k) {
+        var x = X(k, si);
+        if (p.isRef) { s += '<path d="M' + (x - 5).toFixed(1) + ' ' + Y(1).toFixed(1) + ' l5 -5 l5 5 l-5 5 Z" fill="#ffffff" stroke="' + col + '" stroke-width="1.4"/>'; return; }
+        if (!(isFinite(p.or) && p.or > 0)) return;
+        var y1 = Y(isFinite(p.hi) ? Math.min(p.hi, Math.pow(10, 3)) : hi), y0 = Y(isFinite(p.lo) && p.lo > 0 ? p.lo : lo);
+        y1 = Math.max(top, y1); y0 = Math.min(top + plotH, y0);
+        s += '<line x1="' + x.toFixed(1) + '" y1="' + y0.toFixed(1) + '" x2="' + x.toFixed(1) + '" y2="' + y1.toFixed(1) + '" stroke="' + col + '" stroke-width="1.4"/>' +
+          '<line x1="' + (x - 4).toFixed(1) + '" y1="' + y0.toFixed(1) + '" x2="' + (x + 4).toFixed(1) + '" y2="' + y0.toFixed(1) + '" stroke="' + col + '" stroke-width="1.4"/>' +
+          '<line x1="' + (x - 4).toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + (x + 4).toFixed(1) + '" y2="' + y1.toFixed(1) + '" stroke="' + col + '" stroke-width="1.4"/>';
+        var sig = isFinite(p.lo) && isFinite(p.hi) && (p.lo > 1 || p.hi < 1);
+        s += '<circle cx="' + x.toFixed(1) + '" cy="' + Y(p.or).toFixed(1) + '" r="4.5" fill="' + (sig ? col : '#ffffff') + '" stroke="' + col + '" stroke-width="1.6"/>';
+      });
+      if (series.length > 1) {
+        var lx = left + si * 150;
+        s += '<line x1="' + lx + '" y1="14" x2="' + (lx + 18) + '" y2="14" stroke="' + col + '" stroke-width="2"/><text x="' + (lx + 23) + '" y="18" font-size="11">' + esc(sr.name) + '</text>';
+      }
+    });
+    return s + '</svg>';
+  }
+
+  // 추세 그림 영역: 3개 이상 범주를 가진 범주형 예측변수마다 선택 가능
+  function addTrend(box, spec) {
+    var vars = [];
+    spec.meta.forEach(function (m) { if (m && m.lv !== null) { var v = vars.filter(function (x) { return x.v === m.v; })[0]; if (!v) vars.push(v = { v: m.v, ref: m.ref, lvs: [] }); v.lvs.push(m.lv); } });
+    vars = vars.filter(function (v) { return v.lvs.length >= 2; });
+    if (!vars.length) return;
+    var levelsAll = function (v) { return NS.levelsOf(NS.state.names.indexOf(v.v)).filter(function (l) { return l === v.ref || v.lvs.indexOf(l) >= 0; }); };
+    var sec = document.createElement('div');
+    sec.className = 'trend-box';
+    sec.innerHTML = '<h4>그림: 범주별 오즈비 추세</h4>' +
+      '<div class="inline" style="margin:4px 0 6px;flex-wrap:wrap;gap:6px 10px">' +
+      '<label style="font-size:13px">변수 <select data-act="tv">' + vars.map(function (v, k) { return '<option value="' + k + '">' + esc(v.v) + '</option>'; }).join('') + '</select></label>' +
+      '<label style="font-size:13px">x축 순서 <input data-act="order" style="width:260px" title="쉼표로 구분. 범주 이름을 모두 적어야 합니다."></label>' +
+      '<label style="font-size:13px"><input type="checkbox" data-act="log" checked> y축 로그 척도</label>' +
+      '<button class="btn small" data-act="tsvg">그림 SVG 저장</button><button class="btn small" data-act="tpng">그림 PNG 저장</button></div>' +
+      '<div class="trend-plot"></div><div class="trend-test"></div>' +
+      '<p class="note"><i>Note.</i> 점 = 기준 범주(◇, OR = 1) 대비 오즈비, 세로선 = 95% 신뢰구간. 위 숲 그림·표와 같은 모형(다른 예측변수 통제)의 값입니다. ' +
+      '점을 잇는 선은 읽기 쉽게 하려는 것으로, 범주 사이의 값을 추정한 것은 아닙니다. 범주에 자연스러운 순서가 있을 때만 쓰세요.</p>';
+    box.appendChild(sec);
+    var cur = 0;
+    var setOrder = function () { sec.querySelector('[data-act=order]').value = levelsAll(vars[cur]).join(', '); };
+    var draw = function () {
+      var v = vars[cur], order = sec.querySelector('[data-act=order]').value.split(',').map(function (t) { return t.trim(); }).filter(function (t) { return t; });
+      var all = levelsAll(v), msg = '';
+      if (order.length !== all.length || all.some(function (l) { return order.indexOf(l) < 0; })) { msg = 'x축 순서에는 범주 ' + all.join(', ') + '을(를) 빠짐없이 한 번씩 적어 주세요.'; order = all; }
+      var series = spec.panels.map(function (p) {
+        return { name: p.title, pts: order.map(function (l) {
+          if (l === v.ref) return { lv: l, isRef: true, or: 1 };
+          var j = -1; spec.meta.forEach(function (m, k) { if (m && m.v === v.v && m.lv === l) j = k; });
+          var c = p.coefs[j]; return c ? { lv: l, or: c.or, lo: c.orLow, hi: c.orHigh } : { lv: l };
+        }) };
+      });
+      var log = sec.querySelector('[data-act=log]').checked;
+      sec.querySelector('.trend-plot').innerHTML = (msg ? '<div class="warn">' + esc(msg) + '</div>' : '') + trendSVG(order, series, { log: log, xLabel: v.v });
+      var tt = sec.querySelector('.trend-test');
+      if (spec.trendTest) {
+        try {
+          var r = spec.trendTest(v.v, order);
+          tt.innerHTML = '<p class="note"><b>선형 추세 검정 (p for trend)</b>: ' + esc(v.v) + '을(를) 순서 점수(' + order.map(function (l, k) { return esc(l) + '=' + (k + 1); }).join(', ') +
+            ')로 바꿔 같은 모형에 넣었을 때, 한 단계 올라갈 때마다 OR = ' + f(r.or, 2) + ' [' + f(r.orLow, 2) + ', ' + f(r.orHigh, 2) + '], <i>B</i> = ' + NS.fb(r.b, 3) + ', <i>SE</i> = ' + NS.fb(r.se, 3) +
+            ', Wald χ²(1) = ' + f(r.wald, 2) + ', <i>p</i> ' + (r.p < 0.001 ? '< .001' : '= ' + NS.fp(r.p)) + ', N = ' + r.n + '. 범주 간격이 같다고 가정합니다.</p>';
+        } catch (e) { tt.innerHTML = '<p class="note">선형 추세 검정을 계산하지 못했습니다: ' + esc(e.message) + '</p>'; }
+      } else tt.innerHTML = '';
+    };
+    sec.querySelector('[data-act=tv]').onchange = function () { cur = Number(this.value); setOrder(); draw(); };
+    sec.querySelector('[data-act=order]').onchange = draw;
+    sec.querySelector('[data-act=log]').onchange = draw;
+    sec.querySelector('[data-act=tsvg]').onclick = function () { NS.svgDownload(sec.querySelector('.trend-plot svg'), spec.file + '_trend', false); };
+    sec.querySelector('[data-act=tpng]').onclick = function () { NS.svgDownload(sec.querySelector('.trend-plot svg'), spec.file + '_trend', true); };
+    setOrder(); draw();
+  }
+
+  NS.forestSVG = forestSVG; NS.addForest = addForest; NS.buildForestRows = buildRows; NS.trendSVG = trendSVG;
 })(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);

@@ -4,7 +4,7 @@
 //  2) dist/split/PsyStat.html + PsyStat-engine.js — 분할판 (자료 전송 크기 제한 대응; 두 파일을 같은 폴더에 둠)
 'use strict';
 var fs = require('fs'), path = require('path'), crypto = require('crypto');
-var VERSION = '0.9.5';
+var VERSION = '0.9.6';
 var ENGINE = 'PsyStat-engine.js';
 var src = function (f) { return fs.readFileSync(path.join(__dirname, 'src', f), 'utf8'); };
 // 조각 파일 (각 60KB 이하): 메일 등 전송 시스템이 큰 <script> 블록을 손상시키는 문제 대응
