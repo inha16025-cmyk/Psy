@@ -1,4 +1,4 @@
-/* PsyStat 화면(UI) 코드 — 조각 2/7: 상관~조건부 과정 모형
+/* PsyStat 화면(UI) 코드 — 조각 2/8: 상관~조건부 과정 모형
  * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다.
  * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 코드는 분할 전과 동일) */
 (function (G) {
@@ -146,7 +146,9 @@
         (dc.notes.length ? '<p class="note">더미코딩 — ' + esc(dc.notes.join('; ')) + '</p>' : '') +
         '<p class="note">Wald χ² = (B/SE)². 계수·SE는 R의 glm(family = binomial)과 같습니다. Hosmer-Lemeshow는 예측확률의 분위수(10분위)로 집단을 나누는 방식(R ResourceSelection::hoslem.test와 동일)이어서, 동점 처리가 다른 SPSS와는 값이 약간 다를 수 있습니다. 표본이 크면 H-L 검정은 과민해지므로 AUC·보정 정도와 함께 보세요(Hosmer, Lemeshow, & Sturdivant, 2013).</p>' +
         rcode(rRelevel(x) + 'df$y01 <- as.integer(df$' + rname(state.names[y]) + ' == "' + ev + '")\nm <- glm(y01 ~ ' + x.map(function (i) { return rname(state.names[i]); }).join(' + ') + ', data = df, family = binomial)\nsummary(m); exp(cbind(OR = coef(m), confint.default(m)))\nResourceSelection::hoslem.test(m$y, fitted(m), g = 10)');
-      addCard('이분형 로지스틱 회귀: ' + state.names[y] + ' = ' + ev, html, x.length + '개 예측변수');
+      var card = addCard('이분형 로지스틱 회귀: ' + state.names[y] + ' = ' + ev, html, x.length + '개 예측변수');
+      if (NS.addForest) NS.addForest(card, { panels: [{ title: '예측변수', coefs: m.coefs.slice(1) }], meta: dc.meta, file: 'logistic_OR',
+        lowLabel: '"' + ev + '" 가능성 낮음', highLabel: '"' + ev + '" 가능성 높음' });
     }
   };
 

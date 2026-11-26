@@ -1,4 +1,4 @@
-/* PsyStat 화면(UI) 코드 — 조각 1/7: 공통 도우미·자료 읽기·APA 표·결과 카드·기술통계~판별분석
+/* PsyStat 화면(UI) 코드 — 조각 1/8: 공통 도우미·자료 읽기·APA 표·결과 카드·기술통계~판별분석
  * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다.
  * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 코드는 분할 전과 동일) */
 (function (G) {
@@ -328,17 +328,17 @@
     }).join('');
   }
   function designColumns(idxs, forceCat) {
-    var cols = [], names = [], notes = [];
+    var cols = [], names = [], notes = [], meta = []; // meta: 열마다 {v: 변수 이름, lv: 범주(연속이면 null), ref: 기준 범주}
     idxs.forEach(function (i) {
-      if (state.types[i] === 'num' && !(forceCat && forceCat.indexOf(i) >= 0)) { cols.push(state.cols[i]); names.push(state.names[i]); return; }
+      if (state.types[i] === 'num' && !(forceCat && forceCat.indexOf(i) >= 0)) { cols.push(state.cols[i]); names.push(state.names[i]); meta.push({ v: state.names[i], lv: null }); return; }
       var lv = levelsOf(i), ref = refLevelOf(i), user = !!(state.refLevel && state.refLevel[state.names[i]] === ref);
       notes.push(state.names[i] + ': 기준 범주 = "' + ref + '"' + (user ? ' (사용자 지정)' : ''));
       lv.filter(function (l) { return l !== ref; }).forEach(function (l) {
         cols.push(state.cols[i].map(function (v) { return v === null ? null : (String(v) === l ? 1 : 0); }));
-        names.push(state.names[i] + '[' + l + ']');
+        names.push(state.names[i] + '[' + l + ']'); meta.push({ v: state.names[i], lv: l, ref: ref });
       });
     });
-    return { cols: cols, names: names, notes: notes };
+    return { cols: cols, names: names, notes: notes, meta: meta };
   }
 
   /* ---------------- 결과 카드 ---------------- */

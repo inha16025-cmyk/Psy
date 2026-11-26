@@ -138,7 +138,7 @@ R과의 최대 상대오차(2026-11-19 실행 결과, 아홉 테스트 묶음 �
 
 ## 개발
 
-코드는 `src/stats/stats-1.js`·`stats-2.js`(통계 엔진), `src/sem.js`(구조방정식), `src/app/app-1~4.js`(화면), `src/style.css`, `src/index.template.html`에 있습니다. 고친 뒤 `node build.js`를 실행하면 `dist/`가 다시 만들어집니다. `src/stats.js`는 Node 테스트용 로더입니다.
+코드는 `src/stats/stats-1.js`·`stats-2.js`(통계 엔진), `src/sem.js`(구조방정식), `src/app/app-1~8.js`(화면; 8 = 오즈비 숲 그림), `src/style.css`, `src/index.template.html`에 있습니다. 고친 뒤 `node build.js`를 실행하면 `dist/`가 다시 만들어집니다. `src/stats.js`는 Node 테스트용 로더입니다.
 
 **전송용 형식 검사**: 빌드는 전송판에 비ASCII 문자가 남거나 76자를 넘는 줄이 있으면 실패합니다(`tools/wrap76.js`가 의미가 바뀌지 않는 지점에서만 줄을 나눔: 원래 공백, `( [ { ,` 뒤, 긴 문자열은 `('앞' + '뒤')`; `return`/`throw` 뒤는 나누지 않음). 나눌 곳이 없는 아주 긴 정규식 등은 소스에서 `new RegExp('…' + '…')`로 바꿔 주세요.
 

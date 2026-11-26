@@ -1,4 +1,4 @@
-/* PsyStat 화면(UI) 코드 — 조각 5/7: 잠재프로파일(LPA)·잠재계층(LCA) 분석
+/* PsyStat 화면(UI) 코드 — 조각 5/8: 잠재프로파일(LPA)·잠재계층(LCA) 분석
  * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다. */
 (function (G) {
   'use strict';

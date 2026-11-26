@@ -1,4 +1,4 @@
-/* PsyStat 화면(UI) 코드 — 조각 6/7: 메뉴 분류 체계·해석 가이드·다항 로지스틱 회귀
+/* PsyStat 화면(UI) 코드 — 조각 6/8: 메뉴 분류 체계·해석 가이드·다항 로지스틱 회귀
  * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다. */
 (function (G) {
   'use strict';
@@ -174,7 +174,12 @@
         (dc.notes.length ? '<p class="note">더미코딩 — ' + esc(dc.notes.join('; ')) + '</p>' : '') +
         '<p class="note">N = ' + m.n + ' (목록별 제거). 계수·표준오차·로그우도는 R의 nnet::multinom과 같습니다(bfi 자료로 대조, 오차 < 3e-5). 표준오차는 관측정보행렬로 계산했습니다.</p>' +
         rcode('library(nnet)\n' + rRelevel(x) + 'df$y <- relevel(factor(df$' + rname(yn) + '), ref = "' + refLv + '")\nm <- multinom(y ~ ' + x.map(function (i) { return rname(state.names[i]); }).join(' + ') + ', data = df, Hess = TRUE)\nsummary(m); exp(coef(m))');
-      addCard('다항 로지스틱 회귀: ' + yn, html, x.length + '개 예측변수, ' + m.K + '개 범주');
+      var card = addCard('다항 로지스틱 회귀: ' + yn, html, x.length + '개 예측변수, ' + m.K + '개 범주');
+      if (NS.addForest) {
+        var lvls = []; m.coefs.forEach(function (c) { if (lvls.indexOf(c.level) < 0) lvls.push(c.level); });
+        NS.addForest(card, { panels: lvls.map(function (l) { return { title: l + ' vs ' + m.levels[m.ref] + '(기준)', coefs: m.coefs.filter(function (c) { return c.level === l && c.name !== '(절편)'; }) }; }),
+          meta: dc.meta, file: 'multinomial_OR', lowLabel: '기준 범주 쪽', highLabel: '비교 범주 쪽', note: '종속변수의 각 범주를 기준 범주(' + m.levels[m.ref] + ')와 비교한 오즈비입니다.' });
+      }
     }
   };
 

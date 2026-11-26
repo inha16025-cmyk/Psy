@@ -4,12 +4,12 @@
 //  2) dist/split/PsyStat.html + PsyStat-engine.js — 분할판 (자료 전송 크기 제한 대응; 두 파일을 같은 폴더에 둠)
 'use strict';
 var fs = require('fs'), path = require('path'), crypto = require('crypto');
-var VERSION = '0.9.4';
+var VERSION = '0.9.5';
 var ENGINE = 'PsyStat-engine.js';
 var src = function (f) { return fs.readFileSync(path.join(__dirname, 'src', f), 'utf8'); };
 // 조각 파일 (각 60KB 이하): 메일 등 전송 시스템이 큰 <script> 블록을 손상시키는 문제 대응
 var STATS_PARTS = ['stats/stats-1.js', 'stats/stats-2.js', 'stats/stats-3.js', 'stats/stats-4.js'];
-var APP_PARTS = ['app/app-1.js', 'app/app-2.js', 'app/app-3.js', 'app/app-4.js', 'app/app-5.js', 'app/app-6.js', 'app/app-7.js'];
+var APP_PARTS = ['app/app-1.js', 'app/app-2.js', 'app/app-3.js', 'app/app-4.js', 'app/app-5.js', 'app/app-6.js', 'app/app-7.js', 'app/app-8.js'];
 // 0.6.0에서 '큰 블록이 손상된다'는 가설로 60KB 한도를 두었으나, 실제 원인은 quoted-printable 복원 실패로 확인됨(0.9.1).
 // 조각 구조는 유지하고, 이스케이프·줄 나누기로 늘어난 전송판 크기를 감안해 한도를 72KB로 둔다(점검용).
 var MAX_BLOCK = 72 * 1024;
