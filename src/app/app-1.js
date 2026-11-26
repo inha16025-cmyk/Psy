@@ -146,7 +146,7 @@
       }
     }
     state.loadNotes = notes;
-    state.names = header; state.cols = cols; state.types = types; state.nrows = body.length; state.fileName = fileName || ''; // 객체를 바꾸지 않고 필드만 갱신 (조각 간 공유)
+    state.names = header; state.cols = cols; state.types = types; state.refLevel = {}; state.nrows = body.length; state.fileName = fileName || ''; // 객체를 바꾸지 않고 필드만 갱신 (조각 간 공유)
     updateInfo();
     select('data');
   }
@@ -315,13 +315,25 @@
   function need(cond, msg) { if (!cond) throw new Error(msg); }
 
   // 문자형/범주형 예측변수 → 더미 코딩 (첫 수준이 기준)
+  // 더미코딩 기준 범주: 데이터 화면에서 변수별로 지정 (변수 이름으로 저장; 없거나 사라진 범주면 첫 범주)
+  function refLevelOf(i) {
+    var lv = levelsOf(i), r = state.refLevel ? state.refLevel[state.names[i]] : undefined;
+    return r !== undefined && lv.indexOf(r) >= 0 ? r : lv[0];
+  }
+  // R 코드: 사용자가 기준 범주를 정한 변수만 relevel (R의 기본 순서와 다를 수 있으므로)
+  function rRelevel(idxs) {
+    return idxs.filter(function (i) { return state.refLevel && state.refLevel[state.names[i]] !== undefined; }).map(function (i) {
+      var v = 'df$' + rname(state.names[i]);
+      return v + ' <- relevel(factor(' + v + '), ref = "' + String(refLevelOf(i)).replace(/(["\\])/g, '\\$1') + '")\n';
+    }).join('');
+  }
   function designColumns(idxs, forceCat) {
     var cols = [], names = [], notes = [];
     idxs.forEach(function (i) {
       if (state.types[i] === 'num' && !(forceCat && forceCat.indexOf(i) >= 0)) { cols.push(state.cols[i]); names.push(state.names[i]); return; }
-      var lv = levelsOf(i);
-      notes.push(state.names[i] + ': 기준 범주 = "' + lv[0] + '"');
-      lv.slice(1).forEach(function (l) {
+      var lv = levelsOf(i), ref = refLevelOf(i), user = !!(state.refLevel && state.refLevel[state.names[i]] === ref);
+      notes.push(state.names[i] + ': 기준 범주 = "' + ref + '"' + (user ? ' (사용자 지정)' : ''));
+      lv.filter(function (l) { return l !== ref; }).forEach(function (l) {
         cols.push(state.cols[i].map(function (v) { return v === null ? null : (String(v) === l ? 1 : 0); }));
         names.push(state.names[i] + '[' + l + ']');
       });
@@ -586,7 +598,7 @@
   };
 
   // 다음 조각으로 내보내기
-  NS.S = S; NS.state = state; NS.$ = $; NS.$$ = $$; NS.esc = esc; NS.f = f; NS.fp = fp; NS.fr = fr; NS.fb = fb;
+  NS.S = S; NS.state = state; NS.$ = $; NS.$$ = $$; NS.esc = esc; NS.f = f; NS.fp = fp; NS.fr = fr; NS.fb = fb; NS.refLevelOf = refLevelOf; NS.rRelevel = rRelevel;
   NS.star = star; NS.ITAL = ITAL; NS.ITAL_RE = ITAL_RE; NS.italHead = italHead; NS.table = table; NS.ABBR = ABBR; NS.decorateTables = decorateTables; NS.APA_FONT = APA_FONT;
   NS.cleanCell = cleanCell; NS.apaExport = apaExport; NS.copyApa = copyApa; NS.rcode = rcode; NS.rvec = rvec; NS.rname = rname; NS.MISSING = MISSING; NS.setData = setData;
   NS.parseDelimited = parseDelimited; NS.decodeText = decodeText; NS.readXlsx = readXlsx; NS.openFile = openFile; NS.exampleData = exampleData; NS.updateInfo = updateInfo; NS.varOptions = varOptions; NS.levelsOf = levelsOf;

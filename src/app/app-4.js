@@ -7,6 +7,7 @@
   var NS = G.__PsyAppNS || (G.__PsyAppNS = {});
   // 앞 조각에서 가져오기
   var S = NS.S, state = NS.state, $ = NS.$, $$ = NS.$$, esc = NS.esc, f = NS.f, fr = NS.fr, table = NS.table;
+  var levelsOf = NS.levelsOf;
   var rcode = NS.rcode, rvec = NS.rvec, setData = NS.setData, parseDelimited = NS.parseDelimited, openFile = NS.openFile, exampleData = NS.exampleData, updateInfo = NS.updateInfo, multiField = NS.multiField;
   var getMulti = NS.getMulti, wireMulti = NS.wireMulti, need = NS.need, addCard = NS.addCard, errorCard = NS.errorCard, A = NS.A, networkSVG = NS.networkSVG, centralityPlotSVG = NS.centralityPlotSVG;
   var svgDownload = NS.svgDownload, download = NS.download;
@@ -145,13 +146,22 @@
   }
 
   /* ---------------- 데이터 화면 ---------------- */
+  // 더미코딩 기준 범주 선택 (문자형, 범주 30개 이하)
+  function refPicker(i) {
+    if (state.types[i] !== 'text') return '';
+    var lv = levelsOf(i), ref = NS.refLevelOf(i);
+    if (lv.length < 2) return '';
+    if (lv.length > 30) return ' <span class="note">범주 ' + lv.length + '개</span>';
+    return ' <span class="note">기준</span> <select data-ref="' + i + '" title="더미코딩 기준 범주">' + lv.map(function (l, k) {
+      return '<option value="' + k + '"' + (l === ref ? ' selected' : '') + '>' + esc(l) + '</option>'; }).join('') + '</select>';
+  }
   function dataView() {
     var h = '<h2>데이터</h2><p class="desc">엑셀에서 범위를 복사(Ctrl+C)해 아래에 붙여넣거나, CSV/XLSX 파일을 여세요. 첫 행은 변수 이름입니다. 빈 칸, NA, ., #NULL!은 결측으로 처리됩니다.</p>' +
       '<div class="field"><textarea class="paste" id="pastebox" placeholder="여기에 엑셀 자료를 붙여넣기 (Ctrl+V)"></textarea></div>' +
       '<div class="inline"><button class="btn primary" id="pasteGo">붙여넣은 자료 불러오기</button><button class="btn" id="openBtn2">파일 열기</button></div>';
     if (state.nrows) {
       h += '<h4 style="margin-top:18px">변수 형식</h4><div class="varlist" style="max-height:260px">' + state.names.map(function (n, i) {
-        return '<label>' + esc(n) + '<span class="vt"><select data-type="' + i + '"><option value="num"' + (state.types[i] === 'num' ? ' selected' : '') + '>숫자</option><option value="text"' + (state.types[i] === 'text' ? ' selected' : '') + '>문자</option></select></span></label>';
+        return '<label>' + esc(n) + '<span class="vt"><select data-type="' + i + '"><option value="num"' + (state.types[i] === 'num' ? ' selected' : '') + '>숫자</option><option value="text"' + (state.types[i] === 'text' ? ' selected' : '') + '>문자</option></select>' + refPicker(i) + '</span></label>';
       }).join('') + '</div><div class="hint">숫자로 코딩된 범주형 변수(예: 성별 1/2)는 숫자 그대로 두어도 집단변수로 쓸 수 있습니다. 회귀의 예측변수로 쓸 범주형은 "문자"로 바꾸면 더미코딩됩니다.</div>';
     }
     return h;
@@ -182,6 +192,13 @@
       res.innerHTML = '<div class="datapreview">' + dataPreview() + '</div>';
       $('#pasteGo').onclick = function () { var t = $('#pastebox').value; if (!t.trim()) { alert('붙여넣은 내용이 비어 있습니다. 엑셀에서 범위를 복사(Ctrl+C)한 뒤 위 칸을 클릭하고 Ctrl+V를 눌러 주세요. 그래도 비어 있으면 문서보안(DRM) 프로그램이 브라우저로의 붙여넣기를 막고 있을 수 있습니다.'); return; } try { setData(parseDelimited(t), '붙여넣은 자료'); } catch (e) { alert(e.message); } };
       $('#openBtn2').onclick = function () { $('#file').click(); };
+      $$('[data-ref]').forEach(function (s) {
+        s.onchange = function () {
+          var i = Number(s.dataset.ref);
+          if (!state.refLevel) state.refLevel = {};
+          state.refLevel[state.names[i]] = levelsOf(i)[Number(s.value)];
+        };
+      });
       $$('[data-type]').forEach(function (s) {
         s.onchange = function () {
           var i = Number(s.dataset.type);
@@ -195,7 +212,7 @@
             }
             state.cols[i] = conv;
           } else state.cols[i] = state.cols[i].map(function (v) { return v === null ? null : String(v); });
-          state.types[i] = s.value; $('#results').innerHTML = '<div class="datapreview">' + dataPreview() + '</div>';
+          state.types[i] = s.value; select('data'); // 형식이 바뀌면 기준 범주 선택 칸도 다시 그림
         };
       });
       return;

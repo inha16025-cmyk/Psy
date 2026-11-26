@@ -6,6 +6,7 @@
   if (G.__psyEngineMissing || !G.PsyStats) return; // 계산 엔진이 없으면 화면을 시작하지 않음
   var NS = G.__PsyAppNS || (G.__PsyAppNS = {});
   // 앞 조각에서 가져오기
+  var rRelevel = NS.rRelevel;
   var S = NS.S, state = NS.state, $ = NS.$, $$ = NS.$$, esc = NS.esc, f = NS.f, fp = NS.fp, fr = NS.fr, fb = NS.fb;
   var star = NS.star, table = NS.table, rcode = NS.rcode, rvec = NS.rvec, rname = NS.rname, levelsOf = NS.levelsOf, selectField = NS.selectField, multiField = NS.multiField;
   var getMulti = NS.getMulti, getSel = NS.getSel, need = NS.need, designColumns = NS.designColumns, addCard = NS.addCard, A = NS.A;
@@ -87,7 +88,7 @@
   A.lm = {
     group: '회귀', title: '선형회귀',
     desc: '다중회귀: B, SE, β, t, p, 95% CI, R², VIF, Durbin-Watson. 문자형 예측변수는 자동 더미코딩.',
-    form: function () { return selectField('y', '종속변수', 'num') + multiField('x', '예측변수', 'any', '문자형 변수는 첫 범주를 기준으로 더미코딩됩니다.'); },
+    form: function () { return selectField('y', '종속변수', 'num') + multiField('x', '예측변수', 'any', '문자형 변수는 더미코딩됩니다. 기준 범주는 [데이터] 화면의 "변수 형식"에서 정할 수 있습니다(기본: 첫 범주).'); },
     run: function () {
       var y = getSel('y'), x = getMulti('x').filter(function (i) { return i !== y; }); need(y >= 0 && x.length, '종속변수와 예측변수를 선택하세요.');
       var dc = designColumns(x), m = S.linearRegression(state.cols[y], dc.cols, dc.names);
@@ -98,7 +99,7 @@
         (dc.notes.length ? '<p class="note">더미코딩 — ' + esc(dc.notes.join('; ')) + '</p>' : '') +
         '<p class="note">Durbin-Watson = ' + f(m.durbinWatson, 3) + '. VIF > 10(보수적으로 > 5)이면 다중공선성을 점검하세요. 계산은 QR 분해 기반 최소제곱으로, R의 lm()과 같은 값을 냅니다.</p>' +
         (m.coefs.some(function (c) { return c.vif > 10; }) ? '<div class="warn">VIF가 10을 넘는 예측변수가 있습니다.</div>' : '') +
-        rcode('m <- lm(' + rname(state.names[y]) + ' ~ ' + x.map(function (i) { return rname(state.names[i]); }).join(' + ') + ', data = df)\nsummary(m); car::vif(m); lm.beta::lm.beta(m)');
+        rcode(rRelevel(x) + 'm <- lm(' + rname(state.names[y]) + ' ~ ' + x.map(function (i) { return rname(state.names[i]); }).join(' + ') + ', data = df)\nsummary(m); car::vif(m); lm.beta::lm.beta(m)');
       addCard('선형회귀: ' + state.names[y], html, x.length + '개 예측변수');
     }
   };
@@ -108,7 +109,7 @@
     desc: '이분형 종속변수: B, SE, Wald, p, 오즈비(95% CI), 모형 χ², Nagelkerke R², Hosmer-Lemeshow, 분류표, AUC.',
     form: function () {
       return selectField('y', '종속변수 (두 범주)', 'any') + '<div class="field" id="ev" style="display:none"><label for="evv">사건(=1)으로 볼 범주</label><select id="evv"></select></div>' +
-        multiField('x', '예측변수', 'any', '문자형 변수는 첫 범주를 기준으로 더미코딩됩니다.') +
+        multiField('x', '예측변수', 'any', '문자형 변수는 더미코딩됩니다. 기준 범주는 [데이터] 화면의 "변수 형식"에서 정할 수 있습니다(기본: 첫 범주).') +
         '<div class="field"><label for="cut">분류 기준 확률</label><input type="number" id="cut" value="0.5" step="0.05" min="0.05" max="0.95"></div>';
     },
     wire: function () {
@@ -144,7 +145,7 @@
         '<p class="note">AUC (ROC 곡선 아래 면적) = ' + fr(m.auc) + '. 반복 ' + m.iterations + '회 (IRLS, ' + (m.converged ? '수렴' : '<b>미수렴</b>') + ').</p>' +
         (dc.notes.length ? '<p class="note">더미코딩 — ' + esc(dc.notes.join('; ')) + '</p>' : '') +
         '<p class="note">Wald χ² = (B/SE)². 계수·SE는 R의 glm(family = binomial)과 같습니다. Hosmer-Lemeshow는 예측확률의 분위수(10분위)로 집단을 나누는 방식(R ResourceSelection::hoslem.test와 동일)이어서, 동점 처리가 다른 SPSS와는 값이 약간 다를 수 있습니다. 표본이 크면 H-L 검정은 과민해지므로 AUC·보정 정도와 함께 보세요(Hosmer, Lemeshow, & Sturdivant, 2013).</p>' +
-        rcode('df$y01 <- as.integer(df$' + rname(state.names[y]) + ' == "' + ev + '")\nm <- glm(y01 ~ ' + x.map(function (i) { return rname(state.names[i]); }).join(' + ') + ', data = df, family = binomial)\nsummary(m); exp(cbind(OR = coef(m), confint.default(m)))\nResourceSelection::hoslem.test(m$y, fitted(m), g = 10)');
+        rcode(rRelevel(x) + 'df$y01 <- as.integer(df$' + rname(state.names[y]) + ' == "' + ev + '")\nm <- glm(y01 ~ ' + x.map(function (i) { return rname(state.names[i]); }).join(' + ') + ', data = df, family = binomial)\nsummary(m); exp(cbind(OR = coef(m), confint.default(m)))\nResourceSelection::hoslem.test(m$y, fitted(m), g = 10)');
       addCard('이분형 로지스틱 회귀: ' + state.names[y] + ' = ' + ev, html, x.length + '개 예측변수');
     }
   };
@@ -166,7 +167,7 @@
       return '<div class="field"><div class="lab">모형</div><div class="inline"><label><input type="radio" name="htype" id="htype_lin" value="lin" checked>선형</label><label><input type="radio" name="htype" id="htype_log" value="log">이분형 로지스틱</label></div></div>' +
         selectField('y', '종속변수', 'any') + eventPicker() +
         [1, 2, 3, 4].map(function (k) { return multiField('b' + k, '블록 ' + k + (k === 1 ? ' (예: 인구통계 통제변수)' : ' (선택)'), 'any'); }).join('') +
-        '<div class="hint">문자형 변수는 첫 범주를 기준으로 더미코딩됩니다. 상호작용항이 필요하면 [조절분석] 메뉴를 쓰세요.</div>';
+        '<div class="hint">문자형 변수는 더미코딩됩니다. 기준 범주는 [데이터] 화면의 "변수 형식"에서 정할 수 있습니다(기본: 첫 범주). 상호작용항이 필요하면 [조절분석] 메뉴를 쓰세요.</div>';
     },
     wire: function () { $('#y').onchange = wireEventPicker; $$('input[name=htype]').forEach(function (r) { r.onchange = wireEventPicker; }); },
     run: function () {
@@ -207,7 +208,7 @@
       }
       if (notes.length) html += '<p class="note">더미코딩 — ' + esc(notes.join('; ')) + '</p>';
       var rf = function (k) { return state.names[y] + ' ~ ' + labels.slice(0, k + 1).join(', ').split(', ').map(rname).join(' + '); };
-      html += rcode('d <- na.omit(df[, ' + rvec(used.map(function (i) { return state.names[i]; })) + '])\n' +
+      html += rcode(rRelevel(used) + 'd <- na.omit(df[, ' + rvec(used.map(function (i) { return state.names[i]; })) + '])\n' +
         h.steps.map(function (_, k) { return 'm' + (k + 1) + ' <- ' + (logistic ? 'glm(' : 'lm(') + rf(k) + ', data = d' + (logistic ? ', family = binomial' : '') + ')'; }).join('\n') +
         '\nanova(' + h.steps.map(function (_, k) { return 'm' + (k + 1); }).join(', ') + (logistic ? ', test = "Chisq"' : '') + ')');
       addCard('위계적 ' + (logistic ? '로지스틱' : '선형') + ' 회귀: ' + state.names[y] + (logistic ? ' = ' + ev : ''), html, blocks.length + '단계');
@@ -270,7 +271,7 @@
       }
       html += '<div class="mod-plot">' + slopesSVG(md, xn, wn, yn) + '</div>' +
         '<p class="note">계수, SE, 단순기울기는 R의 lm(Y ~ X*W)과 vcov()로 직접 계산한 값과 같고(오차 &lt; 1e-9), PROCESS Model 1(OLS SE)과 같은 정의입니다(Hayes, 2022). 그림의 공변인은 평균값으로 고정했습니다.</p>' +
-        rcode('d <- na.omit(df[, ' + rvec([yn, xn, wn].concat(cvIdx.map(function (i) { return state.names[i]; }))) + '])\n' +
+        rcode(rRelevel(cvIdx) + 'd <- na.omit(df[, ' + rvec([yn, xn, wn].concat(cvIdx.map(function (i) { return state.names[i]; }))) + '])\n' +
           (md.centered ? 'd$xc <- d$' + rname(xn) + ' - mean(d$' + rname(xn) + '); d$wc <- d$' + rname(wn) + ' - mean(d$' + rname(wn) + ')\nm <- lm(' + rname(yn) + ' ~ xc * wc' : 'm <- lm(' + rname(yn) + ' ~ ' + rname(xn) + ' * ' + rname(wn)) +
           cvIdx.map(function (i) { return ' + ' + rname(state.names[i]); }).join('') + ', data = d)\nsummary(m)\n# interactions::sim_slopes(m, pred = ..., modx = ..., johnson_neyman = TRUE)');
       addCard('조절분석: ' + xn + ' × ' + wn + ' → ' + yn, html, 'PROCESS Model 1');
@@ -338,7 +339,7 @@
         '<p class="note">부트스트랩 ' + (me.boot ? me.boot.B : 0) + '회, 백분위 구간, 시드 = ' + seed + '. 같은 시드면 같은 결과가 재현되지만, 난수 생성기가 R·SPSS와 달라 구간 끝값은 소수 둘째~셋째 자리에서 조금 다를 수 있습니다. 완전표준화 간접효과 = ab × SD<sub>X</sub>/SD<sub>Y</sub> (X가 이분변수면 부분표준화 ab/SD<sub>Y</sub>를 보고하세요).</p>' +
         (k === 1 ? '<p class="note">참고: Sobel z = ' + f(me.sobel[0].z, 3) + ', p = ' + fp(me.sobel[0].p) + ' (정규성 가정이 강해 부트스트랩 CI를 우선 보고하세요; Preacher & Hayes, 2008).</p>' : '') +
         (k > 1 ? '<p class="note">병렬 매개: 각 간접효과는 다른 매개변수를 통제한 특정 간접효과입니다.</p>' : '') +
-        rcode('d <- na.omit(df[, ' + rvec([yn, xn].concat(mn, cvIdx.map(function (i) { return state.names[i]; }))) + '])\n' +
+        rcode(rRelevel(cvIdx) + 'd <- na.omit(df[, ' + rvec([yn, xn].concat(mn, cvIdx.map(function (i) { return state.names[i]; }))) + '])\n' +
           mn.map(function (q, j) { return 'ma' + (j + 1) + ' <- lm(' + rname(q) + ' ~ ' + rname(xn) + cvIdx.map(function (i) { return ' + ' + rname(state.names[i]); }).join('') + ', data = d)'; }).join('\n') +
           '\nmy <- lm(' + rname(yn) + ' ~ ' + rname(xn) + mn.map(function (q) { return ' + ' + rname(q); }).join('') + cvIdx.map(function (i) { return ' + ' + rname(state.names[i]); }).join('') + ', data = d)\n' +
           '# 또는 lavaan: ind := a*b 정의 후 sem(..., se = "bootstrap", bootstrap = 5000)');
@@ -467,7 +468,7 @@
           (r.binaryW ? 'W가 이분변수이므로 지수는 두 집단 간 조건부 간접효과의 차이와 같습니다.' : '탐색 지점: ' + ($('input[name=pr]:checked').value === 'sd' ? 'M − 1SD, M, M + 1SD' : '16·50·84 백분위') + '.') + '</p>';
       }
       html += '<p class="note">부트스트랩 ' + (r.boot ? r.boot.B : 0) + '회, 백분위 구간, 시드 = ' + seed + '. 계수와 점추정치는 R lm()으로 직접 계산한 값과 같습니다(오차 &lt; 1e-14). 부트스트랩 구간은 난수 생성기가 달라 PROCESS·R과 소수 셋째 자리 정도에서 다를 수 있습니다.</p>' +
-        rcode(processRcode(model, yn, xn, mn, wn, cvIdx.map(function (i) { return state.names[i]; })));
+        rcode(rRelevel(cvIdx) + processRcode(model, yn, xn, mn, wn, cvIdx.map(function (i) { return state.names[i]; })));
       addCard('조건부 과정 모형 (Model ' + model + ')', html, mn.length + '개 매개변수' + (hasW ? ', W = ' + wn : ''));
     }
   };

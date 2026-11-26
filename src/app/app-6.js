@@ -4,6 +4,7 @@
   'use strict';
   if (G.__psyEngineMissing || !G.PsyStats) return; // 계산 엔진이 없으면 화면을 시작하지 않음
   var NS = G.__PsyAppNS || (G.__PsyAppNS = {});
+  var rRelevel = NS.rRelevel;
   var S = NS.S, state = NS.state, $ = NS.$, esc = NS.esc, f = NS.f, fp = NS.fp, fr = NS.fr, fb = NS.fb, table = NS.table, rcode = NS.rcode, rname = NS.rname;
   var selectField = NS.selectField, multiField = NS.multiField, getMulti = NS.getMulti, getSel = NS.getSel, need = NS.need, addCard = NS.addCard;
   var designColumns = NS.designColumns, levelsOf = NS.levelsOf, A = NS.A;
@@ -144,7 +145,7 @@
     desc: '범주가 3개 이상인 종속변수(예: 진단 유형, 프로파일): 기준 범주 대비 B·SE·Wald·오즈비, 모형 χ², 예측변수별 우도비 검정, 의사 R², 분류표. 문자형 예측변수는 자동 더미코딩.',
     form: function () {
       return selectField('y', '종속변수 (범주형)', 'any') + '<div class="field" id="mref" style="display:none"><label for="refv">기준 범주</label><select id="refv"></select></div>' +
-        multiField('x', '예측변수', 'any', '문자형 변수는 첫 범주를 기준으로 더미코딩됩니다. 숫자로 코딩된 범주형 예측변수는 [데이터]에서 "문자"로 바꾸세요.');
+        multiField('x', '예측변수', 'any', '문자형 변수는 더미코딩됩니다. 기준 범주는 [데이터] 화면의 "변수 형식"에서 정할 수 있습니다(기본: 첫 범주). 숫자로 코딩된 범주형 예측변수는 [데이터]에서 "문자"로 바꾸세요.');
     },
     wire: function () {
       $('#y').onchange = function () {
@@ -172,7 +173,7 @@
         }).concat([['전체'].concat(m.levels.map(function () { return ''; })).concat([f(100 * m.accuracy, 1) + '%'])]), { left: [0], title: '분류표' }) +
         (dc.notes.length ? '<p class="note">더미코딩 — ' + esc(dc.notes.join('; ')) + '</p>' : '') +
         '<p class="note">N = ' + m.n + ' (목록별 제거). 계수·표준오차·로그우도는 R의 nnet::multinom과 같습니다(bfi 자료로 대조, 오차 < 3e-5). 표준오차는 관측정보행렬로 계산했습니다.</p>' +
-        rcode('library(nnet)\ndf$y <- relevel(factor(df$' + rname(yn) + '), ref = "' + refLv + '")\nm <- multinom(y ~ ' + x.map(function (i) { return rname(state.names[i]); }).join(' + ') + ', data = df, Hess = TRUE)\nsummary(m); exp(coef(m))');
+        rcode('library(nnet)\n' + rRelevel(x) + 'df$y <- relevel(factor(df$' + rname(yn) + '), ref = "' + refLv + '")\nm <- multinom(y ~ ' + x.map(function (i) { return rname(state.names[i]); }).join(' + ') + ', data = df, Hess = TRUE)\nsummary(m); exp(coef(m))');
       addCard('다항 로지스틱 회귀: ' + yn, html, x.length + '개 예측변수, ' + m.K + '개 범주');
     }
   };

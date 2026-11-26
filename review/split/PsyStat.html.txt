@@ -188,7 +188,7 @@ table.res thead th:first-child { text-align: left; }
     <li><b>&#xD30C;&#xC77C; &#xD06C;&#xAE30;</b>: &#xD30C;&#xC77C;
       &#xC18D;<!--
       -->&#xC131;&#xC5D0;&#xC11C; &#xD06C;&#xAE30;&#xAC00; &#xC57D; <b><!--
-      -->   370,215&#xBC14;&#xC774;&#xD2B8;</b>(&#xBD84;&#xD560;<!--
+      -->   373,652&#xBC14;&#xC774;&#xD2B8;</b>(&#xBD84;&#xD560;<!--
         -->&#xD310;: PsyStat-engine.js 213,007&#xBC14;&#xC774;&#xD2B8;<!--
         -->&#xB3C4; &#xAC19;&#xC740; &#xD3F4;&#xB354;&#xC5D0; &#xC788;<!--
         -->&#xC5B4;&#xC57C; &#xD568;)&#xC778;<!--
@@ -206,8 +206,8 @@ table.res thead th:first-child { text-align: left; }
         &#xC6D0;<!--
       -->&#xBCF8; SHA-256: <code style="font-size:12px;
 word-break:break-all">(&#xC2A4;&#xD06C;&#xB9BD;&#xD2B8; &#xBCF8;<!--
-        -->&#xBB38;) 6432675f3299f317c7168d6443be3d<!--
-        -->bfdded06b7476e259bead3c5597b93a456</code></li>
+        -->&#xBB38;) 1e9c33de004a51a5c031dd303e61fb<!--
+        -->49d8805c15b1769517fbe47565865678c6</code></li>
     <li><b>&#xBE0C;&#xB77C;&#xC6B0;&#xC800; &#xC815;&#xCC45;</b>:
       &#xAE30;<!--
       -->&#xAD00; &#xC815;&#xCC45;&#xC73C;&#xB85C; &#xB85C;&#xCEEC;
@@ -291,7 +291,7 @@ word-break:break-all">(&#xC2A4;&#xD06C;&#xB9BD;&#xD2B8; &#xBCF8;<!--
        + "\\uC54A\\uC558'\n  + '\\uB294\\uC9C0(\\uD06C\\uAE30 213,0"),
      "A":[],
      "Z":[]},
-    {"n": "\uD654\uBA74 \uCF54\uB4DC 1/7", "L": 62741, "f": "186y5i8", "te":
+    {"n": "\uD654\uBA74 \uCF54\uB4DC 1/7", "L": 64063, "f": "1gtdg9w", "te":
       100,
      "h":("\n/* PsyStat \\uD654\\uBA74(UI) \\uCF54\\uB4DC \\u2014 \\"
        + "uC870\\uAC01 1/7:\n  \\uACF5\\uD1B5 \\uB3C4\\uC6B0\\uBBF8"
@@ -300,20 +300,20 @@ word-break:break-all">(&#xC2A4;&#xD06C;&#xB9BD;&#xD2B8; &#xBCF8;<!--
      "t":("eLevelPicker; NS.boxMTable = boxMTable; NS.groupDescTable"
        + " =\n    groupDescTable;\n  NS.ldaPlotSVG = ld"),
      "A":["j6pfcu", "vvd7xa", "vbp3n2", "16l4x4v", "1cx4zdq",
-      "kejdmx", "1igbu5i", "1oefkug", "1n1hj88", "htl4ya",
-      "74ym1y", "1b7r6mc", "omvp4o", "1tkr0vj", "iz6kda",
-      "18cyb0h", "113gm4y", "1kld1lv", "c2agrp", "1jeqq6f",
-      "11cddoe", "en5spf", "1kl2nc6", "jwanab", "1dyc5ve",
-      "x7anc9", "jp1qf8", "13by214", "l4gxq2", "1m7btma",
-      "nlqsnc"],
-     "Z":["13vq7gu", "1ehn37m", "1yksfia", "sv2s6p", "1s0ns2e",
-      "1xsw38y", "1tub2gf", "y5maxg", "1so7fyd", "12yicn",
-      "mdlqd8", "1idhpz7", "1ip0zv3", "1qrn6jv", "1u4nn73",
-      "1sh5pru", "z79n99", "txm6o7", "71bocp", "a93hhg",
-      "18sozdl", "71wsk3", "50oenw", "1907xpm", "o087b3",
-      "gir59p", "1l2vey0", "9ntp1h", "eumiim", "137udyv",
-      "u4so7w"]},
-    {"n": "\uD654\uBA74 \uCF54\uB4DC 2/7", "L": 67814, "f": "uczlfd", "te":
+      "kejdmx", "1igbu5i", "rqjpot", "w1wetz", "s4mf3s",
+      "7t5ikd", "4jcbul", "1pb6oc4", "1lpu4so", "gtvwit",
+      "8zy1pb", "7n780g", "qgbtpe", "djknyf", "adzalf",
+      "1ua39jj", "1df8cgi", "1eygmxe", "59gmyo", "1ytrm2h",
+      "8xya2x", "1ob290g", "hioxyr", "10lfzz7", "q262vg",
+      "tqrumn", "1sz0b1l"],
+     "Z":["1b3i7u9", "yl3mfx", "9bgtmc", "k7od28", "1xf6ooz",
+      "6edu4u", "sro7c4", "1thfshk", "5mer41", "1feklpt",
+      "1dnv26r", "1e6wh79", "f70q1t", "i13eiy", "1hptygc",
+      "dj5jo7", "1hppsig", "1lappah", "15y0r3s", "nprzub",
+      "1pwylfe", "1jm05uu", "ljy0v9", "6cnqml", "1celuez",
+      "f2o75a", "ov0ria", "1okghta", "vl04hq", "1fxekyp",
+      "22mwi5", "kjwe5j"]},
+    {"n": "\uD654\uBA74 \uCF54\uB4DC 2/7", "L": 68500, "f": "19651is", "te":
       100,
      "h":("\n/* PsyStat \\uD654\\uBA74(UI) \\uCF54\\uB4DC \\u2014 \\"
        + "uC870\\uAC01 2/7:\n  \\uC0C1\\uAD00~\\uC870\\uAC74\\uBD80"
@@ -321,20 +321,20 @@ word-break:break-all">(&#xC2A4;&#xD06C;&#xB9BD;&#xD2B8; &#xBCF8;<!--
        + "\\uC2E0 \\uC5"),
      "t":("ptTwoSidedSafe; NS.processSVG = processSVG;\n  NS.PROCESS"
        + "_DESC = PROCESS_DESC; NS.processRcode = proc"),
-     "A":["xllb9a", "1fmrj2g", "14f6frq", "1uxkgu3", "ivxxx5",
-      "tytwru", "xijgn2", "1o2k568", "1dzqclz", "5aje1m",
-      "npdqx3", "zcxoss", "1y1wwre", "1c3huwz", "1fh2y6d",
-      "10ot1nb", "j5b5gk", "75l2ti", "1hrha8l", "pfoew2",
-      "6op5hq", "rv6mu8", "1i7dle7", "1d8siri", "1wy5bgp",
-      "2zlwmy", "1jc5q6n", "vgdqt6", "1no8a90", "lfq79b",
-      "px36nn", "1wthqqb", "4a49ol"],
-     "Z":["g3t2bu", "11zf99w", "ycb0lg", "1f9ukbk", "149z0dg",
-      "juot0q", "1xlxyaz", "17zicw8", "9ygepk", "jvb55x",
-      "ixk488", "msmdx6", "w1jrfi", "1plzf4r", "12wvsgo",
-      "qvzxo7", "1704n7t", "bf1kli", "17euac", "pm13j8",
-      "apzhbx", "1nf2q13", "93c04w", "1jyboee", "rht4xo",
-      "3vkf60", "tpbg65", "1dhmurv", "14t48yt", "mruiv0",
-      "13zq1w8", "tfds3g", "puc5nh"]},
+     "A":["1bmq5dj", "besrx4", "oy9lxf", "m1x54o", "1xkxiom",
+      "p2gi9l", "10g80m7", "1nq62l2", "pfger9", "14puuns",
+      "1wl6j3b", "14jwa8c", "5lezti", "1p8gbxt", "1iva9jk",
+      "vm6c6g", "1szxzt7", "qyoptz", "5i0e5z", "a2xyek",
+      "1nafndl", "5eo5jg", "7xjpl8", "bwiy0f", "p7xut4",
+      "176q9zd", "yds0js", "mgbfpp", "1w6q11t", "1qkpfxg",
+      "1c4rho7", "fc6wsk", "1xr9pao", "1ppakhz"],
+     "Z":["8wo5j7", "1p32xa0", "hl85n", "1jb2yeb", "1f3r3ao",
+      "ohl624", "o24xjh", "ujhks6", "1oiv1w8", "2vfxqb",
+      "139ym8z", "1t0pguk", "1wlazlu", "mhwna2", "1tdf9t8",
+      "hs655p", "1g1q2ow", "v6bh2g", "e87jz9", "p9fn7",
+      "vxxcv9", "1tjyhg1", "wvim7z", "7aw1ns", "zs5der",
+      "17e25il", "1ls8vkb", "whe0vp", "ddh69g", "3tcywo",
+      "1k009r3", "1u71by4", "mpqchs", "16qlqt2"]},
     {"n": "\uD654\uBA74 \uCF54\uB4DC 3/7", "L": 36997, "f": "1envnx9", "te":
       100,
      "h":("\n/* PsyStat \\uD654\\uBA74(UI) \\uCF54\\uB4DC \\u2014 \\"
@@ -351,7 +351,7 @@ word-break:break-all">(&#xC2A4;&#xD06C;&#xB9BD;&#xD2B8; &#xBCF8;<!--
       "1r261g", "dw0pvm", "165baoh", "10cgi47", "vx663v",
       "1xhsb1m", "1grs0q0", "1qdi6w2", "4uavo", "haaebc",
       "ck36oj", "cua7ve", "1rqqrmx"]},
-    {"n": "\uD654\uBA74 \uCF54\uB4DC 4/7", "L": 45435, "f": "fihjed", "te":
+    {"n": "\uD654\uBA74 \uCF54\uB4DC 4/7", "L": 46568, "f": "os5kbw", "te":
       100,
      "h":("\n/* PsyStat \\uD654\\uBA74(UI) \\uCF54\\uB4DC \\u2014 \\"
        + "uC870\\uAC01 4/7:\n  \\uB124\\uD2B8\\uC6CC\\uD06C \\uBD84"
@@ -359,16 +359,16 @@ word-break:break-all">(&#xC2A4;&#xD06C;&#xB9BD;&#xD2B8; &#xBCF8;<!--
        + "0B7\\uD654\\uB"),
      "t":("  savedResults; NS.select = select; NS.buildNav = buildNa"
        + "v;\n  NS.about = about; NS.saveResults = sav"),
-     "A":["1f4co62", "n2qhgx", "1sw4bua", "109f8jv", "y585vn",
-      "1vnaivl", "1hq997g", "13qkiez", "1gdq0sb", "ddn0ih",
-      "1nufjev", "5owrbk", "9o5gkm", "1u0onii", "7fddkm",
-      "9x6h2t", "1wqh9e3", "1p8xjgw", "js3lo2", "oc307s",
-      "seb1st", "wdt6oi"],
+     "A":["1s1eqg1", "x3g8cq", "1l6sn5m", "mj7xyl", "8yoj5r",
+      "1fa3baw", "1tupiil", "1diwxeo", "wyacau", "mf82gz",
+      "xwdseg", "1cm0n1p", "ldv8mv", "1wxq5vf", "uld6cr",
+      "185x44m", "4ey2za", "ttmuui", "16fxa9c", "14fd2nh",
+      "wd5fp6", "1fuurmy", "1crz45i"],
      "Z":["16lb2lg", "1dmsvt8", "ps6i89", "1asmuab", "1i8zbd6",
-      "30r3vs", "7vsfk", "1x3gky0", "h69pab", "1yrkgc1",
-      "19nh55w", "1bndbp1", "i0kt1l", "1fp5rvq", "1rid4vo",
-      "cffz57", "1ry07jm", "16b851q", "2oyy1v", "19ow349",
-      "1fkeutx", "1daijp5"]},
+      "30r3vs", "7vsfk", "1x3gky0", "1is9pqk", "1bdpi48",
+      "1u1d5xb", "kr6hsa", "6cfvce", "1b3hrzd", "s52hi1",
+      "5wf887", "puuc95", "15x2gk5", "19e1kk9", "bify4z",
+      "ngpkfx", "wz2u86", "1eq64g9"]},
     {"n": "\uD654\uBA74 \uCF54\uB4DC 5/7", "L": 49476, "f": "1eh0ggf", "te":
       100,
      "h":("\n/* PsyStat \\uD654\\uBA74(UI) \\uCF54\\uB4DC \\u2014 \\"
@@ -387,7 +387,7 @@ word-break:break-all">(&#xC2A4;&#xD06C;&#xB9BD;&#xD2B8; &#xBCF8;<!--
       "100xhtg", "1ade2zo", "milvps", "ij45lb", "10sekf0",
       "d853dp", "1hnnw3v", "1t6ib7a", "ici5io", "1vjhlpu",
       "dmz3l2", "1wyg926", "1k7syre", "ghlouu"]},
-    {"n": "\uD654\uBA74 \uCF54\uB4DC 6/7", "L": 42629, "f": "ll7dib", "te":
+    {"n": "\uD654\uBA74 \uCF54\uB4DC 6/7", "L": 42864, "f": "brk1ju", "te":
       100,
      "h":("\n/* PsyStat \\uD654\\uBA74(UI) \\uCF54\\uB4DC \\u2014 \\"
        + "uC870\\uAC01 6/7:\n  \\uBA54\\uB274 \\uBD84\\uB958 \\uCCB"
@@ -395,16 +395,16 @@ word-break:break-all">(&#xC2A4;&#xD06C;&#xB9BD;&#xD2B8; &#xBCF8;<!--
        + "00B7\\uB2E4\\u"),
      "t":("      + 'n Statistician, 70(2), 129\\u2013133.'),\n      "
        + "'https://doi.org/10.1080/00031305.2016.115410"),
-     "A":["ejrc94", "tuiy6p", "wr1p7k", "1sb3103", "9qo5aq",
-      "1vb7qmb", "j6dzqh", "1g6vwwo", "1ptjce8", "1drq3v0",
-      "6kcoox", "qwssn8", "vnjggd", "1jnk0jz", "1nz5n52",
-      "1i2ekaq", "1q3a0sc", "1et08hj", "fqvy9w", "1wk541c",
-      "x11d5k"],
-     "Z":["1hpokz9", "m1a7iu", "mkzt9p", "aoa04i", "10l35vd",
-      "npjo9g", "mtx4oe", "149ilk8", "bg7mpq", "11epkr3",
-      "s7g29g", "yi2k0f", "3jefil", "i4ricy", "1shdicl",
-      "1l8a3ly", "1xss3qe", "9jjl62", "1kma526", "1prg4bn",
-      "18mb5be"]},
+     "A":["viwrzj", "1lrk0cq", "1rfijmn", "5myfic", "1e1b6rd",
+      "14s7mqn", "67oeyp", "1f5tm77", "1o3tfzl", "bx0rqj",
+      "quzey3", "5fsj4x", "eu7b3d", "1520txv", "17y443y",
+      "11ssdtt", "1nllmun", "15wknmg", "1oz250o", "2grwnl",
+      "qkgc9e"],
+     "Z":["1hpokz9", "1mnpsx1", "15etc93", "ppb5p5", "1vscqgg",
+      "qk7dxe", "1ob1abv", "170ytwb", "1ufivm5", "1rocx27",
+      "z2zc1i", "1okmizm", "h14pmu", "t666r1", "15sngc9",
+      "197nr1l", "1gsxppe", "10hnsqt", "1jv9vmu", "170uwz6",
+      "hjtie1"]},
     {"n": "\uD654\uBA74 \uCF54\uB4DC 7/7", "L": 38067, "f": "1k0gvwi", "te":
       100,
      "h":("\n/* PsyStat \\uD654\\uBA74(UI) \\uCF54\\uB4DC \\u2014 \\"
@@ -479,14 +479,14 @@ word-break:break-all">(&#xC2A4;&#xD06C;&#xB9BD;&#xD2B8; &#xBCF8;<!--
     + '\uC544\uB798 \uB0B4\uC6A9\uC744 \uC0AC\uC9C4\uC73C\uB85C '
     + '\uBCF4\uB0B4 \uC8FC\uC138\uC694.');
   out.textContent +=
-    '[\uD30C\uC77C \uC790\uAC00 \uC810\uAC80 \u00B7 v0.9.3]\n' + rows.join(
+    '[\uD30C\uC77C \uC790\uAC00 \uC810\uAC80 \u00B7 v0.9.4]\n' + rows.join(
     '\n') + '\n';
   });
 })();
 </script>
 <header class="top">
   <h1>PsyStat <small>&#xC624;&#xD504;&#xB77C;&#xC778; &#xD1B5;&#xACC4;
-    &#xB7; v0.9.3</small></h1>
+    &#xB7; v0.9.4</small></h1>
   <button class="btn" id="openBtn">&#xD30C;&#xC77C; &#xC5F4;&#xAE30;
     (CSV&#xB7;XLSX)</button>
   <button class="btn" id="exBtn">&#xC608;&#xC2DC; &#xB370;&#xC774;<!--
@@ -810,7 +810,8 @@ if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById(
     }
     state.loadNotes = notes;
     state.names = header; state.cols = cols; state.types = types;
-      state.nrows = body.length; state.fileName = fileName || '';
+      state.refLevel = {}; state.nrows = body.length; state.fileName =
+      fileName || '';
       // \uAC1D\uCCB4\uB97C \uBC14\uAFB8\uC9C0 \uC54A\uACE0
       // \uD544\uB4DC\uB9CC \uAC31\uC2E0 (\uC870\uAC01 \uAC04 \uACF5\uC720)
     updateInfo();
@@ -1072,16 +1073,38 @@ if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById(
 
   // \uBB38\uC790\uD615/\uBC94\uC8FC\uD615 \uC608\uCE21\uBCC0\uC218 \u2192
   // \uB354\uBBF8 \uCF54\uB529 (\uCCAB \uC218\uC900\uC774 \uAE30\uC900)
+  // \uB354\uBBF8\uCF54\uB529 \uAE30\uC900 \uBC94\uC8FC: \uB370\uC774\uD130
+  // \uD654\uBA74\uC5D0\uC11C \uBCC0\uC218\uBCC4\uB85C \uC9C0\uC815
+  // (\uBCC0\uC218 \uC774\uB984\uC73C\uB85C \uC800\uC7A5; \uC5C6\uAC70\uB098
+  // \uC0AC\uB77C\uC9C4 \uBC94\uC8FC\uBA74 \uCCAB \uBC94\uC8FC)
+  function refLevelOf(i) {
+    var lv = levelsOf(i), r = state.refLevel ? state.refLevel[state.names[
+      i]] : undefined;
+    return r !== undefined && lv.indexOf(r) >= 0 ? r : lv[0];
+  }
+  // R \uCF54\uB4DC: \uC0AC\uC6A9\uC790\uAC00 \uAE30\uC900
+  // \uBC94\uC8FC\uB97C \uC815\uD55C \uBCC0\uC218\uB9CC relevel (R\uC758
+  // \uAE30\uBCF8 \uC21C\uC11C\uC640 \uB2E4\uB97C \uC218
+  // \uC788\uC73C\uBBC0\uB85C)
+  function rRelevel(idxs) {
+    return idxs.filter(function (i) { return state.refLevel &&
+      state.refLevel[state.names[i]] !== undefined; }).map(function (i) {
+      var v = 'df$' + rname(state.names[i]);
+      return v + ' <- relevel(factor(' + v + '), ref = "' + String(
+        refLevelOf(i)).replace(/(["\\])/g, '\\$1') + '")\n';
+    }).join('');
+  }
   function designColumns(idxs, forceCat) {
     var cols = [], names = [], notes = [];
     idxs.forEach(function (i) {
       if (state.types[i] === 'num' && !(forceCat && forceCat.indexOf(i) >=
         0)) { cols.push(state.cols[i]); names.push(state.names[i]); return;
         }
-      var lv = levelsOf(i);
-      notes.push(state.names[i] + ': \uAE30\uC900 \uBC94\uC8FC = "' + lv[0]
-        + '"');
-      lv.slice(1).forEach(function (l) {
+      var lv = levelsOf(i), ref = refLevelOf(i), user = !!(state.refLevel &&
+        state.refLevel[state.names[i]] === ref);
+      notes.push(state.names[i] + ': \uAE30\uC900 \uBC94\uC8FC = "' + ref +
+        '"' + (user ? ' (\uC0AC\uC6A9\uC790 \uC9C0\uC815)' : ''));
+      lv.filter(function (l) { return l !== ref; }).forEach(function (l) {
         cols.push(state.cols[i].map(function (v) { return v === null ? null
           : (String(v) === l ? 1 : 0); }));
         names.push(state.names[i] + '[' + l + ']');
@@ -1705,7 +1728,8 @@ if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById(
 
   // \uB2E4\uC74C \uC870\uAC01\uC73C\uB85C \uB0B4\uBCF4\uB0B4\uAE30
   NS.S = S; NS.state = state; NS.$ = $; NS.$$ = $$; NS.esc = esc; NS.f = f;
-    NS.fp = fp; NS.fr = fr; NS.fb = fb;
+    NS.fp = fp; NS.fr = fr; NS.fb = fb; NS.refLevelOf = refLevelOf;
+    NS.rRelevel = rRelevel;
   NS.star = star; NS.ITAL = ITAL; NS.ITAL_RE = ITAL_RE; NS.italHead =
     italHead; NS.table = table; NS.ABBR = ABBR; NS.decorateTables =
     decorateTables; NS.APA_FONT = APA_FONT;
@@ -1742,6 +1766,7 @@ if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById(
     // \uC2DC\uC791\uD558\uC9C0 \uC54A\uC74C
   var NS = G.__PsyAppNS || (G.__PsyAppNS = {});
   // \uC55E \uC870\uAC01\uC5D0\uC11C \uAC00\uC838\uC624\uAE30
+  var rRelevel = NS.rRelevel;
   var S = NS.S, state = NS.state, $ = NS.$, $$ = NS.$$, esc = NS.esc, f =
     NS.f, fp = NS.fp, fr = NS.fr, fb = NS.fb;
   var star = NS.star, table = NS.table, rcode = NS.rcode, rvec = NS.rvec,
@@ -1955,9 +1980,11 @@ if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById(
       + '\uB529.'),
     form: function () { return selectField('y', '\uC885\uC18D\uBCC0\uC218',
       'num') + multiField('x', '\uC608\uCE21\uBCC0\uC218', 'any',
-      ('\uBB38\uC790\uD615 \uBCC0\uC218\uB294 \uCCAB \uBC94\uC8FC'
-      + '\uB97C \uAE30\uC900\uC73C\uB85C \uB354\uBBF8\uCF54\uB529'
-      + '\uB429\uB2C8\uB2E4.')); },
+      ('\uBB38\uC790\uD615 \uBCC0\uC218\uB294 \uB354\uBBF8\uCF54'
+      + '\uB529\uB429\uB2C8\uB2E4. \uAE30\uC900 \uBC94\uC8FC\uB294 '
+      + '[\uB370\uC774\uD130] \uD654\uBA74\uC758 "\uBCC0\uC218 '
+      + '\uD615\uC2DD"\uC5D0\uC11C \uC815\uD560 \uC218 \uC788\uC2B5'
+      + '\uB2C8\uB2E4(\uAE30\uBCF8: \uCCAB \uBC94\uC8FC).')); },
     run: function () {
       var y = getSel('y'), x = getMulti('x').filter(function (i) { return i
         !== y; }); need(y >= 0 && x.length,
@@ -1992,9 +2019,9 @@ if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById(
           ('<div class="warn">VIF\uAC00 10\uC744 \uB118\uB294 '
           + '\uC608\uCE21\uBCC0\uC218\uAC00 \uC788\uC2B5\uB2C8'
           + '\uB2E4.</div>') : '') +
-        rcode('m <- lm(' + rname(state.names[y]) + ' ~ ' + x.map(function (
-          i) { return rname(state.names[i]); }).join(' + ') +
-          (', data = df)\nsummary(m); car::vif(m); lm.beta::lm.bet'
+        rcode(rRelevel(x) + 'm <- lm(' + rname(state.names[y]) + ' ~ ' +
+          x.map(function (i) { return rname(state.names[i]); }).join(' + ')
+          + (', data = df)\nsummary(m); car::vif(m); lm.beta::lm.bet'
           + 'a(m)'));
       addCard('\uC120\uD615\uD68C\uADC0: ' + state.names[y], html, x.length
         + '\uAC1C \uC608\uCE21\uBCC0\uC218');
@@ -2014,9 +2041,12 @@ if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById(
         + 'or="evv">\uC0AC\uAC74(=1)\uC73C\uB85C \uBCFC \uBC94'
         + '\uC8FC</label><select id="evv"></select></div>') +
         multiField('x', '\uC608\uCE21\uBCC0\uC218', 'any',
-          ('\uBB38\uC790\uD615 \uBCC0\uC218\uB294 \uCCAB \uBC94'
-          + '\uC8FC\uB97C \uAE30\uC900\uC73C\uB85C \uB354\uBBF8'
-          + '\uCF54\uB529\uB429\uB2C8\uB2E4.')) +
+          ('\uBB38\uC790\uD615 \uBCC0\uC218\uB294 \uB354\uBBF8'
+          + '\uCF54\uB529\uB429\uB2C8\uB2E4. \uAE30\uC900 \uBC94'
+          + '\uC8FC\uB294 [\uB370\uC774\uD130] \uD654\uBA74\uC758 "'
+          + '\uBCC0\uC218 \uD615\uC2DD"\uC5D0\uC11C \uC815\uD560 '
+          + '\uC218 \uC788\uC2B5\uB2C8\uB2E4(\uAE30\uBCF8: \uCCAB '
+          + '\uBC94\uC8FC).')) +
         ('<div class="field"><label for="cut">\uBD84\uB958 '
           + '\uAE30\uC900 \uD655\uB960</label><input type="number" '
           + 'id="cut" value="0.5" step="0.05" min="0.05" max="0.95"'
@@ -2117,9 +2147,9 @@ if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById(
           + '\uBBC0\uB85C AUC\u00B7\uBCF4\uC815 \uC815\uB3C4\uC640 '
           + '\uD568\uAED8 \uBCF4\uC138\uC694(Hosmer, Lemeshow, & St'
           + 'urdivant, 2013).</p>') +
-        rcode('df$y01 <- as.integer(df$' + rname(state.names[y]) + ' == "' +
-          ev + '")\nm <- glm(y01 ~ ' + x.map(function (i) { return rname(
-          state.names[i]); }).join(' + ') +
+        rcode(rRelevel(x) + 'df$y01 <- as.integer(df$' + rname(state.names[
+          y]) + ' == "' + ev + '")\nm <- glm(y01 ~ ' + x.map(function (i) {
+          return rname(state.names[i]); }).join(' + ') +
           (', data = df, family = binomial)\nsummary(m); exp(cbind'
           + '(OR = coef(m), confint.default(m)))\nResourceSelection'
           + '::hoslem.test(m$y, fitted(m), g = 10)'));
@@ -2167,11 +2197,14 @@ if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById(
           (' (\uC608: \uC778\uAD6C\uD1B5\uACC4 \uD1B5\uC81C\uBCC0'
           + '\uC218)') : ' (\uC120\uD0DD)'), 'any'); }).join('') +
         ('<div class="hint">\uBB38\uC790\uD615 \uBCC0\uC218'
-          + '\uB294 \uCCAB \uBC94\uC8FC\uB97C \uAE30\uC900\uC73C'
-          + '\uB85C \uB354\uBBF8\uCF54\uB529\uB429\uB2C8\uB2E4. '
-          + '\uC0C1\uD638\uC791\uC6A9\uD56D\uC774 \uD544\uC694'
-          + '\uD558\uBA74 [\uC870\uC808\uBD84\uC11D] \uBA54\uB274'
-          + '\uB97C \uC4F0\uC138\uC694.</div>');
+          + '\uB294 \uB354\uBBF8\uCF54\uB529\uB429\uB2C8\uB2E4. '
+          + '\uAE30\uC900 \uBC94\uC8FC\uB294 [\uB370\uC774\uD130] '
+          + '\uD654\uBA74\uC758 "\uBCC0\uC218 \uD615\uC2DD"\uC5D0'
+          + '\uC11C \uC815\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4('
+          + '\uAE30\uBCF8: \uCCAB \uBC94\uC8FC). \uC0C1\uD638\uC791'
+          + '\uC6A9\uD56D\uC774 \uD544\uC694\uD558\uBA74 [\uC870'
+          + '\uC808\uBD84\uC11D] \uBA54\uB274\uB97C \uC4F0\uC138'
+          + '\uC694.</div>');
     },
     wire: function () { $('#y').onchange = wireEventPicker; $$(
       'input[name=htype]').forEach(function (r) { r.onchange =
@@ -2253,8 +2286,8 @@ if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById(
         '; ')) + '</p>';
       var rf = function (k) { return state.names[y] + ' ~ ' + labels.slice(
         0, k + 1).join(', ').split(', ').map(rname).join(' + '); };
-      html += rcode('d <- na.omit(df[, ' + rvec(used.map(function (i) {
-        return state.names[i]; })) + '])\n' +
+      html += rcode(rRelevel(used) + 'd <- na.omit(df[, ' + rvec(used.map(
+        function (i) { return state.names[i]; })) + '])\n' +
         h.steps.map(function (_, k) { return 'm' + (k + 1) + ' <- ' + (
           logistic ? 'glm(' : 'lm(') + rf(k) + ', data = d' + (logistic ?
           ', family = binomial' : '') + ')'; }).join('\n') +
@@ -2422,8 +2455,9 @@ if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById(
           + '\uB2E4(Hayes, 2022). \uADF8\uB9BC\uC758 \uACF5\uBCC0'
           + '\uC778\uC740 \uD3C9\uADE0\uAC12\uC73C\uB85C \uACE0'
           + '\uC815\uD588\uC2B5\uB2C8\uB2E4.</p>') +
-        rcode('d <- na.omit(df[, ' + rvec([yn, xn, wn].concat(cvIdx.map(
-          function (i) { return state.names[i]; }))) + '])\n' +
+        rcode(rRelevel(cvIdx) + 'd <- na.omit(df[, ' + rvec([yn, xn,
+          wn].concat(cvIdx.map(function (i) { return state.names[i]; }))) +
+          '])\n' +
           (md.centered ? 'd$xc <- d$' + rname(xn) + ' - mean(d$' + rname(xn)
             + '); d$wc <- d$' + rname(wn) + ' - mean(d$' + rname(wn) +
             ')\nm <- lm(' + rname(yn) + ' ~ xc * wc' : 'm <- lm(' + rname(
@@ -2592,8 +2626,9 @@ if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById(
           + '\uAC1C\uBCC0\uC218\uB97C \uD1B5\uC81C\uD55C \uD2B9'
           + '\uC815 \uAC04\uC811\uD6A8\uACFC\uC785\uB2C8\uB2E4.</p>') : '')
           +
-        rcode('d <- na.omit(df[, ' + rvec([yn, xn].concat(mn, cvIdx.map(
-          function (i) { return state.names[i]; }))) + '])\n' +
+        rcode(rRelevel(cvIdx) + 'd <- na.omit(df[, ' + rvec([yn, xn].concat(
+          mn, cvIdx.map(function (i) { return state.names[i]; }))) + '])\n'
+          +
           mn.map(function (q, j) { return 'ma' + (j + 1) + ' <- lm(' +
             rname(q) + ' ~ ' + rname(xn) + cvIdx.map(function (i) {
             return ' + ' + rname(state.names[i]); }).join('') +
@@ -2918,8 +2953,8 @@ if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById(
         + 'SS\u00B7R\uACFC \uC18C\uC218 \uC14B\uC9F8 \uC790\uB9AC '
         + '\uC815\uB3C4\uC5D0\uC11C \uB2E4\uB97C \uC218 \uC788'
         + '\uC2B5\uB2C8\uB2E4.</p>') +
-        rcode(processRcode(model, yn, xn, mn, wn, cvIdx.map(function (i) {
-          return state.names[i]; })));
+        rcode(rRelevel(cvIdx) + processRcode(model, yn, xn, mn, wn,
+          cvIdx.map(function (i) { return state.names[i]; })));
       addCard('\uC870\uAC74\uBD80 \uACFC\uC815 \uBAA8\uD615 (Model ' + model
         + ')', html, mn.length + '\uAC1C \uB9E4\uAC1C\uBCC0\uC218' + (hasW ?
         ', W = ' + wn : ''));
@@ -3652,6 +3687,7 @@ if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById(
   // \uC55E \uC870\uAC01\uC5D0\uC11C \uAC00\uC838\uC624\uAE30
   var S = NS.S, state = NS.state, $ = NS.$, $$ = NS.$$, esc = NS.esc, f =
     NS.f, fr = NS.fr, table = NS.table;
+  var levelsOf = NS.levelsOf;
   var rcode = NS.rcode, rvec = NS.rvec, setData = NS.setData, parseDelimited
     = NS.parseDelimited, openFile = NS.openFile, exampleData =
     NS.exampleData, updateInfo = NS.updateInfo, multiField = NS.multiField;
@@ -4023,6 +4059,20 @@ if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById(
   }
 
   /* ---------------- \uB370\uC774\uD130 \uD654\uBA74 ---------------- */
+  // \uB354\uBBF8\uCF54\uB529 \uAE30\uC900 \uBC94\uC8FC \uC120\uD0DD
+  // (\uBB38\uC790\uD615, \uBC94\uC8FC 30\uAC1C \uC774\uD558)
+  function refPicker(i) {
+    if (state.types[i] !== 'text') return '';
+    var lv = levelsOf(i), ref = NS.refLevelOf(i);
+    if (lv.length < 2) return '';
+    if (lv.length > 30) return ' <span class="note">\uBC94\uC8FC ' +
+      lv.length + '\uAC1C</span>';
+    return ' <span class="note">\uAE30\uC900</span> <select data-ref="' + i
+      + ('" title="\uB354\uBBF8\uCF54\uB529 \uAE30\uC900 \uBC94'
+      + '\uC8FC">') + lv.map(function (l, k) {
+      return '<option value="' + k + '"' + (l === ref ? ' selected' : '') +
+        '>' + esc(l) + '</option>'; }).join('') + '</select>';
+  }
   function dataView() {
     var h = ('<h2>\uB370\uC774\uD130</h2><p class="desc">\uC5D1\uC140'
       + '\uC5D0\uC11C \uBC94\uC704\uB97C \uBCF5\uC0AC(Ctrl+C)\uD574'
@@ -4047,7 +4097,8 @@ if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById(
           i + '"><option value="num"' + (state.types[i] === 'num' ?
           ' selected' : '') + '>\uC22B\uC790</option><option value="text"' +
           (state.types[i] === 'text' ? ' selected' : '') +
-          '>\uBB38\uC790</option></select></span></label>';
+          '>\uBB38\uC790</option></select>' + refPicker(i) +
+          '</span></label>';
       }).join('') +
         ('</div><div class="hint">\uC22B\uC790\uB85C \uCF54\uB529'
         + '\uB41C \uBC94\uC8FC\uD615 \uBCC0\uC218(\uC608: \uC131'
@@ -4126,6 +4177,13 @@ if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById(
         '\uBD99\uC5EC\uB123\uC740 \uC790\uB8CC'); } catch (e) { alert(
         e.message); } };
       $('#openBtn2').onclick = function () { $('#file').click(); };
+      $$('[data-ref]').forEach(function (s) {
+        s.onchange = function () {
+          var i = Number(s.dataset.ref);
+          if (!state.refLevel) state.refLevel = {};
+          state.refLevel[state.names[i]] = levelsOf(i)[Number(s.value)];
+        };
+      });
       $$('[data-type]').forEach(function (s) {
         s.onchange = function () {
           var i = Number(s.dataset.type);
@@ -4149,8 +4207,10 @@ if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById(
             state.cols[i] = conv;
           } else state.cols[i] = state.cols[i].map(function (v) { return v
             === null ? null : String(v); });
-          state.types[i] = s.value; $('#results').innerHTML =
-            '<div class="datapreview">' + dataPreview() + '</div>';
+          state.types[i] = s.value; select('data');
+            // \uD615\uC2DD\uC774 \uBC14\uB00C\uBA74 \uAE30\uC900
+            // \uBC94\uC8FC \uC120\uD0DD \uCE78\uB3C4 \uB2E4\uC2DC
+            // \uADF8\uB9BC
         };
       });
       return;
@@ -5336,6 +5396,7 @@ if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById(
     // \uACC4\uC0B0 \uC5D4\uC9C4\uC774 \uC5C6\uC73C\uBA74 \uD654\uBA74\uC744
     // \uC2DC\uC791\uD558\uC9C0 \uC54A\uC74C
   var NS = G.__PsyAppNS || (G.__PsyAppNS = {});
+  var rRelevel = NS.rRelevel;
   var S = NS.S, state = NS.state, $ = NS.$, esc = NS.esc, f = NS.f, fp =
     NS.fp, fr = NS.fr, fb = NS.fb, table = NS.table, rcode = NS.rcode, rname
     = NS.rname;
@@ -5951,12 +6012,15 @@ if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById(
         + ' for="refv">\uAE30\uC900 \uBC94\uC8FC</label><select id='
         + '"refv"></select></div>') +
         multiField('x', '\uC608\uCE21\uBCC0\uC218', 'any',
-          ('\uBB38\uC790\uD615 \uBCC0\uC218\uB294 \uCCAB \uBC94'
-          + '\uC8FC\uB97C \uAE30\uC900\uC73C\uB85C \uB354\uBBF8'
-          + '\uCF54\uB529\uB429\uB2C8\uB2E4. \uC22B\uC790\uB85C '
-          + '\uCF54\uB529\uB41C \uBC94\uC8FC\uD615 \uC608\uCE21'
-          + '\uBCC0\uC218\uB294 [\uB370\uC774\uD130]\uC5D0\uC11C "'
-          + '\uBB38\uC790"\uB85C \uBC14\uAFB8\uC138\uC694.'));
+          ('\uBB38\uC790\uD615 \uBCC0\uC218\uB294 \uB354\uBBF8'
+          + '\uCF54\uB529\uB429\uB2C8\uB2E4. \uAE30\uC900 \uBC94'
+          + '\uC8FC\uB294 [\uB370\uC774\uD130] \uD654\uBA74\uC758 "'
+          + '\uBCC0\uC218 \uD615\uC2DD"\uC5D0\uC11C \uC815\uD560 '
+          + '\uC218 \uC788\uC2B5\uB2C8\uB2E4(\uAE30\uBCF8: \uCCAB '
+          + '\uBC94\uC8FC). \uC22B\uC790\uB85C \uCF54\uB529\uB41C '
+          + '\uBC94\uC8FC\uD615 \uC608\uCE21\uBCC0\uC218\uB294 ['
+          + '\uB370\uC774\uD130]\uC5D0\uC11C "\uBB38\uC790"\uB85C '
+          + '\uBC14\uAFB8\uC138\uC694.'));
     },
     wire: function () {
       $('#y').onchange = function () {
@@ -6030,10 +6094,10 @@ if (!window.PsyStats || !window.PsySEM) { var b = document.getElementById(
           + '\uCC28 < 3e-5). \uD45C\uC900\uC624\uCC28\uB294 \uAD00'
           + '\uCE21\uC815\uBCF4\uD589\uB82C\uB85C \uACC4\uC0B0'
           + '\uD588\uC2B5\uB2C8\uB2E4.</p>') +
-        rcode('library(nnet)\ndf$y <- relevel(factor(df$' + rname(yn) +
-          '), ref = "' + refLv + '")\nm <- multinom(y ~ ' + x.map(function (
-          i) { return rname(state.names[i]); }).join(' + ') +
-          ', data = df, Hess = TRUE)\nsummary(m); exp(coef(m))');
+        rcode('library(nnet)\n' + rRelevel(x) + 'df$y <- relevel(factor(df$'
+          + rname(yn) + '), ref = "' + refLv + '")\nm <- multinom(y ~ ' +
+          x.map(function (i) { return rname(state.names[i]); }).join(' + ')
+          + ', data = df, Hess = TRUE)\nsummary(m); exp(coef(m))');
       addCard('\uB2E4\uD56D \uB85C\uC9C0\uC2A4\uD2F1 \uD68C\uADC0: ' + yn,
         html, x.length + '\uAC1C \uC608\uCE21\uBCC0\uC218, ' + m.K +
         '\uAC1C \uBC94\uC8FC');
