@@ -1,4 +1,4 @@
-/* PsyStat 0.9.1 \uACC4\uC0B0 \uC5D4\uC9C4 \u2014 PsyStat.html\uACFC
+/* PsyStat 0.9.2 \uACC4\uC0B0 \uC5D4\uC9C4 \u2014 PsyStat.html\uACFC
   \uAC19\uC740 \uD3F4\uB354\uC5D0 \uB450\uC138\uC694 */
 /*
  * PsyStat \uD1B5\uACC4 \uC5D4\uC9C4 (stats) \u2014 \uC870\uAC01 1/4:
@@ -962,8 +962,16 @@
     var n = y.length, p = Xcols.length + 1;
     var X = rows.map(function (_, r) { return [1].concat(Xc.map(function (c)
       { return c[r]; })); });
-    var fit = logisticIRLS(X, y);
     var n1 = sum(y), p0 = n1 / n;
+    if (n1 === 0 || n1 === n) throw new Error(
+      ('\uC885\uC18D\uBCC0\uC218\uAC00 \uD55C \uBC94\uC8FC\uBFD0'
+      + '\uC785\uB2C8\uB2E4 (\uC0AC\uAC74=1: ') + n1 +
+      '\uBA85 / \uC804\uCCB4 ' + n +
+      ('\uBA85). "\uC0AC\uAC74(=1)\uC73C\uB85C \uBCFC \uBC94\uC8FC'
+      + '" \uC120\uD0DD\uACFC \uC790\uB8CC\uC758 \uCF54\uB529('
+      + '\uACF5\uBC31\u00B7\uC22B\uC790/\uBB38\uC790 \uD63C\uC6A9 '
+      + '\uB4F1)\uC744 \uD655\uC778\uD558\uC138\uC694.'));
+    var fit = logisticIRLS(X, y);
     var dev0 = -2 * (n1 * Math.log(p0) + (n - n1) * Math.log(1 - p0));
     var chi = dev0 - fit.deviance, dfM = p - 1;
     var zc = qnorm(1 - (1 - conf) / 2);

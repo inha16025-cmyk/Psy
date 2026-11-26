@@ -4,7 +4,7 @@
   'use strict';
   if (G.__psyEngineMissing || !G.PsyStats) return; // 계산 엔진이 없으면 화면을 시작하지 않음
   var NS = G.__PsyAppNS || (G.__PsyAppNS = {});
-  var S = NS.S, state = NS.state, $ = NS.$, esc = NS.esc, f = NS.f, fp = NS.fp, fr = NS.fr, table = NS.table, rcode = NS.rcode, rname = NS.rname;
+  var S = NS.S, state = NS.state, $ = NS.$, esc = NS.esc, f = NS.f, fp = NS.fp, fr = NS.fr, fb = NS.fb, table = NS.table, rcode = NS.rcode, rname = NS.rname;
   var selectField = NS.selectField, multiField = NS.multiField, getMulti = NS.getMulti, getSel = NS.getSel, need = NS.need, addCard = NS.addCard;
   var designColumns = NS.designColumns, levelsOf = NS.levelsOf, A = NS.A;
 
@@ -149,14 +149,14 @@
     wire: function () {
       $('#y').onchange = function () {
         var i = getSel('y'); if (i < 0) { $('#mref').style.display = 'none'; return; }
-        $('#refv').innerHTML = levelsOf(i).map(function (l) { return '<option>' + esc(l) + '</option>'; }).join('');
+        $('#refv').innerHTML = levelsOf(i).map(function (l, k) { return '<option value="' + k + '">' + esc(l) + '</option>'; }).join('');
         $('#mref').style.display = '';
       };
     },
     run: function () {
       var y = getSel('y'), x = getMulti('x').filter(function (i) { return i !== y; }); need(y >= 0 && x.length, '종속변수와 예측변수를 선택하세요.');
       var lv = levelsOf(y); need(lv.length >= 2, '종속변수의 범주가 2개 이상이어야 합니다.');
-      var dc = designColumns(x), refLv = $('#refv').value;
+      var dc = designColumns(x), refLv = levelsOf(y)[Number($('#refv').value)];
       var m = S.multinomialLogistic(state.cols[y], dc.cols, dc.names, { ref: refLv }), yn = state.names[y];
       var html = (m.warnings.length ? '<div class="warn">' + m.warnings.map(esc).join('<br>') + '</div>' : '') +
         table(['N', '−2LL', '모형 χ²', 'df', 'p', 'Cox-Snell R²', 'Nagelkerke R²', 'McFadden R²', 'AIC', 'BIC'], [[m.n, f(m.deviance, 3), f(m.chi2, 3), m.dfM, fp(m.p), fr(m.coxSnell), fr(m.nagelkerke), fr(m.mcfadden), f(m.aic, 2), f(m.bic, 2)]],
@@ -164,7 +164,7 @@
         (m.lrTests.length ? table(['예측변수', 'χ²', 'df', 'p'], m.lrTests.map(function (t) { return [esc(t.name), f(t.chi2, 3), t.df, fp(t.p)]; }), { left: [0], title: '우도비 검정', note: '각 예측변수를 뺀 모형과 비교한 χ² (더미코딩된 범주형 변수는 더미별로 표시).' }) : '') +
         table([yn + ' (기준: ' + esc(m.levels[m.ref]) + ')', '예측변수', 'B', 'SE', 'Wald χ²', 'p', 'OR', 'OR 95% CI'], m.coefs.map(function (c, i) {
           var first = i === 0 || m.coefs[i - 1].level !== c.level;
-          return [first ? esc(c.level) : '', esc(c.name), f(c.b, 3), f(c.se, 3), f(c.wald, 3), fp(c.p), f(c.or, 3), '[' + f(c.orLow, 3) + ', ' + f(c.orHigh, 3) + ']'];
+          return [first ? esc(c.level) : '', esc(c.name), fb(c.b, 3), fb(c.se, 3), f(c.wald, 3), fp(c.p), f(c.or, 3), '[' + f(c.orLow, 3) + ', ' + f(c.orHigh, 3) + ']'];
         }), { left: [0, 1], title: '회귀계수 (기준 범주 대비)' }) +
         table(['관측 \\ 예측'].concat(m.levels.map(esc)).concat(['정확도']), m.levels.map(function (l, a) {
           var tot = m.confusion[a].reduce(function (s, v) { return s + v; }, 0);

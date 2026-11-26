@@ -6,7 +6,7 @@
   if (G.__psyEngineMissing || !G.PsyStats) return; // 계산 엔진이 없으면 화면을 시작하지 않음
   var NS = G.__PsyAppNS || (G.__PsyAppNS = {});
   // 앞 조각에서 가져오기
-  var S = NS.S, state = NS.state, $ = NS.$, $$ = NS.$$, esc = NS.esc, f = NS.f, fp = NS.fp, fr = NS.fr;
+  var S = NS.S, state = NS.state, $ = NS.$, $$ = NS.$$, esc = NS.esc, f = NS.f, fp = NS.fp, fr = NS.fr, fb = NS.fb;
   var star = NS.star, table = NS.table, rcode = NS.rcode, rvec = NS.rvec, rname = NS.rname, levelsOf = NS.levelsOf, selectField = NS.selectField, multiField = NS.multiField;
   var getMulti = NS.getMulti, getSel = NS.getSel, need = NS.need, designColumns = NS.designColumns, addCard = NS.addCard, A = NS.A;
   function select() { return NS.select.apply(this, arguments); } // 뒤 조각에 정의됨 (호출 시점에 연결)
@@ -93,7 +93,7 @@
       var dc = designColumns(x), m = S.linearRegression(state.cols[y], dc.cols, dc.names);
       var html = table(['R', 'R²', '수정 R²', '추정값 SE', 'F', 'df', 'p', 'N'], [[fr(m.R), fr(m.R2), fr(m.adjR2), f(m.see, 3), f(m.F, 2), m.dfM + ', ' + m.dfE, fp(m.p), m.n]], { title: '회귀모형 요약 (종속변수: ' + state.names[y] + ')' }) +
         table(['예측변수', 'B', 'SE', 'β', 't', 'p', '95% CI', 'VIF'], m.coefs.map(function (c) {
-          return [esc(c.name), f(c.b, 3), f(c.se, 3), f(c.beta, 3), f(c.t, 2), fp(c.p), '[' + f(c.ciLow, 3) + ', ' + f(c.ciHigh, 3) + ']', f(c.vif, 2)];
+          return [esc(c.name), fb(c.b, 3), fb(c.se, 3), f(c.beta, 3), f(c.t, 2), fp(c.p), '[' + f(c.ciLow, 3) + ', ' + f(c.ciHigh, 3) + ']', f(c.vif, 2)];
         }), { title: '다중회귀분석 결과 (종속변수: ' + state.names[y] + ')' }) +
         (dc.notes.length ? '<p class="note">더미코딩 — ' + esc(dc.notes.join('; ')) + '</p>' : '') +
         '<p class="note">Durbin-Watson = ' + f(m.durbinWatson, 3) + '. VIF > 10(보수적으로 > 5)이면 다중공선성을 점검하세요. 계산은 QR 분해 기반 최소제곱으로, R의 lm()과 같은 값을 냅니다.</p>' +
@@ -115,7 +115,7 @@
       $('#y').onchange = function () {
         var i = getSel('y'); if (i < 0) { $('#ev').style.display = 'none'; return; }
         var lv = levelsOf(i);
-        $('#evv').innerHTML = lv.map(function (l) { return '<option>' + esc(l) + '</option>'; }).join('');
+        $('#evv').innerHTML = lv.map(function (l, k) { return '<option value="' + k + '">' + esc(l) + '</option>'; }).join('');
         $('#evv').selectedIndex = lv.length - 1;
         $('#ev').style.display = '';
         if (lv.length !== 2) $('#ev').insertAdjacentHTML('beforeend', '<div class="hint">주의: 이 변수는 ' + lv.length + '개 범주입니다. 선택한 범주 = 1, 나머지 = 0으로 분석합니다.</div>');
@@ -123,15 +123,19 @@
     },
     run: function () {
       var y = getSel('y'), x = getMulti('x').filter(function (i) { return i !== y; }); need(y >= 0 && x.length, '종속변수와 예측변수를 선택하세요.');
-      var ev = $('#evv').value, cut = Number($('#cut').value) || 0.5;
+      need($('#evv').value !== '', '사건(=1)으로 볼 범주를 선택하세요.');
+      var ev = levelsOf(y)[Number($('#evv').value)], cut = Number($('#cut').value) || 0.5;
       var yy = state.cols[y].map(function (v) { return v === null ? null : (String(v) === ev ? 1 : 0); });
       var dc = designColumns(x), m = S.logisticRegression(yy, dc.cols, dc.names, { cutoff: cut });
       var cl = m.classification;
+      var tiny = m.coefs.slice(1).filter(function (c) { return c.b !== 0 && Math.abs(c.b) < 0.0005; }).map(function (c) { return c.name; });
       var html = (m.warnings.length ? '<div class="warn">' + m.warnings.map(esc).join('<br>') + '</div>' : '') +
+        (tiny.length ? '<div class="hint">' + esc(tiny.join(', ')) + ': 측정 단위가 커서(예: 원 단위 소득) 1단위당 B가 매우 작고 OR이 1.000으로 보입니다. ' +
+          '오류는 아니며, 변수를 1,000 단위 등으로 나누거나 표준화하면 해석이 쉬워집니다(p값은 변하지 않음).</div>' : '') +
         '<h4>모형 적합</h4>' + table(['N', '사건 수', '−2LL', '모형 χ²', 'df', 'p', 'Cox-Snell R²', 'Nagelkerke R²', 'McFadden R²', 'AIC', 'BIC'],
           [[m.n, m.nEvents, f(m.deviance, 3), f(m.chi2, 3), m.dfM, fp(m.pModel), fr(m.coxSnell), fr(m.nagelkerke), fr(m.mcfadden), f(m.aic, 2), f(m.bic, 2)]]) +
         '<h4>회귀계수</h4>' + table(['예측변수', 'B', 'SE', 'Wald χ²', 'p', 'OR', 'OR 95% CI'], m.coefs.map(function (c) {
-          return [esc(c.name), f(c.b, 3), f(c.se, 3), f(c.wald, 3), fp(c.p), f(c.or, 3), '[' + f(c.orLow, 3) + ', ' + f(c.orHigh, 3) + ']'];
+          return [esc(c.name), fb(c.b, 3), fb(c.se, 3), f(c.wald, 3), fp(c.p), f(c.or, 3), '[' + f(c.orLow, 3) + ', ' + f(c.orHigh, 3) + ']'];
         })) +
         '<h4>Hosmer-Lemeshow 적합도</h4>' + table(['χ²', 'df', 'p', '집단 수'], [[f(m.hl.chi2, 3), m.hl.df, fp(m.hl.p), m.hl.groups]]) +
         '<h4>분류표 (기준 = ' + cut + ')</h4>' + table(['관측 \\ 예측', '0', '1', '정확도'], [
@@ -151,7 +155,7 @@
     var i = getSel('y'), box = $('#ev');
     if (i < 0 || !$('#htype_log') || !$('#htype_log').checked) { box.style.display = 'none'; return; }
     var lv = levelsOf(i);
-    $('#evv').innerHTML = lv.map(function (l) { return '<option>' + esc(l) + '</option>'; }).join('');
+    $('#evv').innerHTML = lv.map(function (l, k) { return '<option value="' + k + '">' + esc(l) + '</option>'; }).join('');
     $('#evv').selectedIndex = lv.length - 1; box.style.display = '';
   }
 
@@ -177,7 +181,7 @@
       });
       need(blocks.length >= 1, '블록 1에 예측변수를 하나 이상 넣으세요.');
       if (!logistic) need(state.types[y] === 'num', '선형 위계적 회귀의 종속변수는 숫자형이어야 합니다.');
-      var ev = logistic ? $('#evv').value : null;
+      var ev = logistic ? levelsOf(y)[Number($('#evv').value)] : null;
       var yv = logistic ? binaryDV(y, ev) : state.cols[y];
       var h = S.hierarchicalRegression(yv, blocks, bnames, { logistic: logistic });
       var html = '<p class="note">분석 사례 N = ' + h.n + ' (모든 블록 변수에 결측이 없는 사례; 단계 간 비교를 위해 동일 표본 사용)</p>';
@@ -187,7 +191,7 @@
         }), { left: [1] });
         h.steps.forEach(function (s, k) {
           html += '<h4>단계 ' + (k + 1) + ' 계수</h4>' + table(['예측변수', 'B', 'SE', 'β', 't', 'p', '95% CI', 'VIF'], s.model.coefs.map(function (c) {
-            return [esc(c.name), f(c.b, 3), f(c.se, 3), f(c.beta, 3), f(c.t, 2), fp(c.p), '[' + f(c.ciLow, 3) + ', ' + f(c.ciHigh, 3) + ']', f(c.vif, 2)];
+            return [esc(c.name), fb(c.b, 3), fb(c.se, 3), f(c.beta, 3), f(c.t, 2), fp(c.p), '[' + f(c.ciLow, 3) + ', ' + f(c.ciHigh, 3) + ']', f(c.vif, 2)];
           }));
         });
       } else {
@@ -197,7 +201,7 @@
         h.steps.forEach(function (s, k) {
           html += (s.model.warnings.length ? '<div class="warn">' + s.model.warnings.map(esc).join('<br>') + '</div>' : '') +
             '<h4>단계 ' + (k + 1) + ' 계수</h4>' + table(['예측변수', 'B', 'SE', 'Wald χ²', 'p', 'OR', 'OR 95% CI'], s.model.coefs.map(function (c) {
-              return [esc(c.name), f(c.b, 3), f(c.se, 3), f(c.wald, 3), fp(c.p), f(c.or, 3), '[' + f(c.orLow, 3) + ', ' + f(c.orHigh, 3) + ']'];
+              return [esc(c.name), fb(c.b, 3), fb(c.se, 3), f(c.wald, 3), fp(c.p), f(c.or, 3), '[' + f(c.orLow, 3) + ', ' + f(c.orHigh, 3) + ']'];
             }));
         });
       }

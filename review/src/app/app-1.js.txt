@@ -22,6 +22,14 @@
     if (/^-0\.?0*$/.test(s)) s = s.slice(1);
     return s.replace('-', '−');
   }
+  // 회귀계수용: |x| < .0005이면 유효숫자 3자리 (척도 단위가 큰 예측변수의 B가 0.000으로 보이는 것 방지)
+  function fb(x, d) {
+    if (typeof x === 'number' && isFinite(x) && x !== 0 && Math.abs(x) < 0.0005) {
+      var s = x.toPrecision(3); if (/e/.test(s)) s = x.toFixed(Math.min(20, 2 - Math.floor(Math.log10(Math.abs(x)))));
+      return s.replace('-', '−');
+    }
+    return f(x, d);
+  }
   function fp(p) {
     if (p === null || p === undefined || isNaN(p)) return '—';
     if (p < 0.001) return '< .001';
@@ -554,7 +562,7 @@
   };
 
   // 다음 조각으로 내보내기
-  NS.S = S; NS.state = state; NS.$ = $; NS.$$ = $$; NS.esc = esc; NS.f = f; NS.fp = fp; NS.fr = fr;
+  NS.S = S; NS.state = state; NS.$ = $; NS.$$ = $$; NS.esc = esc; NS.f = f; NS.fp = fp; NS.fr = fr; NS.fb = fb;
   NS.star = star; NS.ITAL = ITAL; NS.ITAL_RE = ITAL_RE; NS.italHead = italHead; NS.table = table; NS.ABBR = ABBR; NS.decorateTables = decorateTables; NS.APA_FONT = APA_FONT;
   NS.cleanCell = cleanCell; NS.apaExport = apaExport; NS.copyApa = copyApa; NS.rcode = rcode; NS.rvec = rvec; NS.rname = rname; NS.MISSING = MISSING; NS.setData = setData;
   NS.parseDelimited = parseDelimited; NS.decodeText = decodeText; NS.readXlsx = readXlsx; NS.openFile = openFile; NS.exampleData = exampleData; NS.updateInfo = updateInfo; NS.varOptions = varOptions; NS.levelsOf = levelsOf;

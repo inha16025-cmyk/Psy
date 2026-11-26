@@ -124,7 +124,7 @@ table.res thead th:first-child { text-align: left; }
   <b style="font-size:16px">PsyStat의 스크립트가 실행되지 않았습니다.</b><br>
   이 상자가 보이면 HTML은 열렸지만 계산 코드(JavaScript)가 동작하지 않은 것입니다. 다음을 순서대로 확인해 주세요.
   <ol style="margin:8px 0 0 18px;padding:0">
-    <li><b>파일 크기</b>: 파일 속성에서 크기가 약 <b>   461,300바이트</b>인지 확인하세요. 훨씬 작다면 자료 전송(망연계) 과정에서 보안 프로그램이 스크립트를 제거한 것입니다. 보안 담당자에게 이 파일의 반입 예외(스크립트 포함 HTML) 승인을 요청하세요. 원본 SHA-256: <code style="font-size:12px;word-break:break-all">(스크립트 본문) d58b77b243bfe917ae64ac720425dfab0aff0c68aa4c828ed5f7f9774f3f7282</code></li>
+    <li><b>파일 크기</b>: 파일 속성에서 크기가 약 <b>   462,753바이트</b>인지 확인하세요. 훨씬 작다면 자료 전송(망연계) 과정에서 보안 프로그램이 스크립트를 제거한 것입니다. 보안 담당자에게 이 파일의 반입 예외(스크립트 포함 HTML) 승인을 요청하세요. 원본 SHA-256: <code style="font-size:12px;word-break:break-all">(스크립트 본문) 5626a3d8ef92e243cfeda45c4ba52f3d9ec20c9d03bcdad5c43ac686c076ab9f</code></li>
     <li><b>브라우저 정책</b>: 기관 정책으로 로컬 파일(file://)의 JavaScript가 차단되었을 수 있습니다. Chrome이 있다면 Chrome으로 열어 보고, 같은 증상이면 전산 담당자에게 문의하세요.</li>
     <li><b>문서 보안(DRM) 뷰어</b>: 탐색기에서 파일을 더블클릭했을 때 일반 브라우저가 아닌 보안 뷰어로 열리면 스크립트가 꺼져 있을 수 있습니다.</li>
   </ol>
@@ -158,19 +158,19 @@ table.res thead th:first-child { text-align: left; }
      "t":"다. 아래 내용을 캡처해 보내 주세요.';\n    var e = document.getElementById('jserr'); e.style.display = '';\n    e.te",
      "A":[],
      "Z":[]},
-    {"n": "통계 엔진 1/4", "L": 42987, "f": "inoggn", "te": 100,
+    {"n": "통계 엔진 1/4", "L": 43139, "f": "o1aps5", "te": 100,
      "h":"/*\n * PsyStat 통계 엔진 (stats) — 조각 1/4: 특수함수·분포·행렬·기초통계·검정·회귀·신뢰도\n * 외부 라이브러리·네트워크 통신 없음. 순수 JavaScript.\n * 조각들은 G.__PsyStatsNS 로 함수를 공유하며, 마지막 조각이 G.PsyStats 를 만",
      "t":"ion = logisticRegression; NS.hosmerLemeshow = hosmerLemeshow; NS.aucROC = aucROC; NS.reliability = r",
      "A":["gfqczs", "lov7z0", "ifoorj", "j1t37s", "14c6olz",
       "1s9fud0", "y2aril", "zlcdha", "1dbbzrm", "1088282",
       "uybxnt", "3zioq5", "1v7mglj", "1lxyy8o", "1pqqtop",
-      "uqf5ak", "3zuj9q", "1v5ri8a", "1locjj1", "412gvn",
-      "14qwzy6"],
-     "Z":["ivoq9q", "dx2jxy", "xchh0u", "duphqq", "7i1wz0",
-      "d169oh", "sgrej3", "16g98bo", "1p7l31s", "1kfgigl",
-      "1un8cqi", "eoqt00", "guhtq1", "1b7j2ih", "c6ybru",
-      "1tt1ta4", "t7vrcw", "1fh3aql", "xguvtq", "1e9paex",
-      "1i21lm3"]},
+      "uqf5ak", "3zuj9q", "1v5ri8a", "bvl23z", "wo9een",
+      "tkoxdr"],
+     "Z":["ivoq9q", "dx2jxy", "xchh0u", "x32csz", "1cq4kf6",
+      "vked3z", "tnhwph", "sfvvfy", "1qzk938", "44znf4",
+      "7smyx1", "1kbbtfa", "s8top9", "t8cocn", "p0npsp",
+      "1yutmhx", "441ixs", "1u1egtb", "udc270", "fuvlw1",
+      "1fn0wjp"]},
     {"n": "통계 엔진 2/4", "L": 53944, "f": "kekrak", "te": 100,
      "h":"/*\n * PsyStat 통계 엔진 (stats) — 조각 2/4: 네트워크·다분상관·조절·매개·다변량·안정성\n * 외부 라이브러리·네트워크 통신 없음. 순수 JavaScript.\n * 조각들은 G.__PsyStatsNS 로 함수를 공유하며, 마지막 조각이 G.PsyStats 를 만든다",
      "t":"diation: mediation, processModel: processModel,\n    manova: manova, discriminant: discriminant, boxM",
@@ -211,32 +211,32 @@ table.res thead th:first-child { text-align: left; }
      "Z":["1l3g6bc", "v0k1c0", "t1gg7l", "1d1pzv0", "z7yi6i",
       "1gdqw6z", "17fauiz", "1rnj6cz", "13e1za8", "1ex72nc",
       "oytlih", "1wgpci9", "p7763u", "wsa2vl"]},
-    {"n": "화면 코드 1/7", "L": 42082, "f": "wrdmgv", "te": 100,
+    {"n": "화면 코드 1/7", "L": 42454, "f": "7hnem3", "te": 100,
      "h":"/* PsyStat 화면(UI) 코드 — 조각 1/7: 공통 도우미·자료 읽기·APA 표·결과 카드·기술통계~판별분석\n * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다.\n * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 코드는 분할 전과 동일) */\n",
      "t":" = wireLevelPicker; NS.boxMTable = boxMTable; NS.groupDescTable = groupDescTable;\n  NS.ldaPlotSVG = ",
-     "A":["plza8s", "p7ga2e", "kgz05s", "k056sn", "94rab4",
-      "1evusw9", "sxum9k", "1jqja19", "1yf67of", "e4xsh7",
-      "jazwx2", "1m7eowu", "kcffit", "1s4bydz", "1pgflyo",
-      "v5wtxn", "125dbol", "miflqh", "1wwyamr", "1cf76aw",
-      "1ku95xv"],
-     "Z":["1qcsj3t", "1tpiifm", "1uksnzs", "masw7n", "1yriwok",
-      "1x6ff7t", "4tasko", "1lxfo1e", "1n2ck9h", "d3w1wz",
-      "80q2xo", "w58n4d", "1a1ploe", "1jopqv3", "ngzru7",
-      "qiafii", "v8kg88", "bk1apc", "10eiiw7", "mxcf87",
-      "zske4c"]},
-    {"n": "화면 코드 2/7", "L": 43755, "f": "u3tfx8", "te": 100,
+     "A":["1yn9j8v", "1ilhiww", "d8ju2k", "1l24wv6", "hgte9x",
+      "1fvj7lp", "1j58f2b", "9azyjq", "hkys0y", "8rpm2d",
+      "1q2vr49", "xh0ucb", "ogwas0", "1x1qjc8", "1i9jzu8",
+      "3xgnpo", "17d4r3a", "7oyehj", "1xf51ge", "1lz7l8",
+      "1hioesa"],
+     "Z":["5og6v6", "1gwjo8t", "1koq6bc", "455sdo", "1az1p1o",
+      "8k97vh", "1gywo0p", "q33q9w", "dal313", "1bksj2y",
+      "1pmd2s0", "1pr7x6x", "122hajo", "vzoh7i", "7g5lsq",
+      "jbqkce", "siylrt", "13vqnl9", "1k68tu5", "wu9y5t",
+      "xsldoj"]},
+    {"n": "화면 코드 2/7", "L": 44277, "f": "1q6vksj", "te": 100,
      "h":"/* PsyStat 화면(UI) 코드 — 조각 2/7: 상관~조건부 과정 모형\n * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다.\n * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 코드는 분할 전과 동일) */\n(function (G) {\n  'use",
      "t":"= ptTwoSidedSafe; NS.processSVG = processSVG;\n  NS.PROCESS_DESC = PROCESS_DESC; NS.processRcode = pr",
-     "A":["8959ct", "19s5f6g", "1s6egep", "1gu3aqu", "rbgbtc",
-      "ne6lil", "10vsa3v", "4ziway", "ms1nsf", "1m96wcq",
-      "5escx6", "1vqiwo5", "1lk5itk", "3989j8", "vhvknd",
-      "ts3rmx", "1db915u", "11lxmqx", "6wbv6v", "128tij2",
-      "1iz00gk"],
+     "A":["zfkk9t", "1ttejf9", "8ewjko", "16lgkyd", "110anyd",
+      "17ehk7", "gyr652", "apoho5", "up7lef", "1cwr9wx",
+      "qc2b9u", "123q60c", "1e5914l", "1b4ymo6", "1yjb2js",
+      "1rzpk5f", "vlpb5g", "1pvuxvv", "1yhiq4m", "wjt6oc",
+      "dvgw2y", "19ewwy1"],
      "Z":["vn9tsf", "1bu1eib", "1xpqsle", "phw7dx", "1q7ukkm",
       "120fahg", "qtnpfg", "4vgvcl", "1irvfdw", "11s6i93",
-      "1p986q3", "1kwyc93", "12x015g", "1t7ep9f", "149uzd7",
-      "1l4fmu1", "1z0y9px", "6axve9", "1156xek", "1fx4iqt",
-      "x7xvcs"]},
+      "1p986q3", "1kwyc93", "12x015g", "en3uh7", "1d5lf97",
+      "1j5ct1k", "ns5rww", "yi0vv4", "ko4k65", "mp5n5q",
+      "1845piz", "1xljne5"]},
     {"n": "화면 코드 3/7", "L": 26532, "f": "vxg2ej", "te": 100,
      "h":"/* PsyStat 화면(UI) 코드 — 조각 3/7: 구조방정식·신뢰도·네트워크 그림\n * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다.\n * (전송 시스템의 스크립트 블록 크기 제한 때문에 나눔; 코드는 분할 전과 동일) */\n(function (G) {\n ",
      "t":"G = networkSVG; NS.centralityPlotSVG = centralityPlotSVG; NS.svgDownload = svgDownload; NS.download ",
@@ -255,22 +255,22 @@ table.res thead th:first-child { text-align: left; }
      "Z":["11kd019", "c5ty6a", "1s8zsj8", "o8jhyt", "17kaqmz",
       "1nvosv7", "19j81dl", "5eif87", "1umla5q", "1ghyujz",
       "1odhc5f", "1qno0na", "ft21ii", "40jtu", "j2gg8g"]},
-    {"n": "화면 코드 5/7", "L": 31728, "f": "1ofy89f", "te": 100,
+    {"n": "화면 코드 5/7", "L": 31742, "f": "6xn65p", "te": 100,
      "h":"/* PsyStat 화면(UI) 코드 — 조각 5/7: 잠재프로파일(LPA)·잠재계층(LCA) 분석\n * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다. */\n(function (G) {\n  'use strict';\n  if (G.__psyEngineMissing",
      "t":"ior research. Journal of Vocational Behavior, 120, 103445.', 'https://doi.org/10.1016/j.jvb.2020.103",
-     "A":["je2cu4", "1yi4hnr", "1omeyvt", "n7hnxo", "hovku9",
-      "10hl6m2", "1f6g6d", "1oxjeep", "9h0kp7", "1dw2w9d",
-      "1urziks", "bp5rsb", "3egn60", "amt0r9", "1rz964a"],
+     "A":["rdt5l7", "1pl45bw", "e7gctf", "aobekt", "lgdqlo",
+      "11f780q", "psw0xl", "1l18ewf", "1a9vc4g", "1d76np3",
+      "1razrpg", "kmh5aw", "16rsv8z", "1cy48dn", "2kwwzq"],
      "Z":["193x1pz", "1e2vf6q", "1syrby2", "pjnye", "1lz9abd",
-      "iqtqqm", "1mwzu18", "1pmg5vb", "12ppcum", "1vluqz4",
-      "1b0s3jg", "15yy7x6", "10ai31s", "117cde1", "1wrdm23"]},
-    {"n": "화면 코드 6/7", "L": 17097, "f": "3xyklh", "te": 100,
+      "iqtqqm", "ml2fsk", "k88h5x", "o6jtri", "ydxpdr",
+      "1ayeqnb", "1ho8eow", "1j6oz86", "156cq8c", "2g8lrf"]},
+    {"n": "화면 코드 6/7", "L": 17153, "f": "my6bzh", "te": 100,
      "h":"/* PsyStat 화면(UI) 코드 — 조각 6/7: 메뉴 분류 체계·해석 가이드·다항 로지스틱 회귀\n * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다. */\n(function (G) {\n  'use strict';\n  if (G.__psyEngineMissi",
      "t":"nd purpose. The American Statistician, 70(2), 129–133.', 'https://doi.org/10.1080/00031305.2016.1154",
-     "A":["py68dr", "165lqg4", "1ckc955", "y9fr0a", "pgtlay",
-      "asnq9s", "19j1k4y", "1dkahxi"],
-     "Z":["1b3wo0e", "1bx7cjg", "ba2832", "19spkk1", "iyw0tu",
-      "hyuuiw", "zysm96", "7gajb7"]},
+     "A":["1v2x3d6", "adfovc", "wj20ft", "107kdfg", "1imfqu7",
+      "yjsrae", "3l4hy6", "a1vnuo"],
+     "Z":["1b3wo0e", "1qgj28s", "114h84u", "224j64", "185jach",
+      "11passv", "1p9va6c", "1gf0smm"]},
     {"n": "화면 코드 7/7", "L": 24550, "f": "1q2r3k6", "te": 100,
      "h":"/* PsyStat 화면(UI) 코드 — 조각 7/7: 네트워크 확장 (커뮤니티·브리지 중심성·부트스트랩 차이 검정·NCT)\n * 외부 통신 없음. 조각들은 G.__PsyAppNS 로 함수를 공유한다. */\n(function (G) {\n  'use strict';\n  if (G.__ps",
      "t":"cts: A permutation test. Psychological Methods, 28(6), 1273–1285.', 'https://doi.org/10.1037/met0000",
@@ -307,12 +307,12 @@ table.res thead th:first-child { text-align: left; }
   if (!box || !out) return;
   box.style.display = ''; out.style.display = '';
   box.firstElementChild.textContent = '파일 점검 결과: 원본과 다른 부분이 있습니다. 아래 내용을 사진으로 보내 주세요.';
-  out.textContent += '[파일 자가 점검 · v0.9.1]\n' + rows.join('\n') + '\n';
+  out.textContent += '[파일 자가 점검 · v0.9.2]\n' + rows.join('\n') + '\n';
   });
 })();
 </script>
 <header class="top">
-  <h1>PsyStat <small>오프라인 통계 · v0.9.1</small></h1>
+  <h1>PsyStat <small>오프라인 통계 · v0.9.2</small></h1>
   <button class="btn" id="openBtn">파일 열기 (CSV·XLSX)</button>
   <button class="btn" id="exBtn">예시 데이터</button>
   <input type="file" id="file" accept=".csv,.txt,.tsv,.xlsx" style="display:none">
@@ -1095,8 +1095,9 @@ table.res thead th:first-child { text-align: left; }
     var Xc = Xcols.map(function (c) { return rows.map(function (i) { return c[i]; }); });
     var n = y.length, p = Xcols.length + 1;
     var X = rows.map(function (_, r) { return [1].concat(Xc.map(function (c) { return c[r]; })); });
-    var fit = logisticIRLS(X, y);
     var n1 = sum(y), p0 = n1 / n;
+    if (n1 === 0 || n1 === n) throw new Error('종속변수가 한 범주뿐입니다 (사건=1: ' + n1 + '명 / 전체 ' + n + '명). "사건(=1)으로 볼 범주" 선택과 자료의 코딩(공백·숫자/문자 혼용 등)을 확인하세요.');
+    var fit = logisticIRLS(X, y);
     var dev0 = -2 * (n1 * Math.log(p0) + (n - n1) * Math.log(1 - p0));
     var chi = dev0 - fit.deviance, dfM = p - 1;
     var zc = qnorm(1 - (1 - conf) / 2);
@@ -3436,6 +3437,14 @@ table.res thead th:first-child { text-align: left; }
     if (/^-0\.?0*$/.test(s)) s = s.slice(1);
     return s.replace('-', '−');
   }
+  // 회귀계수용: |x| < .0005이면 유효숫자 3자리 (척도 단위가 큰 예측변수의 B가 0.000으로 보이는 것 방지)
+  function fb(x, d) {
+    if (typeof x === 'number' && isFinite(x) && x !== 0 && Math.abs(x) < 0.0005) {
+      var s = x.toPrecision(3); if (/e/.test(s)) s = x.toFixed(Math.min(20, 2 - Math.floor(Math.log10(Math.abs(x)))));
+      return s.replace('-', '−');
+    }
+    return f(x, d);
+  }
   function fp(p) {
     if (p === null || p === undefined || isNaN(p)) return '—';
     if (p < 0.001) return '< .001';
@@ -3968,7 +3977,7 @@ table.res thead th:first-child { text-align: left; }
   };
 
   // 다음 조각으로 내보내기
-  NS.S = S; NS.state = state; NS.$ = $; NS.$$ = $$; NS.esc = esc; NS.f = f; NS.fp = fp; NS.fr = fr;
+  NS.S = S; NS.state = state; NS.$ = $; NS.$$ = $$; NS.esc = esc; NS.f = f; NS.fp = fp; NS.fr = fr; NS.fb = fb;
   NS.star = star; NS.ITAL = ITAL; NS.ITAL_RE = ITAL_RE; NS.italHead = italHead; NS.table = table; NS.ABBR = ABBR; NS.decorateTables = decorateTables; NS.APA_FONT = APA_FONT;
   NS.cleanCell = cleanCell; NS.apaExport = apaExport; NS.copyApa = copyApa; NS.rcode = rcode; NS.rvec = rvec; NS.rname = rname; NS.MISSING = MISSING; NS.setData = setData;
   NS.parseDelimited = parseDelimited; NS.decodeText = decodeText; NS.readXlsx = readXlsx; NS.openFile = openFile; NS.exampleData = exampleData; NS.updateInfo = updateInfo; NS.varOptions = varOptions; NS.levelsOf = levelsOf;
@@ -3985,7 +3994,7 @@ table.res thead th:first-child { text-align: left; }
   if (G.__psyEngineMissing || !G.PsyStats) return; // 계산 엔진이 없으면 화면을 시작하지 않음
   var NS = G.__PsyAppNS || (G.__PsyAppNS = {});
   // 앞 조각에서 가져오기
-  var S = NS.S, state = NS.state, $ = NS.$, $$ = NS.$$, esc = NS.esc, f = NS.f, fp = NS.fp, fr = NS.fr;
+  var S = NS.S, state = NS.state, $ = NS.$, $$ = NS.$$, esc = NS.esc, f = NS.f, fp = NS.fp, fr = NS.fr, fb = NS.fb;
   var star = NS.star, table = NS.table, rcode = NS.rcode, rvec = NS.rvec, rname = NS.rname, levelsOf = NS.levelsOf, selectField = NS.selectField, multiField = NS.multiField;
   var getMulti = NS.getMulti, getSel = NS.getSel, need = NS.need, designColumns = NS.designColumns, addCard = NS.addCard, A = NS.A;
   function select() { return NS.select.apply(this, arguments); } // 뒤 조각에 정의됨 (호출 시점에 연결)
@@ -4072,7 +4081,7 @@ table.res thead th:first-child { text-align: left; }
       var dc = designColumns(x), m = S.linearRegression(state.cols[y], dc.cols, dc.names);
       var html = table(['R', 'R²', '수정 R²', '추정값 SE', 'F', 'df', 'p', 'N'], [[fr(m.R), fr(m.R2), fr(m.adjR2), f(m.see, 3), f(m.F, 2), m.dfM + ', ' + m.dfE, fp(m.p), m.n]], { title: '회귀모형 요약 (종속변수: ' + state.names[y] + ')' }) +
         table(['예측변수', 'B', 'SE', 'β', 't', 'p', '95% CI', 'VIF'], m.coefs.map(function (c) {
-          return [esc(c.name), f(c.b, 3), f(c.se, 3), f(c.beta, 3), f(c.t, 2), fp(c.p), '[' + f(c.ciLow, 3) + ', ' + f(c.ciHigh, 3) + ']', f(c.vif, 2)];
+          return [esc(c.name), fb(c.b, 3), fb(c.se, 3), f(c.beta, 3), f(c.t, 2), fp(c.p), '[' + f(c.ciLow, 3) + ', ' + f(c.ciHigh, 3) + ']', f(c.vif, 2)];
         }), { title: '다중회귀분석 결과 (종속변수: ' + state.names[y] + ')' }) +
         (dc.notes.length ? '<p class="note">더미코딩 — ' + esc(dc.notes.join('; ')) + '</p>' : '') +
         '<p class="note">Durbin-Watson = ' + f(m.durbinWatson, 3) + '. VIF > 10(보수적으로 > 5)이면 다중공선성을 점검하세요. 계산은 QR 분해 기반 최소제곱으로, R의 lm()과 같은 값을 냅니다.</p>' +
@@ -4094,7 +4103,7 @@ table.res thead th:first-child { text-align: left; }
       $('#y').onchange = function () {
         var i = getSel('y'); if (i < 0) { $('#ev').style.display = 'none'; return; }
         var lv = levelsOf(i);
-        $('#evv').innerHTML = lv.map(function (l) { return '<option>' + esc(l) + '</option>'; }).join('');
+        $('#evv').innerHTML = lv.map(function (l, k) { return '<option value="' + k + '">' + esc(l) + '</option>'; }).join('');
         $('#evv').selectedIndex = lv.length - 1;
         $('#ev').style.display = '';
         if (lv.length !== 2) $('#ev').insertAdjacentHTML('beforeend', '<div class="hint">주의: 이 변수는 ' + lv.length + '개 범주입니다. 선택한 범주 = 1, 나머지 = 0으로 분석합니다.</div>');
@@ -4102,15 +4111,19 @@ table.res thead th:first-child { text-align: left; }
     },
     run: function () {
       var y = getSel('y'), x = getMulti('x').filter(function (i) { return i !== y; }); need(y >= 0 && x.length, '종속변수와 예측변수를 선택하세요.');
-      var ev = $('#evv').value, cut = Number($('#cut').value) || 0.5;
+      need($('#evv').value !== '', '사건(=1)으로 볼 범주를 선택하세요.');
+      var ev = levelsOf(y)[Number($('#evv').value)], cut = Number($('#cut').value) || 0.5;
       var yy = state.cols[y].map(function (v) { return v === null ? null : (String(v) === ev ? 1 : 0); });
       var dc = designColumns(x), m = S.logisticRegression(yy, dc.cols, dc.names, { cutoff: cut });
       var cl = m.classification;
+      var tiny = m.coefs.slice(1).filter(function (c) { return c.b !== 0 && Math.abs(c.b) < 0.0005; }).map(function (c) { return c.name; });
       var html = (m.warnings.length ? '<div class="warn">' + m.warnings.map(esc).join('<br>') + '</div>' : '') +
+        (tiny.length ? '<div class="hint">' + esc(tiny.join(', ')) + ': 측정 단위가 커서(예: 원 단위 소득) 1단위당 B가 매우 작고 OR이 1.000으로 보입니다. ' +
+          '오류는 아니며, 변수를 1,000 단위 등으로 나누거나 표준화하면 해석이 쉬워집니다(p값은 변하지 않음).</div>' : '') +
         '<h4>모형 적합</h4>' + table(['N', '사건 수', '−2LL', '모형 χ²', 'df', 'p', 'Cox-Snell R²', 'Nagelkerke R²', 'McFadden R²', 'AIC', 'BIC'],
           [[m.n, m.nEvents, f(m.deviance, 3), f(m.chi2, 3), m.dfM, fp(m.pModel), fr(m.coxSnell), fr(m.nagelkerke), fr(m.mcfadden), f(m.aic, 2), f(m.bic, 2)]]) +
         '<h4>회귀계수</h4>' + table(['예측변수', 'B', 'SE', 'Wald χ²', 'p', 'OR', 'OR 95% CI'], m.coefs.map(function (c) {
-          return [esc(c.name), f(c.b, 3), f(c.se, 3), f(c.wald, 3), fp(c.p), f(c.or, 3), '[' + f(c.orLow, 3) + ', ' + f(c.orHigh, 3) + ']'];
+          return [esc(c.name), fb(c.b, 3), fb(c.se, 3), f(c.wald, 3), fp(c.p), f(c.or, 3), '[' + f(c.orLow, 3) + ', ' + f(c.orHigh, 3) + ']'];
         })) +
         '<h4>Hosmer-Lemeshow 적합도</h4>' + table(['χ²', 'df', 'p', '집단 수'], [[f(m.hl.chi2, 3), m.hl.df, fp(m.hl.p), m.hl.groups]]) +
         '<h4>분류표 (기준 = ' + cut + ')</h4>' + table(['관측 \\ 예측', '0', '1', '정확도'], [
@@ -4130,7 +4143,7 @@ table.res thead th:first-child { text-align: left; }
     var i = getSel('y'), box = $('#ev');
     if (i < 0 || !$('#htype_log') || !$('#htype_log').checked) { box.style.display = 'none'; return; }
     var lv = levelsOf(i);
-    $('#evv').innerHTML = lv.map(function (l) { return '<option>' + esc(l) + '</option>'; }).join('');
+    $('#evv').innerHTML = lv.map(function (l, k) { return '<option value="' + k + '">' + esc(l) + '</option>'; }).join('');
     $('#evv').selectedIndex = lv.length - 1; box.style.display = '';
   }
 
@@ -4156,7 +4169,7 @@ table.res thead th:first-child { text-align: left; }
       });
       need(blocks.length >= 1, '블록 1에 예측변수를 하나 이상 넣으세요.');
       if (!logistic) need(state.types[y] === 'num', '선형 위계적 회귀의 종속변수는 숫자형이어야 합니다.');
-      var ev = logistic ? $('#evv').value : null;
+      var ev = logistic ? levelsOf(y)[Number($('#evv').value)] : null;
       var yv = logistic ? binaryDV(y, ev) : state.cols[y];
       var h = S.hierarchicalRegression(yv, blocks, bnames, { logistic: logistic });
       var html = '<p class="note">분석 사례 N = ' + h.n + ' (모든 블록 변수에 결측이 없는 사례; 단계 간 비교를 위해 동일 표본 사용)</p>';
@@ -4166,7 +4179,7 @@ table.res thead th:first-child { text-align: left; }
         }), { left: [1] });
         h.steps.forEach(function (s, k) {
           html += '<h4>단계 ' + (k + 1) + ' 계수</h4>' + table(['예측변수', 'B', 'SE', 'β', 't', 'p', '95% CI', 'VIF'], s.model.coefs.map(function (c) {
-            return [esc(c.name), f(c.b, 3), f(c.se, 3), f(c.beta, 3), f(c.t, 2), fp(c.p), '[' + f(c.ciLow, 3) + ', ' + f(c.ciHigh, 3) + ']', f(c.vif, 2)];
+            return [esc(c.name), fb(c.b, 3), fb(c.se, 3), f(c.beta, 3), f(c.t, 2), fp(c.p), '[' + f(c.ciLow, 3) + ', ' + f(c.ciHigh, 3) + ']', f(c.vif, 2)];
           }));
         });
       } else {
@@ -4176,7 +4189,7 @@ table.res thead th:first-child { text-align: left; }
         h.steps.forEach(function (s, k) {
           html += (s.model.warnings.length ? '<div class="warn">' + s.model.warnings.map(esc).join('<br>') + '</div>' : '') +
             '<h4>단계 ' + (k + 1) + ' 계수</h4>' + table(['예측변수', 'B', 'SE', 'Wald χ²', 'p', 'OR', 'OR 95% CI'], s.model.coefs.map(function (c) {
-              return [esc(c.name), f(c.b, 3), f(c.se, 3), f(c.wald, 3), fp(c.p), f(c.or, 3), '[' + f(c.orLow, 3) + ', ' + f(c.orHigh, 3) + ']'];
+              return [esc(c.name), fb(c.b, 3), fb(c.se, 3), f(c.wald, 3), fp(c.p), f(c.or, 3), '[' + f(c.orLow, 3) + ', ' + f(c.orHigh, 3) + ']'];
             }));
         });
       }
@@ -5085,7 +5098,7 @@ table.res thead th:first-child { text-align: left; }
   if (G.__psyEngineMissing || !G.PsyStats) return; // 계산 엔진이 없으면 화면을 시작하지 않음
   var NS = G.__PsyAppNS || (G.__PsyAppNS = {});
   // 앞 조각에서 가져오기
-  var S = NS.S, state = NS.state, $ = NS.$, $$ = NS.$$, esc = NS.esc, f = NS.f, fp = NS.fp, fr = NS.fr;
+  var S = NS.S, state = NS.state, $ = NS.$, $$ = NS.$$, esc = NS.esc, f = NS.f, fp = NS.fp, fr = NS.fr, fb = NS.fb;
   var table = NS.table, rcode = NS.rcode, rvec = NS.rvec, rname = NS.rname, varOptions = NS.varOptions, multiField = NS.multiField;
   var getMulti = NS.getMulti, need = NS.need, addCard = NS.addCard, flash = NS.flash, updateInfo = NS.updateInfo, A = NS.A, svgDownload = NS.svgDownload;
 
@@ -5284,7 +5297,7 @@ table.res thead th:first-child { text-align: left; }
     out.coefs.forEach(function (c, i) {
       var first = i === 0 || out.coefs[i - 1].cls !== c.cls, se = boot ? c.bootSE : c.se, p = boot ? c.bootP : c.p;
       var lo = boot ? c.bootOrLow : c.orLow, hi = boot ? c.bootOrHigh : c.orHigh;
-      rows.push([first ? U(c.cls) : '', esc(c.name), f(c.b, 3), f(se, 3), f(c.b / se, 2), fp(p), f(c.or, 3), '[' + f(lo, 3) + ', ' + f(hi, 3) + ']', f(c.naiveB, 3)]);
+      rows.push([first ? U(c.cls) : '', esc(c.name), fb(c.b, 3), fb(se, 3), f(c.b / se, 2), fp(p), f(c.or, 3), '[' + f(lo, 3) + ', ' + f(hi, 3) + ']', f(c.naiveB, 3)]);
     });
     var html = (out.warnings.length ? '<div class="warn">' + out.warnings.map(esc).join('<br>') + '</div>' : '') +
       (B && !boot ? '<div class="warn">성공한 부트스트랩이 너무 적어 관측정보행렬 표준오차를 표시합니다.</div>' : '') +
@@ -5403,7 +5416,7 @@ table.res thead th:first-child { text-align: left; }
   'use strict';
   if (G.__psyEngineMissing || !G.PsyStats) return; // 계산 엔진이 없으면 화면을 시작하지 않음
   var NS = G.__PsyAppNS || (G.__PsyAppNS = {});
-  var S = NS.S, state = NS.state, $ = NS.$, esc = NS.esc, f = NS.f, fp = NS.fp, fr = NS.fr, table = NS.table, rcode = NS.rcode, rname = NS.rname;
+  var S = NS.S, state = NS.state, $ = NS.$, esc = NS.esc, f = NS.f, fp = NS.fp, fr = NS.fr, fb = NS.fb, table = NS.table, rcode = NS.rcode, rname = NS.rname;
   var selectField = NS.selectField, multiField = NS.multiField, getMulti = NS.getMulti, getSel = NS.getSel, need = NS.need, addCard = NS.addCard;
   var designColumns = NS.designColumns, levelsOf = NS.levelsOf, A = NS.A;
 
@@ -5548,14 +5561,14 @@ table.res thead th:first-child { text-align: left; }
     wire: function () {
       $('#y').onchange = function () {
         var i = getSel('y'); if (i < 0) { $('#mref').style.display = 'none'; return; }
-        $('#refv').innerHTML = levelsOf(i).map(function (l) { return '<option>' + esc(l) + '</option>'; }).join('');
+        $('#refv').innerHTML = levelsOf(i).map(function (l, k) { return '<option value="' + k + '">' + esc(l) + '</option>'; }).join('');
         $('#mref').style.display = '';
       };
     },
     run: function () {
       var y = getSel('y'), x = getMulti('x').filter(function (i) { return i !== y; }); need(y >= 0 && x.length, '종속변수와 예측변수를 선택하세요.');
       var lv = levelsOf(y); need(lv.length >= 2, '종속변수의 범주가 2개 이상이어야 합니다.');
-      var dc = designColumns(x), refLv = $('#refv').value;
+      var dc = designColumns(x), refLv = levelsOf(y)[Number($('#refv').value)];
       var m = S.multinomialLogistic(state.cols[y], dc.cols, dc.names, { ref: refLv }), yn = state.names[y];
       var html = (m.warnings.length ? '<div class="warn">' + m.warnings.map(esc).join('<br>') + '</div>' : '') +
         table(['N', '−2LL', '모형 χ²', 'df', 'p', 'Cox-Snell R²', 'Nagelkerke R²', 'McFadden R²', 'AIC', 'BIC'], [[m.n, f(m.deviance, 3), f(m.chi2, 3), m.dfM, fp(m.p), fr(m.coxSnell), fr(m.nagelkerke), fr(m.mcfadden), f(m.aic, 2), f(m.bic, 2)]],
@@ -5563,7 +5576,7 @@ table.res thead th:first-child { text-align: left; }
         (m.lrTests.length ? table(['예측변수', 'χ²', 'df', 'p'], m.lrTests.map(function (t) { return [esc(t.name), f(t.chi2, 3), t.df, fp(t.p)]; }), { left: [0], title: '우도비 검정', note: '각 예측변수를 뺀 모형과 비교한 χ² (더미코딩된 범주형 변수는 더미별로 표시).' }) : '') +
         table([yn + ' (기준: ' + esc(m.levels[m.ref]) + ')', '예측변수', 'B', 'SE', 'Wald χ²', 'p', 'OR', 'OR 95% CI'], m.coefs.map(function (c, i) {
           var first = i === 0 || m.coefs[i - 1].level !== c.level;
-          return [first ? esc(c.level) : '', esc(c.name), f(c.b, 3), f(c.se, 3), f(c.wald, 3), fp(c.p), f(c.or, 3), '[' + f(c.orLow, 3) + ', ' + f(c.orHigh, 3) + ']'];
+          return [first ? esc(c.level) : '', esc(c.name), fb(c.b, 3), fb(c.se, 3), f(c.wald, 3), fp(c.p), f(c.or, 3), '[' + f(c.orLow, 3) + ', ' + f(c.orHigh, 3) + ']'];
         }), { left: [0, 1], title: '회귀계수 (기준 범주 대비)' }) +
         table(['관측 \\ 예측'].concat(m.levels.map(esc)).concat(['정확도']), m.levels.map(function (l, a) {
           var tot = m.confusion[a].reduce(function (s, v) { return s + v; }, 0);

@@ -5,7 +5,7 @@
   if (G.__psyEngineMissing || !G.PsyStats) return; // 계산 엔진이 없으면 화면을 시작하지 않음
   var NS = G.__PsyAppNS || (G.__PsyAppNS = {});
   // 앞 조각에서 가져오기
-  var S = NS.S, state = NS.state, $ = NS.$, $$ = NS.$$, esc = NS.esc, f = NS.f, fp = NS.fp, fr = NS.fr;
+  var S = NS.S, state = NS.state, $ = NS.$, $$ = NS.$$, esc = NS.esc, f = NS.f, fp = NS.fp, fr = NS.fr, fb = NS.fb;
   var table = NS.table, rcode = NS.rcode, rvec = NS.rvec, rname = NS.rname, varOptions = NS.varOptions, multiField = NS.multiField;
   var getMulti = NS.getMulti, need = NS.need, addCard = NS.addCard, flash = NS.flash, updateInfo = NS.updateInfo, A = NS.A, svgDownload = NS.svgDownload;
 
@@ -204,7 +204,7 @@
     out.coefs.forEach(function (c, i) {
       var first = i === 0 || out.coefs[i - 1].cls !== c.cls, se = boot ? c.bootSE : c.se, p = boot ? c.bootP : c.p;
       var lo = boot ? c.bootOrLow : c.orLow, hi = boot ? c.bootOrHigh : c.orHigh;
-      rows.push([first ? U(c.cls) : '', esc(c.name), f(c.b, 3), f(se, 3), f(c.b / se, 2), fp(p), f(c.or, 3), '[' + f(lo, 3) + ', ' + f(hi, 3) + ']', f(c.naiveB, 3)]);
+      rows.push([first ? U(c.cls) : '', esc(c.name), fb(c.b, 3), fb(se, 3), f(c.b / se, 2), fp(p), f(c.or, 3), '[' + f(lo, 3) + ', ' + f(hi, 3) + ']', f(c.naiveB, 3)]);
     });
     var html = (out.warnings.length ? '<div class="warn">' + out.warnings.map(esc).join('<br>') + '</div>' : '') +
       (B && !boot ? '<div class="warn">성공한 부트스트랩이 너무 적어 관측정보행렬 표준오차를 표시합니다.</div>' : '') +

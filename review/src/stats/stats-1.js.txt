@@ -766,8 +766,9 @@
     var Xc = Xcols.map(function (c) { return rows.map(function (i) { return c[i]; }); });
     var n = y.length, p = Xcols.length + 1;
     var X = rows.map(function (_, r) { return [1].concat(Xc.map(function (c) { return c[r]; })); });
-    var fit = logisticIRLS(X, y);
     var n1 = sum(y), p0 = n1 / n;
+    if (n1 === 0 || n1 === n) throw new Error('종속변수가 한 범주뿐입니다 (사건=1: ' + n1 + '명 / 전체 ' + n + '명). "사건(=1)으로 볼 범주" 선택과 자료의 코딩(공백·숫자/문자 혼용 등)을 확인하세요.');
+    var fit = logisticIRLS(X, y);
     var dev0 = -2 * (n1 * Math.log(p0) + (n - n1) * Math.log(1 - p0));
     var chi = dev0 - fit.deviance, dfM = p - 1;
     var zc = qnorm(1 - (1 - conf) / 2);
